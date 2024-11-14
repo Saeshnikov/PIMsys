@@ -13,8 +13,12 @@ generate: clean-gen
 	go generate ./...
 
 .PHONY: build
-build:
-	go build -o bin/pim-sys cmd/main.go
+build: cmd/*
+	@for file in $^ ; do \
+                srvsrv="`echo $$file | cut -f 2 -d '/'`"; \
+				echo cmd/$$srvsrv/main.go;\
+				go build -o bin/$$srvsrv cmd/$$srvsrv/main.go; \
+    done
 
 docker-%:
 	docker run --rm -v $$PWD:$$PWD:rw -w $$PWD main-image make $*

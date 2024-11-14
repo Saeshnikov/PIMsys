@@ -1,5 +1,6 @@
 log_level: dev
 token_tll: 1h
+connection_string: "user=test password=1234 dbname=db1 sslmode=disable"
 grpc: 
   port: 33255
   timeout: 1h

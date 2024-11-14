@@ -12,9 +12,10 @@ type Grpc struct {
 	Timeout time.Duration `yaml:"timeout"`
 }
 type Config struct {
-	Grpc     Grpc          `yaml:"grpc"`
-	TokenTTL time.Duration `yaml:"token_ttl"`
-	LogLevel string        `yaml:"log_level"`
+	ConnectionString string        `yaml:"connection_string"`
+	Grpc             Grpc          `yaml:"grpc"`
+	TokenTTL         time.Duration `yaml:"token_ttl"`
+	LogLevel         string        `yaml:"log_level"`
 }
 
 func InitConfig(path string) (*Config, error) {

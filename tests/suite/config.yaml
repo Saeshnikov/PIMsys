@@ -1,5 +1,0 @@
-log_level: dev
-token_tll: 1h
-grpc: 
-  port: 33255
-  timeout: 1h

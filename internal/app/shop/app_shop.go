@@ -1,4 +1,4 @@
-package app
+package shop_app
 
 import (
 	"context"

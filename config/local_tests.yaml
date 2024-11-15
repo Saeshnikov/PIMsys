@@ -1,5 +1,0 @@
-env: "local"
-connection_string: "user=test password=1234 dbname=db1 sslmode=disable"
-grpc:
-  port: 44044
-  timeout: 10h

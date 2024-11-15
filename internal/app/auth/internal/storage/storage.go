@@ -1,13 +1,11 @@
-package postgres
+package storage
 
 import (
 	"context"
 	"database/sql"
 	"errors"
 	"fmt"
-
-	"pim-sys/internal/domain/models"
-	"pim-sys/internal/storage"
+	auth_errors "pim-sys/internal/errors/auth"
 
 	"github.com/lib/pq"
 )
@@ -37,6 +35,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 
 	stmt, err := s.db.Prepare("INSERT INTO users(email, pass_hash) VALUES($1, $2) RETURNING id")
 	if err != nil {
+		fmt.Println(err.Error())
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 	defer stmt.Close()
@@ -46,7 +45,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 	if err != nil {
 		var pgErr *pq.Error
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" { // 23505 - unique_violation
-			return 0, fmt.Errorf("%s: %w", op, storage.ErrUserExists)
+			return 0, fmt.Errorf("%s: %w", op, auth_errors.ErrUserExists)
 		}
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
@@ -55,48 +54,48 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte) (
 }
 
 // User returns user by email.
-func (s *Storage) User(ctx context.Context, email string) (models.User, error) {
+func (s *Storage) User(ctx context.Context, email string) (User, error) {
 	const op = "storage.postgres.User"
 
 	stmt, err := s.db.Prepare("SELECT id, email, pass_hash FROM users WHERE email = $1")
 	if err != nil {
-		return models.User{}, fmt.Errorf("%s: %w", op, err)
+		return User{}, fmt.Errorf("%s: %w", op, err)
 	}
 	defer stmt.Close()
 
 	row := stmt.QueryRowContext(ctx, email)
 
-	var user models.User
+	var user User
 	err = row.Scan(&user.ID, &user.Email, &user.PassHash)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.User{}, fmt.Errorf("%s: %w", op, storage.ErrUserNotFound)
+			return User{}, fmt.Errorf("%s: %w", op, auth_errors.ErrUserNotFound)
 		}
-		return models.User{}, fmt.Errorf("%s: %w", op, err)
+		return User{}, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return user, nil
 }
 
 // App returns app by id.
-func (s *Storage) App(ctx context.Context, id int) (models.App, error) {
+func (s *Storage) App(ctx context.Context, id int) (App, error) {
 	const op = "storage.postgres.App"
 
 	stmt, err := s.db.Prepare("SELECT id, name, secret FROM apps WHERE id = $1")
 	if err != nil {
-		return models.App{}, fmt.Errorf("%s: %w", op, err)
+		return App{}, fmt.Errorf("%s: %w", op, err)
 	}
 	defer stmt.Close()
 
 	row := stmt.QueryRowContext(ctx, id)
 
-	var app models.App
+	var app App
 	err = row.Scan(&app.ID, &app.Name, &app.Secret)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return models.App{}, fmt.Errorf("%s: %w", op, storage.ErrAppNotFound)
+			return App{}, fmt.Errorf("%s: %w", op, auth_errors.ErrAppNotFound)
 		}
-		return models.App{}, fmt.Errorf("%s: %w", op, err)
+		return App{}, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return app, nil
@@ -118,7 +117,7 @@ func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	err = row.Scan(&isAdmin)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return false, fmt.Errorf("%s: %w", op, storage.ErrUserNotFound)
+			return false, fmt.Errorf("%s: %w", op, auth_errors.ErrUserNotFound)
 		}
 		return false, fmt.Errorf("%s: %w", op, err)
 	}

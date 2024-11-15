@@ -8,11 +8,10 @@ import (
 	"time"
 
 	auth_jwt "pim-sys/internal/app/auth/internal/jwt"
-	"pim-sys/internal/domain/models"
+	"pim-sys/internal/app/auth/internal/storage"
+	auth_errors "pim-sys/internal/errors/auth"
 	grpcapp "pim-sys/internal/grpc"
 	auth_service "pim-sys/internal/services/auth"
-	"pim-sys/internal/storage"
-	"pim-sys/internal/storage/postgres"
 
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc"
@@ -39,12 +38,12 @@ type UserSaver interface {
 }
 
 type UserProvider interface {
-	User(ctx context.Context, email string) (models.User, error)
+	User(ctx context.Context, email string) (storage.User, error)
 	IsAdmin(ctx context.Context, userID int64) (bool, error)
 }
 
 type AppProvider interface {
-	App(ctx context.Context, appID int) (models.App, error)
+	App(ctx context.Context, appID int) (storage.App, error)
 }
 
 // Login checks if user with given credentials exists in the system and returns access token.
@@ -68,10 +67,10 @@ func (a *Auth) Login(
 
 	user, err := a.usrProvider.User(ctx, email)
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, auth_errors.ErrUserNotFound) {
 			a.log.Warn("user not found")
 
-			return "", fmt.Errorf("%s: %w", op, auth_service.ErrInvalidCredentials)
+			return "", fmt.Errorf("%s: %w", op, auth_errors.ErrInvalidCredentials)
 		}
 
 		a.log.Error("failed to get user")
@@ -82,7 +81,7 @@ func (a *Auth) Login(
 	if err := bcrypt.CompareHashAndPassword(user.PassHash, []byte(password)); err != nil {
 		a.log.Info("invalid credentials")
 
-		return "", fmt.Errorf("%s: %w", op, auth_service.ErrInvalidCredentials)
+		return "", fmt.Errorf("%s: %w", op, auth_errors.ErrInvalidCredentials)
 	}
 
 	app, err := a.appProvider.App(ctx, appID)
@@ -158,7 +157,7 @@ func New(
 	connectionString string,
 	tokenTTL time.Duration,
 ) *App {
-	storage, err := postgres.New(connectionString)
+	storage, err := storage.New(connectionString)
 	if err != nil {
 		panic(err)
 	}

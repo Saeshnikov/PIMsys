@@ -13,7 +13,7 @@ import (
 func main() {
 	var dbHost, dbPort, dbUser, dbPassword, dbName, migrationsPath, migrationsTable string
 
-	flag.StringVar(&dbHost, "db-host", "localhost", "database host")
+	flag.StringVar(&dbHost, "db-host", "db", "database host")
 
 	flag.StringVar(&dbPort, "db-port", "5432", "database port")
 

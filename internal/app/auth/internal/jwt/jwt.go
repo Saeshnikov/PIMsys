@@ -3,13 +3,13 @@ package auth_jwt
 import (
 	"time"
 
-	"pim-sys/internal/domain/models"
+	"pim-sys/internal/app/auth/internal/storage"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 // NewToken creates new JWT token for given user and app.
-func NewToken(user models.User, app models.App, duration time.Duration) (string, error) {
+func NewToken(user storage.User, app storage.App, duration time.Duration) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := token.Claims.(jwt.MapClaims)

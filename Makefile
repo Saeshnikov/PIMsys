@@ -27,10 +27,15 @@ docker-%:
 docker-bash:
 	docker run --rm -it main-image bash
 
-.PHONY: build-docker-image
-build-docker-image:
-	docker build -t main-image:latest .
+.PHONY: build-docker-images
+build-docker-images:
+	docker build -f docker/main-image -t main-image:latest .
 
 .PHONY: gomod
 gomod: 
 	go mod tidy
+
+.PHONY: test
+test:
+	docker-compose --profile test up --force-recreate
+

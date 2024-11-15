@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	cfg, err := config.InitConfig("internal/config/default_config.yaml")
+	cfg, err := config.InitConfig("internal/config/auth_config.yaml")
 	if err != nil {
 		panic(err)
 	}

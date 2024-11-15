@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	proto "pim-sys/gen/go/sso"
-	"pim-sys/internal/storage"
+	auth_errors "pim-sys/internal/errors/auth"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -35,10 +35,6 @@ func Register(gRPCServer *grpc.Server, auth Auth) {
 	proto.RegisterAuthServer(gRPCServer, &serverAPI{auth: auth})
 }
 
-var (
-	ErrInvalidCredentials = errors.New("invalid credentials")
-)
-
 func (s *serverAPI) Login(
 	ctx context.Context,
 	in *proto.LoginRequest,
@@ -57,7 +53,7 @@ func (s *serverAPI) Login(
 
 	token, err := s.auth.Login(ctx, in.GetEmail(), in.GetPassword(), int(in.GetAppId()))
 	if err != nil {
-		if errors.Is(err, ErrInvalidCredentials) {
+		if errors.Is(err, auth_errors.ErrInvalidCredentials) {
 			return nil, status.Error(codes.InvalidArgument, "invalid email or password")
 		}
 
@@ -81,7 +77,7 @@ func (s *serverAPI) Register(
 
 	uid, err := s.auth.RegisterNewUser(ctx, in.GetEmail(), in.GetPassword())
 	if err != nil {
-		if errors.Is(err, storage.ErrUserExists) {
+		if errors.Is(err, auth_errors.ErrUserExists) {
 			return nil, status.Error(codes.AlreadyExists, "user already exists")
 		}
 		return nil, status.Error(codes.Internal, "failed to register user")
@@ -100,7 +96,7 @@ func (s *serverAPI) IsAdmin(
 
 	isAdmin, err := s.auth.IsAdmin(ctx, in.GetUserId())
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, auth_errors.ErrUserNotFound) {
 			return nil, status.Error(codes.NotFound, "user not found")
 		}
 

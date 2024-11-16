@@ -23,7 +23,7 @@ type Suite struct {
 const configPath = "suite/config.yaml"
 
 const (
-	grpcHost = "localhost"
+	grpcHost = "shop"
 )
 
 // New creates new test suite.

@@ -1,4 +1,4 @@
-package app
+package shop_app
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"time"
 
 	grpcapp "pim-sys/internal/grpc"
-	shop_service "pim-sys/internal/services/shop"
+	shop_service "pim-sys/internal/shop/service"
 
 	"google.golang.org/grpc"
 )

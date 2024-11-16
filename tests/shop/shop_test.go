@@ -3,20 +3,12 @@ package tests
 import (
 	"testing"
 
-	"pim-sys/tests/suite"
+	"pim-sys/tests/shop/suite"
 
 	proto "pim-sys/gen/go/shop"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
-)
-
-const (
-	emptyAppID = 0
-	appID      = 1
-	appSecret  = "test-secret"
-
-	passDefaultLen = 10
 )
 
 func TestRegisterLogin_Login_HappyPath(t *testing.T) {

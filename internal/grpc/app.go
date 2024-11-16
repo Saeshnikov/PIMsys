@@ -21,7 +21,7 @@ type App struct {
 	port       int // Порт, на котором будет работать grpc-сервер
 }
 
-func New(log *slog.Logger, register func(gRPCServer *grpc.Server), port int) *App {
+func New(log *slog.Logger, register func(gRPCServer *grpc.Server), port int, interceptors ...grpc.UnaryServerInterceptor) *App {
 	recoveryOpts := []recovery.Option{
 		recovery.WithRecoveryHandler(func(p interface{}) (err error) {
 			// Логируем информацию о панике с уровнем Error
@@ -39,11 +39,14 @@ func New(log *slog.Logger, register func(gRPCServer *grpc.Server), port int) *Ap
 		),
 	}
 
-	// Создаём новый сервер с единственным интерсептором
-	gRPCServer := grpc.NewServer(grpc.ChainUnaryInterceptor(
+	interceptors = append(
+		interceptors,
 		recovery.UnaryServerInterceptor(recoveryOpts...),
 		logging.UnaryServerInterceptor(InterceptorLogger(log), loggingOpts...),
-	))
+	)
+
+	// Создаём новый сервер с единственным интерсептором
+	gRPCServer := grpc.NewServer(grpc.ChainUnaryInterceptor(interceptors...))
 
 	// Регистрируем наш gRPC-сервис Auth, об этом будет ниже
 	register(gRPCServer)

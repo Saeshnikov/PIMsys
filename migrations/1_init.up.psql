@@ -1,14 +1,12 @@
 CREATE TABLE IF NOT EXISTS users
 (
-    id SERIAL PRIMARY KEY,
-    email TEXT NOT NULL UNIQUE,
-    pass_hash BYTEA NOT NULL
+    id serial PRIMARY KEY,
+    name varchar(32) NOT NULL,
+    email varchar(64) NOT NULL UNIQUE,
+    password varchar(64) NOT NULL,
+    phone varchar(16) NOT NULL,
+    description text,
+    male bool,
+    isAdmin bool NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_email ON users (email);
-
-CREATE TABLE IF NOT EXISTS apps
-(
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL UNIQUE,
-    secret TEXT NOT NULL UNIQUE
-);

@@ -44,22 +44,50 @@ services:
     networks:
       - common-net
 
-  test: 
+  migrations: 
     image: main-image
     build:
       context:    ./docker
       dockerfile: main-image
-    entrypoint:  bash -c "go run cmd/migrator/main.go --migrations-path=migrations &&
-      go run cmd/migrator/main.go --migrations-path=tests/sso/migrations --migrations-table=migrations_test &&
-      go test ./..."
+    entrypoint: bash -c "go run cmd/migrator/main.go --migrations-path=migrations"
+    volumes:
+      - "./:/app:ro"
+    working_dir: /app
+    container_name: migrations
+    networks:
+      - common-net
+    depends_on:
+    - db
+
+  test-auth: 
+    image: main-image
+    build:
+      context:    ./docker
+      dockerfile: main-image
+    entrypoint:  go test ./tests/sso/...
     volumes:
       - "./:/app:ro"
     working_dir: /app
     depends_on:
-      - db
+      - migrations
     networks:
     - common-net
-    profiles: [test]
+    profiles: [test-auth, test-all]
+  
+  test-shop: 
+    image: main-image
+    build:
+      context:    ./docker
+      dockerfile: main-image
+    entrypoint:  go test ./tests/shop/...
+    volumes:
+      - "./:/app:ro"
+    working_dir: /app
+    depends_on:
+      - migrations
+    networks:
+    - common-net
+    profiles: [test-shop, test-all]
 
 networks:
   common-net: {}

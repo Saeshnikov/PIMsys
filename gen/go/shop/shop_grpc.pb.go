@@ -23,16 +23,20 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Shop_NewShop_FullMethodName   = "/shop.Shop/NewShop"
-	Shop_AlterShop_FullMethodName = "/shop.Shop/AlterShop"
+	Shop_ListShops_FullMethodName  = "/shop.Shop/ListShops"
+	Shop_NewShop_FullMethodName    = "/shop.Shop/NewShop"
+	Shop_AlterShop_FullMethodName  = "/shop.Shop/AlterShop"
+	Shop_DeleteShop_FullMethodName = "/shop.Shop/DeleteShop"
 )
 
 // ShopClient is the client API for Shop service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ShopClient interface {
+	ListShops(ctx context.Context, in *ListShopsRequest, opts ...grpc.CallOption) (*ListShopsResponse, error)
 	NewShop(ctx context.Context, in *NewShopRequest, opts ...grpc.CallOption) (*NewShopResponse, error)
 	AlterShop(ctx context.Context, in *AlterShopRequest, opts ...grpc.CallOption) (*AlterShopResponse, error)
+	DeleteShop(ctx context.Context, in *DeleteShopRequest, opts ...grpc.CallOption) (*DeleteShopResponse, error)
 }
 
 type shopClient struct {
@@ -41,6 +45,16 @@ type shopClient struct {
 
 func NewShopClient(cc grpc.ClientConnInterface) ShopClient {
 	return &shopClient{cc}
+}
+
+func (c *shopClient) ListShops(ctx context.Context, in *ListShopsRequest, opts ...grpc.CallOption) (*ListShopsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListShopsResponse)
+	err := c.cc.Invoke(ctx, Shop_ListShops_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *shopClient) NewShop(ctx context.Context, in *NewShopRequest, opts ...grpc.CallOption) (*NewShopResponse, error) {
@@ -63,12 +77,24 @@ func (c *shopClient) AlterShop(ctx context.Context, in *AlterShopRequest, opts .
 	return out, nil
 }
 
+func (c *shopClient) DeleteShop(ctx context.Context, in *DeleteShopRequest, opts ...grpc.CallOption) (*DeleteShopResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteShopResponse)
+	err := c.cc.Invoke(ctx, Shop_DeleteShop_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ShopServer is the server API for Shop service.
 // All implementations must embed UnimplementedShopServer
 // for forward compatibility.
 type ShopServer interface {
+	ListShops(context.Context, *ListShopsRequest) (*ListShopsResponse, error)
 	NewShop(context.Context, *NewShopRequest) (*NewShopResponse, error)
 	AlterShop(context.Context, *AlterShopRequest) (*AlterShopResponse, error)
+	DeleteShop(context.Context, *DeleteShopRequest) (*DeleteShopResponse, error)
 	mustEmbedUnimplementedShopServer()
 }
 
@@ -79,11 +105,17 @@ type ShopServer interface {
 // pointer dereference when methods are called.
 type UnimplementedShopServer struct{}
 
+func (UnimplementedShopServer) ListShops(context.Context, *ListShopsRequest) (*ListShopsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListShops not implemented")
+}
 func (UnimplementedShopServer) NewShop(context.Context, *NewShopRequest) (*NewShopResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NewShop not implemented")
 }
 func (UnimplementedShopServer) AlterShop(context.Context, *AlterShopRequest) (*AlterShopResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AlterShop not implemented")
+}
+func (UnimplementedShopServer) DeleteShop(context.Context, *DeleteShopRequest) (*DeleteShopResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteShop not implemented")
 }
 func (UnimplementedShopServer) mustEmbedUnimplementedShopServer() {}
 func (UnimplementedShopServer) testEmbeddedByValue()              {}
@@ -104,6 +136,24 @@ func RegisterShopServer(s grpc.ServiceRegistrar, srv ShopServer) {
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&Shop_ServiceDesc, srv)
+}
+
+func _Shop_ListShops_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListShopsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ShopServer).ListShops(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Shop_ListShops_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ShopServer).ListShops(ctx, req.(*ListShopsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Shop_NewShop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -142,6 +192,24 @@ func _Shop_AlterShop_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Shop_DeleteShop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteShopRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ShopServer).DeleteShop(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Shop_DeleteShop_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ShopServer).DeleteShop(ctx, req.(*DeleteShopRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Shop_ServiceDesc is the grpc.ServiceDesc for Shop service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -150,12 +218,20 @@ var Shop_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ShopServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "ListShops",
+			Handler:    _Shop_ListShops_Handler,
+		},
+		{
 			MethodName: "NewShop",
 			Handler:    _Shop_NewShop_Handler,
 		},
 		{
 			MethodName: "AlterShop",
 			Handler:    _Shop_AlterShop_Handler,
+		},
+		{
+			MethodName: "DeleteShop",
+			Handler:    _Shop_DeleteShop_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -2,6 +2,7 @@ package shop_service
 
 import (
 	"context"
+	"fmt"
 	proto "pim-sys/gen/go/shop"
 
 	"google.golang.org/grpc"
@@ -21,14 +22,24 @@ type Shop interface {
 		name string,
 		description string,
 		url string,
-	) (message string, shopId int32, err error)
+	) error
 	AlterShop(
 		ctx context.Context,
 		shopId int32,
 		name string,
 		description string,
 		url string,
-	) (message string, err error)
+	) error
+	DeleteShop(
+		ctx context.Context,
+		shopId int32,
+	) error
+	ListShops(
+		ctx context.Context,
+	) (
+		[]*proto.ShopInfo,
+		error,
+	)
 }
 
 func Register(gRPCServer *grpc.Server, shop Shop) {
@@ -43,16 +54,12 @@ func (s *ServerAPI) NewShop(
 		return nil, status.Error(codes.InvalidArgument, "name is required")
 	}
 
-	if in.Description == "" {
-		return nil, status.Error(codes.InvalidArgument, "description is required")
-	}
-
-	message, shopId, err := s.shop.NewShop(ctx, in.GetName(), in.GetDescription(), in.GetUrl())
+	err := s.shop.NewShop(ctx, in.GetName(), in.GetDescription(), in.GetUrl())
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to create new shop")
+		return nil, status.Error(codes.Internal, fmt.Errorf("failed to create new shop: %w", err).Error())
 	}
 
-	return &proto.NewShopResponse{Message: message, ShopId: shopId}, nil
+	return &proto.NewShopResponse{}, nil
 }
 
 func (s *ServerAPI) AlterShop(
@@ -63,14 +70,38 @@ func (s *ServerAPI) AlterShop(
 		return nil, status.Error(codes.InvalidArgument, "shop id is required")
 	}
 
-	if in.ShopInfo.Name == "" {
-		return nil, status.Error(codes.InvalidArgument, "shop name is required")
-	}
-
-	message, err := s.shop.AlterShop(ctx, in.GetShopId(), in.ShopInfo.GetName(), in.ShopInfo.GetDescription(), in.ShopInfo.Url)
+	err := s.shop.AlterShop(ctx, in.GetShopId(), in.ShopInfo.GetName(), in.ShopInfo.GetDescription(), in.ShopInfo.Url)
 	if err != nil {
-		return nil, status.Error(codes.Internal, "failed to register user")
+		return nil, status.Error(codes.Internal, fmt.Errorf("failed to alter shop: %w", err).Error())
 	}
 
-	return &proto.AlterShopResponse{Message: message}, nil
+	return &proto.AlterShopResponse{}, nil
+}
+
+func (s *ServerAPI) DeleteShop(
+	ctx context.Context,
+	in *proto.DeleteShopRequest,
+) (*proto.DeleteShopResponse, error) {
+	if in.ShopId == 0 {
+		return nil, status.Error(codes.InvalidArgument, "shop id is required")
+	}
+
+	err := s.shop.DeleteShop(ctx, in.GetShopId())
+	if err != nil {
+		return nil, status.Error(codes.Internal, fmt.Errorf("failed to delete shop: %w", err).Error())
+	}
+
+	return &proto.DeleteShopResponse{}, nil
+}
+
+func (s *ServerAPI) ListShops(
+	ctx context.Context,
+	in *proto.ListShopsRequest,
+) (*proto.ListShopsResponse, error) {
+	shopInfo, err := s.shop.ListShops(ctx)
+	if err != nil {
+		return nil, status.Error(codes.Internal, fmt.Errorf("failed to delete shop: %w", err).Error())
+	}
+
+	return &proto.ListShopsResponse{Info: shopInfo}, nil
 }

@@ -16,28 +16,40 @@ import (
 const configPath = "suite/config.yaml"
 
 func TestRegisterLogin_Login_HappyPath(t *testing.T) {
-	token := assistance.GetAccessToken(t)
+	token := assistance.GetTestToken(t)
 	ctx, st := suite.New(t, configPath)
 	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", token)
 
-	resp, err := st.ShopClient.NewShop(ctx, &proto.NewShopRequest{
+	respNewShop, err := st.ShopClient.NewShop(ctx, &proto.NewShopRequest{
 		Name:        gofakeit.FirstName(),
 		Description: gofakeit.LastName(),
 		Url:         gofakeit.URL(),
 	})
 	require.NoError(t, err)
 
-	require.Equal(t, resp.Message, "alala")
+	require.NotNil(t, respNewShop)
 
-	response, err := st.ShopClient.AlterShop(ctx, &proto.AlterShopRequest{
-		ShopId: gofakeit.Int32(),
-		ShopInfo: &proto.NewShopRequest{
-			Name:        gofakeit.FirstName(),
-			Description: gofakeit.LastName(),
-			Url:         gofakeit.URL(),
+	respAlterShop, err := st.ShopClient.AlterShop(ctx, &proto.AlterShopRequest{
+		ShopId: 1,
+		ShopInfo: &proto.ShopInfo{
+			Name:        "new-name",
+			Description: "new-description",
+			Url:         "new-url",
 		},
 	})
 	require.NoError(t, err)
 
-	require.Equal(t, response.Message, "alala")
+	require.NotNil(t, respAlterShop)
+
+	respListShops, err := st.ShopClient.ListShops(ctx, &proto.ListShopsRequest{})
+	require.NoError(t, err)
+	require.Equal(t, "new-name", respListShops.GetInfo()[0].Name)
+
+	respDeleteShop, err := st.ShopClient.DeleteShop(ctx, &proto.DeleteShopRequest{
+		ShopId: 1,
+	})
+	require.NoError(t, err)
+
+	require.NotNil(t, respDeleteShop)
+
 }

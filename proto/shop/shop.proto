@@ -8,8 +8,10 @@ package shop;
 option go_package = "pim-sys.proto.v1;proto";
 
 service Shop {
+  rpc ListShops (ListShopsRequest) returns (ListShopsResponse);
   rpc NewShop (NewShopRequest) returns (NewShopResponse);
   rpc AlterShop (AlterShopRequest) returns (AlterShopResponse);
+  rpc DeleteShop (DeleteShopRequest) returns (DeleteShopResponse);
 }
 
 message NewShopRequest {
@@ -18,16 +20,30 @@ message NewShopRequest {
   string url = 3;
 }
 
-message NewShopResponse {
-  string message = 1; 
-  int32 shop_id = 2;
-}
+message NewShopResponse {}
 
 message AlterShopRequest {
   int32 shop_id = 1;
-  NewShopRequest shop_info = 2;
+  ShopInfo shop_info = 2;
 }
 
-message AlterShopResponse {
-  string message = 1; // Auth token of the logged in user.
+message AlterShopResponse{}
+
+message DeleteShopRequest {
+  int32 shop_id = 1;
+}
+
+message DeleteShopResponse {}
+
+message ShopInfo{
+  int32 shop_id = 1;
+  string name = 2;
+  string description = 3;
+  string url = 4;
+}
+
+message ListShopsRequest{}
+
+message ListShopsResponse {
+  repeated ShopInfo info = 1;
 }

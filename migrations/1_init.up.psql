@@ -10,7 +10,7 @@ CREATE TABLE "users" (
   phone varchar(16) NOT NULL,
   description text,
   male bool,
-  role varchar NOT NULL
+  isAdmin bool NOT NULL
 );
 
 CREATE TABLE shop (

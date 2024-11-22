@@ -20,16 +20,13 @@ type Suite struct {
 	ShopClient proto.ShopClient // Клиент для взаимодействия с gRPC-сервером Auth
 }
 
-const configPath = "suite/config.yaml"
-
 const (
 	grpcHost = "shop"
 )
 
 // New creates new test suite.
-func New(t *testing.T) (context.Context, *Suite) {
-	t.Helper()   // Функция будет восприниматься как вспомогательная для тестов
-	t.Parallel() // Разрешаем параллельный запуск тестов
+func New(t *testing.T, configPath string) (context.Context, *Suite) {
+	t.Helper() // Функция будет восприниматься как вспомогательная для тестов
 
 	// Читаем конфиг из файла
 	conf, err := config.InitConfig(configPath)

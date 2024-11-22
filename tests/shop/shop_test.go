@@ -3,16 +3,22 @@ package tests
 import (
 	"testing"
 
-	"pim-sys/tests/shop/suite"
+	"pim-sys/tests/assistance"
+	suite "pim-sys/tests/shop/suite"
 
 	proto "pim-sys/gen/go/shop"
 
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/metadata"
 )
 
+const configPath = "suite/config.yaml"
+
 func TestRegisterLogin_Login_HappyPath(t *testing.T) {
-	ctx, st := suite.New(t)
+	token := assistance.GetAccessToken(t)
+	ctx, st := suite.New(t, configPath)
+	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", token)
 
 	resp, err := st.ShopClient.NewShop(ctx, &proto.NewShopRequest{
 		Name:        gofakeit.FirstName(),

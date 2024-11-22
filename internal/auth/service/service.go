@@ -21,12 +21,13 @@ type Auth interface {
 		ctx context.Context,
 		email string,
 		password string,
-		appID int,
 	) (token string, err error)
 	RegisterNewUser(
 		ctx context.Context,
 		email string,
 		password string,
+		name string,
+		phone string,
 	) (userID int64, err error)
 	IsAdmin(ctx context.Context, userID int64) (bool, error)
 }
@@ -47,11 +48,8 @@ func (s *serverAPI) Login(
 		return nil, status.Error(codes.InvalidArgument, "password is required")
 	}
 
-	if in.GetAppId() == 0 {
-		return nil, status.Error(codes.InvalidArgument, "app_id is required")
-	}
+	token, err := s.auth.Login(ctx, in.GetEmail(), in.GetPassword())
 
-	token, err := s.auth.Login(ctx, in.GetEmail(), in.GetPassword(), int(in.GetAppId()))
 	if err != nil {
 		if errors.Is(err, auth_errors.ErrInvalidCredentials) {
 			return nil, status.Error(codes.InvalidArgument, "invalid email or password")
@@ -75,7 +73,16 @@ func (s *serverAPI) Register(
 		return nil, status.Error(codes.InvalidArgument, "password is required")
 	}
 
-	uid, err := s.auth.RegisterNewUser(ctx, in.GetEmail(), in.GetPassword())
+	if in.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "name is required")
+	}
+
+	if in.Phone == "" {
+		return nil, status.Error(codes.InvalidArgument, "phone is required")
+	}
+
+	uid, err := s.auth.RegisterNewUser(ctx, in.GetEmail(), in.GetPassword(), in.GetName(), in.GetPhone())
+
 	if err != nil {
 		if errors.Is(err, auth_errors.ErrUserExists) {
 			return nil, status.Error(codes.AlreadyExists, "user already exists")

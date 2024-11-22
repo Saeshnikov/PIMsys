@@ -1,13 +1,8 @@
 package storage
 
-type App struct {
-	ID     int
-	Name   string
-	Secret string
-}
-
 type User struct {
-	ID       int64
+	ID       int
 	Email    string
 	PassHash []byte
+	IsAdmin  bool
 }

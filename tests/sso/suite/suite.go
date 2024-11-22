@@ -3,7 +3,6 @@ package suite
 import (
 	"context"
 	"net"
-	"os"
 	"strconv"
 	"testing"
 
@@ -28,11 +27,10 @@ const (
 // New creates new test suite.
 //
 // TODO: for pipeline tests we need to wait for app is ready
-func New(t *testing.T) (context.Context, *Suite) {
+func New(t *testing.T, configPath string) (context.Context, *Suite) {
 	t.Helper()
-	t.Parallel()
 
-	cfg, err := config.InitConfig(configPath())
+	cfg, err := config.InitConfig(configPath)
 	require.NoError(t, err)
 
 	ctx, cancelCtx := context.WithTimeout(context.Background(), cfg.Grpc.Timeout)
@@ -54,16 +52,6 @@ func New(t *testing.T) (context.Context, *Suite) {
 		Cfg:        cfg,
 		AuthClient: proto.NewAuthClient(cc),
 	}
-}
-
-func configPath() string {
-	const key = "CONFIG_PATH"
-
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-
-	return "./suite/config.yaml"
 }
 
 func grpcAddress(cfg *config.Config) string {

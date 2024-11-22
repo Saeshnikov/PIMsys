@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	auth_interceptor "pim-sys/internal/auth-interceptor"
 	grpcapp "pim-sys/internal/grpc"
 	shop_service "pim-sys/internal/shop/service"
 
@@ -49,7 +50,7 @@ func New(
 	tokenTTL time.Duration,
 ) *App {
 
-	grpcApp := grpcapp.New(log, RegisterShop, grpcPort)
+	grpcApp := grpcapp.New(log, RegisterShop, grpcPort, auth_interceptor.AuthInterceptor())
 
 	return &App{
 		GRPCServer: grpcApp,

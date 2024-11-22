@@ -14,7 +14,7 @@ import "pim-sys/internal/shop/app"
 
 
 <a name="RegisterShop"></a>
-## func [RegisterShop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/app/app.go#L42>)
+## func [RegisterShop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/app/app.go#L43>)
 
 ```go
 func RegisterShop(gRPCServer *grpc.Server)
@@ -23,7 +23,7 @@ func RegisterShop(gRPCServer *grpc.Server)
 
 
 <a name="App"></a>
-## type [App](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/app/app.go#L14-L16>)
+## type [App](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/app/app.go#L15-L17>)
 
 
 
@@ -34,7 +34,7 @@ type App struct {
 ```
 
 <a name="New"></a>
-### func [New](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/app/app.go#L46-L50>)
+### func [New](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/app/app.go#L47-L51>)
 
 ```go
 func New(log *slog.Logger, grpcPort int, tokenTTL time.Duration) *App

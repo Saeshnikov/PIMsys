@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"time"
 
+	auth_interceptor "pim-sys/internal/auth-interceptor"
 	auth_errors "pim-sys/internal/auth/errors"
 	auth_jwt "pim-sys/internal/auth/jwt"
 	auth_service "pim-sys/internal/auth/service"
@@ -25,7 +26,6 @@ type Auth struct {
 	log         *slog.Logger
 	usrSaver    UserSaver
 	usrProvider UserProvider
-	appProvider AppProvider
 	tokenTTL    time.Duration
 }
 
@@ -34,16 +34,14 @@ type UserSaver interface {
 		ctx context.Context,
 		email string,
 		passHash []byte,
+		name string,
+		phone string,
 	) (uid int64, err error)
 }
 
 type UserProvider interface {
 	User(ctx context.Context, email string) (storage.User, error)
 	IsAdmin(ctx context.Context, userID int64) (bool, error)
-}
-
-type AppProvider interface {
-	App(ctx context.Context, appID int) (storage.App, error)
 }
 
 // Login checks if user with given credentials exists in the system and returns access token.
@@ -54,7 +52,6 @@ func (a *Auth) Login(
 	ctx context.Context,
 	email string,
 	password string,
-	appID int,
 ) (string, error) {
 	const op = "Auth.Login"
 
@@ -84,14 +81,9 @@ func (a *Auth) Login(
 		return "", fmt.Errorf("%s: %w", op, auth_errors.ErrInvalidCredentials)
 	}
 
-	app, err := a.appProvider.App(ctx, appID)
-	if err != nil {
-		return "", fmt.Errorf("%s: %w", op, err)
-	}
-
 	log.Info("user logged in successfully")
 
-	token, err := auth_jwt.NewToken(user, app, a.tokenTTL)
+	token, err := auth_jwt.NewToken(user, a.tokenTTL)
 	if err != nil {
 		a.log.Error("failed to generate token")
 
@@ -103,12 +95,14 @@ func (a *Auth) Login(
 
 // RegisterNewUser registers new user in the system and returns user ID.
 // If user with given username already exists, returns error.
-func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (int64, error) {
+func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string, name string, phone string) (int64, error) {
 	const op = "Auth.RegisterNewUser"
 
 	log := a.log.With(
 		slog.String("op", op),
 		slog.String("email", email),
+		slog.String("name", name),
+		slog.String("phone", phone),
 	)
 
 	log.Info("registering user")
@@ -120,7 +114,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string) (
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
-	id, err := a.usrSaver.SaveUser(ctx, email, passHash)
+	id, err := a.usrSaver.SaveUser(ctx, email, passHash, name, phone)
 	if err != nil {
 		log.Error("failed to save user")
 
@@ -169,13 +163,12 @@ func New(
 				log:         log,
 				usrSaver:    storage,
 				usrProvider: storage,
-				appProvider: storage,
 				tokenTTL:    tokenTTL,
 			},
 		)
 	}
 
-	grpcApp := grpcapp.New(log, registerAuth, grpcPort)
+	grpcApp := grpcapp.New(log, registerAuth, grpcPort, auth_interceptor.AuthInterceptor())
 
 	return &App{
 		GRPCServer: grpcApp,

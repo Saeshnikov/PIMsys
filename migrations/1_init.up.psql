@@ -6,7 +6,7 @@ CREATE TABLE "users" (
   id serial PRIMARY KEY,
   name varchar(32) NOT NULL,
   email varchar(64) NOT NULL UNIQUE,
-  password varchar(32) NOT NULL,
+  password varchar(64) NOT NULL,
   phone varchar(16) NOT NULL,
   description text,
   male bool,

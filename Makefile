@@ -38,4 +38,5 @@ gomod:
 
 .PHONY: test
 test:
+	docker-compose down
 	docker-compose --profile test up --force-recreate

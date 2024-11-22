@@ -1,12 +1,126 @@
-CREATE TABLE IF NOT EXISTS users
-(
-    id serial PRIMARY KEY,
-    name varchar(32) NOT NULL,
-    email varchar(64) NOT NULL UNIQUE,
-    password varchar(64) NOT NULL,
-    phone varchar(16) NOT NULL,
-    description text,
-    male bool,
-    isAdmin bool NOT NULL
+CREATE TYPE shop_type AS ENUM ('online', 'marketplace', 'offline');
+CREATE TYPE attribute_type AS ENUM ('boolean','string','text','image','select','number','video','multiselect');
+CREATE TYPE product_status AS ENUM ('stock', 'archive', 'withdrawn_from_sale','out_of_stock');
+
+CREATE TABLE "users" (
+  id serial PRIMARY KEY,
+  name varchar(32) NOT NULL,
+  email varchar(64) NOT NULL UNIQUE,
+  password varchar(64) NOT NULL,
+  phone varchar(16) NOT NULL,
+  description text,
+  male bool,
+  isAdmin bool NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_email ON users (email);
+
+CREATE TABLE shop (
+  id serial PRIMARY KEY,
+  name varchar(32) NOT NULL,
+  avatar_url text,
+  description text
+);
+
+CREATE TABLE users_shop (
+  id serial PRIMARY KEY,
+  users_id BIGINT NOT NULL,
+  shop_id BIGINT NOT NULL,
+  CONSTRAINT fk_users FOREIGN KEY(users_id) REFERENCES "users"(id),
+  CONSTRAINT fk_shop FOREIGN KEY(shop_id) REFERENCES shop(id)
+);
+
+CREATE TABLE branch (
+  id serial PRIMARY KEY,
+  name varchar(32) NOT NULL,
+  description text,
+  address varchar(128) NOT NULL,
+  site varchar(64),
+  type shop_type NOT NULL,
+  shop_id BIGINT NOT NULL,
+  CONSTRAINT fk_shop FOREIGN KEY(shop_id) REFERENCES shop(id)
+);
+
+CREATE TABLE category (
+  id serial PRIMARY KEY,
+  name varchar(32),
+  description text NOT NULL,
+  is_unique BOOLEAN NOT NULL
+);
+
+CREATE TABLE product (
+  id serial PRIMARY KEY,
+  category_id BIGINT NOT NULL,
+  status product_status NOT NULL,
+  branch_id BIGINT NOT NULL,
+  name varchar(32) NOT NULL,
+  CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id),
+  CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES category(id)
+);
+
+CREATE TABLE sales (
+  id serial PRIMARY KEY,
+  name varchar(32) NOT NULL,
+  date timestamp NOT NULL,
+  branch_id BIGINT NOT NULL,
+  product_id BIGINT NOT NULL,
+  price float NOT NULL,
+  quantity int NOT NULL,
+  CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id),
+  CONSTRAINT fk_product FOREIGN KEY(product_id) REFERENCES product(id)
+);
+
+CREATE TABLE log_journal (
+  id serial PRIMARY KEY,
+  shop_id INTEGER NOT NULL,
+  branch_id INTEGER NOT NULL,
+  product_id BIGINT NOT NULL,
+  info text
+);
+
+CREATE TABLE category_branch (
+  id serial PRIMARY KEY,
+  branch_id BIGINT NOT NULL,
+  category_id BIGINT NOT NULL,
+  CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id),
+  CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES category(id)
+);
+
+CREATE TABLE "attribute" (
+  id serial PRIMARY KEY,
+  type attribute_type NOT NULL,
+  is_array BOOLEAN NOT NULL,
+  is_value_required BOOLEAN NOT NULL,
+  properties JSONB NOT NULL,
+  is_unique BOOLEAN NOT NULL,
+  name varchar(32) NOT NULL,
+  description text,
+  is_immutable BOOLEAN NOT NULL,
+  branch_id BIGINT NOT NULL,
+  CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id)
+);
+
+CREATE TABLE category_attribute (
+  id serial PRIMARY KEY,
+  attribute_id BIGINT NOT NULL,
+  category_id BIGINT NOT NULL,
+  CONSTRAINT fk_attribute FOREIGN KEY(attribute_id) REFERENCES "attribute"(id),
+  CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES category(id)
+);
+
+CREATE TABLE product_attribute_value (
+  id serial PRIMARY KEY,
+  value JSONB NOT NULL,
+  product_id BIGINT NOT NULL,
+  attribute_id BIGINT NOT NULL,
+  value_text TEXT NOT NULL,
+  value_number NUMERIC NOT NULL,
+  value_boolean BOOLEAN NOT NULL,
+  CONSTRAINT fk_product FOREIGN KEY(product_id) REFERENCES product(id),
+  CONSTRAINT fk_attribute FOREIGN KEY(attribute_id) REFERENCES attribute(id)
+);
+
+CREATE TABLE IF NOT EXISTS apps
+(
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    secret TEXT NOT NULL UNIQUE
+);

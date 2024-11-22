@@ -1,3 +1,4 @@
+version: "2"
 services:
   db:
     image: postgres
@@ -57,34 +58,9 @@ services:
     networks:
       - common-net
     depends_on:
-    - db
-
-  test-auth: 
-    image: main-image
-    build:
-      context:    ./docker
-      dockerfile: main-image
-    entrypoint:  go test ./tests/sso/...
-    volumes:
-      - "./:/app:ro"
-    working_dir: /app
-    depends_on:
-      - migrations
-    networks:
-    - common-net
-    profiles: [test-auth, test-all]
-  
-  test-shop: 
-    image: main-image
-    build:
-      context:    ./docker
-      dockerfile: main-image
-    entrypoint:  go test ./tests/shop/...
-    volumes:
-      - "./:/app:ro"
-    working_dir: /app
-    depends_on:
-      - migrations
+      - db
+      - shop
+      - auth
     networks:
     - common-net
     profiles: [test-shop, test-all]

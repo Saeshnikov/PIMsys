@@ -1,1 +1,13 @@
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS "users";
+DROP TABLE IF EXISTS shop;
+DROP TABLE IF EXISTS users_shop;
+DROP TABLE IF EXISTS branch;
+DROP TABLE IF EXISTS category;
+DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS sales;
+DROP TABLE IF EXISTS log_journal;
+DROP TABLE IF EXISTS category_branch;
+DROP TABLE IF EXISTS "attribute";
+DROP TABLE IF EXISTS category_attribute;
+DROP TABLE IF EXISTS product_attribute_value;
+DROP TABLE IF EXISTS apps;

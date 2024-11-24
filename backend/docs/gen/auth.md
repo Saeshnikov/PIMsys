@@ -19,7 +19,7 @@ import "pim-sys/internal/auth/app"
 
 
 <a name="App"></a>
-## type [App](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/app/app.go#L21-L23>)
+## type App
 
 
 
@@ -30,7 +30,7 @@ type App struct {
 ```
 
 <a name="New"></a>
-### func [New](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/app/app.go#L148-L153>)
+### func New
 
 ```go
 func New(log *slog.Logger, grpcPort int, connectionString string, tokenTTL time.Duration) *App
@@ -39,7 +39,7 @@ func New(log *slog.Logger, grpcPort int, connectionString string, tokenTTL time.
 
 
 <a name="Auth"></a>
-## type [Auth](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/app/app.go#L25-L30>)
+## type Auth
 
 
 
@@ -50,7 +50,7 @@ type Auth struct {
 ```
 
 <a name="Auth.IsAdmin"></a>
-### func \(\*Auth\) [IsAdmin](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/app/app.go#L128>)
+### func \(\*Auth\) IsAdmin
 
 ```go
 func (a *Auth) IsAdmin(ctx context.Context, userID int64) (bool, error)
@@ -59,7 +59,7 @@ func (a *Auth) IsAdmin(ctx context.Context, userID int64) (bool, error)
 IsAdmin checks if user is admin.
 
 <a name="Auth.Login"></a>
-### func \(\*Auth\) [Login](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/app/app.go#L51-L55>)
+### func \(\*Auth\) Login
 
 ```go
 func (a *Auth) Login(ctx context.Context, email string, password string) (string, error)
@@ -70,7 +70,7 @@ Login checks if user with given credentials exists in the system and returns acc
 If user exists, but password is incorrect, returns error. If user doesn't exist, returns error.
 
 <a name="Auth.RegisterNewUser"></a>
-### func \(\*Auth\) [RegisterNewUser](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/app/app.go#L98>)
+### func \(\*Auth\) RegisterNewUser
 
 ```go
 func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string, name string, phone string) (int64, error)
@@ -79,7 +79,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, pass string, n
 RegisterNewUser registers new user in the system and returns user ID. If user with given username already exists, returns error.
 
 <a name="UserProvider"></a>
-## type [UserProvider](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/app/app.go#L42-L45>)
+## type UserProvider
 
 
 
@@ -91,7 +91,7 @@ type UserProvider interface {
 ```
 
 <a name="UserSaver"></a>
-## type [UserSaver](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/app/app.go#L32-L40>)
+## type UserSaver
 
 
 
@@ -143,7 +143,7 @@ import "pim-sys/internal/auth/jwt"
 
 
 <a name="NewToken"></a>
-## func [NewToken](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/jwt/jwt.go#L14>)
+## func NewToken
 
 ```go
 func NewToken(user storage.User, duration time.Duration) (string, error)
@@ -183,7 +183,7 @@ import "pim-sys/internal/auth/service"
 
 
 <a name="Register"></a>
-## func [Register](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/service/service.go#L35>)
+## func Register
 
 ```go
 func Register(gRPCServer *grpc.Server, auth Auth)
@@ -192,7 +192,7 @@ func Register(gRPCServer *grpc.Server, auth Auth)
 
 
 <a name="Auth"></a>
-## type [Auth](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/service/service.go#L19-L33>)
+## type Auth
 
 
 
@@ -232,7 +232,7 @@ import "pim-sys/internal/auth/storage"
 
 
 <a name="Storage"></a>
-## type [Storage](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/storage/storage.go#L13-L15>)
+## type Storage
 
 
 
@@ -243,7 +243,7 @@ type Storage struct {
 ```
 
 <a name="New"></a>
-### func [New](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/storage/storage.go#L17>)
+### func New
 
 ```go
 func New(connectionString string) (*Storage, error)
@@ -252,7 +252,7 @@ func New(connectionString string) (*Storage, error)
 
 
 <a name="Storage.IsAdmin"></a>
-### func \(\*Storage\) [IsAdmin](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/storage/storage.go#L85>)
+### func \(\*Storage\) IsAdmin
 
 ```go
 func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error)
@@ -261,7 +261,7 @@ func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error)
 IsAdmin checks if the user is an admin.
 
 <a name="Storage.SaveUser"></a>
-### func \(\*Storage\) [SaveUser](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/storage/storage.go#L33>)
+### func \(\*Storage\) SaveUser
 
 ```go
 func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte, name string, phone string) (int64, error)
@@ -270,7 +270,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte, n
 SaveUser saves user to db.
 
 <a name="Storage.Stop"></a>
-### func \(\*Storage\) [Stop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/storage/storage.go#L28>)
+### func \(\*Storage\) Stop
 
 ```go
 func (s *Storage) Stop() error
@@ -279,7 +279,7 @@ func (s *Storage) Stop() error
 
 
 <a name="Storage.User"></a>
-### func \(\*Storage\) [User](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/storage/storage.go#L61>)
+### func \(\*Storage\) User
 
 ```go
 func (s *Storage) User(ctx context.Context, email string) (User, error)
@@ -288,7 +288,7 @@ func (s *Storage) User(ctx context.Context, email string) (User, error)
 User returns user by email.
 
 <a name="User"></a>
-## type [User](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/auth/storage/models.go#L3-L10>)
+## type User
 
 
 

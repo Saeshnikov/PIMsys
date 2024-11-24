@@ -1,0 +1,1 @@
+INSERT INTO users (name,email,password,isAdmin,phone) VALUES ('test-user','test-email','test-hash',false,'test-phone');

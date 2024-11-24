@@ -48,6 +48,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte, n
 	if err != nil {
 		var pgErr *pq.Error
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" { // 23505 - unique_violation
+			fmt.Println(email)
 			return 0, fmt.Errorf("%s: %w", op, auth_errors.ErrUserExists)
 		}
 		return 0, fmt.Errorf("%s: %w", op, err)

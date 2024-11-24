@@ -1,5 +1,3 @@
-export PATH := $(PATH):$(shell go env GOPATH)/bin
-
 .PHONY: all
 all: gomod generate build
 
@@ -18,7 +16,7 @@ build: cmd/*
 	@for file in $^ ; do \
                 srvsrv="`echo $$file | cut -f 2 -d '/'`"; \
 				echo cmd/$$srvsrv/main.go;\
-				go build -o bin/$$srvsrv cmd/$$srvsrv/main.go; \
+				go build -cover -o bin/$$srvsrv cmd/$$srvsrv/main.go; \
     done
 
 docker-%:
@@ -38,5 +36,13 @@ gomod:
 
 .PHONY: test
 test:
-	docker-compose down
+	rm -rf cover
+	docker-compose down --remove-orphans --volumes
 	docker-compose --profile test up --force-recreate
+	
+
+.PHONY: cover
+docker-cover:
+	docker run --rm -v $$PWD:$$PWD:rw -w $$PWD main-image:latest mkdir -p /cover_merged && \
+		go tool covdata textfmt -i=cover -o cover.out && \
+    	go tool cover -html cover.out -o cover.html

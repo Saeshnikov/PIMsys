@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"pim-sys/internal/auth/secret"
 	"strconv"
 
 	"github.com/golang-jwt/jwt"
@@ -27,7 +28,6 @@ func AuthInterceptor() grpc.UnaryServerInterceptor {
 		handler grpc.UnaryHandler,
 	) (interface{}, error) {
 		log.Println("--> Validate jwt-token: ", info.FullMethod)
-		const appSecret = "test-secret"
 
 		md, ok := metadata.FromIncomingContext(ctx)
 		if !ok {
@@ -45,7 +45,7 @@ func AuthInterceptor() grpc.UnaryServerInterceptor {
 		claims := jwt.MapClaims{}
 
 		_, err := jwt.ParseWithClaims(accessToken, claims, func(token *jwt.Token) (interface{}, error) {
-			return []byte(appSecret), nil
+			return []byte(secret.Secret), nil
 		})
 
 		if err != nil {
@@ -55,23 +55,38 @@ func AuthInterceptor() grpc.UnaryServerInterceptor {
 
 		uid, ok := claims["uid"].(float64)
 		if !ok {
-			str := fmt.Sprintf("uid type: %T", claims["uid"])
-			return nil, status.Error(codes.Internal, "uid type has changed; "+str)
+			return nil, status.Error(codes.Internal, "uid not found")
 		}
+		md.Append("user_id", strconv.Itoa(int(uid)))
 
 		urole, ok := claims["role"].(bool)
 		if !ok {
-			str := fmt.Sprintf("role: %T", claims["role"])
-			return nil, status.Error(codes.Internal, "role has changed; "+str)
+			return nil, status.Error(codes.Internal, "role not found")
 		}
 		role := User
 		if urole {
 			role = Admin
 		}
-		ctx = metadata.AppendToOutgoingContext(ctx, "role", strconv.Itoa(role))
-		ctx = metadata.AppendToOutgoingContext(ctx, "user_id", strconv.Itoa(int(uid)))
-		return handler(ctx, req)
+		md.Append("role", strconv.Itoa(role))
+
+		newCtx := metadata.NewIncomingContext(ctx, md)
+
+		return handler(newCtx, req)
 	}
+}
+
+func GetFromContext(ctx context.Context, entityName string) (string, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", fmt.Errorf("%s", "metadata does not exist")
+	}
+
+	values := md[entityName]
+	if len(values) == 0 {
+		return "", fmt.Errorf("%s", "uid does not exist")
+	}
+
+	return values[0], nil
 }
 
 // func (interceptor *AuthInterceptor) Stream() grpc.StreamServerInterceptor {

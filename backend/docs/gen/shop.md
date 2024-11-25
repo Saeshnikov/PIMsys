@@ -18,7 +18,7 @@ import "pim-sys/internal/shop/app"
 
 
 <a name="App"></a>
-## type [App](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/app/app.go#L20-L22>)
+## type App
 
 
 
@@ -29,7 +29,7 @@ type App struct {
 ```
 
 <a name="New"></a>
-### func [New](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/app/app.go#L88-L93>)
+### func New
 
 ```go
 func New(log *slog.Logger, grpcPort int, connectionString string, tokenTTL time.Duration) *App
@@ -38,7 +38,7 @@ func New(log *slog.Logger, grpcPort int, connectionString string, tokenTTL time.
 
 
 <a name="Shop"></a>
-## type [Shop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/app/app.go#L24-L28>)
+## type Shop
 
 
 
@@ -49,7 +49,7 @@ type Shop struct {
 ```
 
 <a name="Shop.AlterShop"></a>
-### func \(\*Shop\) [AlterShop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/app/app.go#L54-L60>)
+### func \(\*Shop\) AlterShop
 
 ```go
 func (shop *Shop) AlterShop(ctx context.Context, shopId int32, name string, description string, url string) error
@@ -58,7 +58,7 @@ func (shop *Shop) AlterShop(ctx context.Context, shopId int32, name string, desc
 
 
 <a name="Shop.DeleteShop"></a>
-### func \(\*Shop\) [DeleteShop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/app/app.go#L65-L68>)
+### func \(\*Shop\) DeleteShop
 
 ```go
 func (shop *Shop) DeleteShop(ctx context.Context, shopId int32) error
@@ -67,7 +67,7 @@ func (shop *Shop) DeleteShop(ctx context.Context, shopId int32) error
 
 
 <a name="Shop.ListShops"></a>
-### func \(\*Shop\) [ListShops](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/app/app.go#L72-L77>)
+### func \(\*Shop\) ListShops
 
 ```go
 func (shop *Shop) ListShops(ctx context.Context) ([]*proto.ShopInfo, error)
@@ -76,7 +76,7 @@ func (shop *Shop) ListShops(ctx context.Context) ([]*proto.ShopInfo, error)
 
 
 <a name="Shop.NewShop"></a>
-### func \(\*Shop\) [NewShop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/app/app.go#L30-L35>)
+### func \(\*Shop\) NewShop
 
 ```go
 func (shop *Shop) NewShop(ctx context.Context, name string, description string, url string) error
@@ -102,7 +102,7 @@ import "pim-sys/internal/shop/service"
 
 
 <a name="Register"></a>
-## func [Register](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/service/service.go#L45>)
+## func Register
 
 ```go
 func Register(gRPCServer *grpc.Server, shop Shop)
@@ -111,7 +111,7 @@ func Register(gRPCServer *grpc.Server, shop Shop)
 
 
 <a name="ServerAPI"></a>
-## type [ServerAPI](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/service/service.go#L13-L16>)
+## type ServerAPI
 
 
 
@@ -123,7 +123,7 @@ type ServerAPI struct {
 ```
 
 <a name="ServerAPI.AlterShop"></a>
-### func \(\*ServerAPI\) [AlterShop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/service/service.go#L65-L68>)
+### func \(\*ServerAPI\) AlterShop
 
 ```go
 func (s *ServerAPI) AlterShop(ctx context.Context, in *proto.AlterShopRequest) (*proto.AlterShopResponse, error)
@@ -132,7 +132,7 @@ func (s *ServerAPI) AlterShop(ctx context.Context, in *proto.AlterShopRequest) (
 
 
 <a name="ServerAPI.DeleteShop"></a>
-### func \(\*ServerAPI\) [DeleteShop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/service/service.go#L81-L84>)
+### func \(\*ServerAPI\) DeleteShop
 
 ```go
 func (s *ServerAPI) DeleteShop(ctx context.Context, in *proto.DeleteShopRequest) (*proto.DeleteShopResponse, error)
@@ -141,7 +141,7 @@ func (s *ServerAPI) DeleteShop(ctx context.Context, in *proto.DeleteShopRequest)
 
 
 <a name="ServerAPI.ListShops"></a>
-### func \(\*ServerAPI\) [ListShops](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/service/service.go#L97-L100>)
+### func \(\*ServerAPI\) ListShops
 
 ```go
 func (s *ServerAPI) ListShops(ctx context.Context, in *proto.ListShopsRequest) (*proto.ListShopsResponse, error)
@@ -150,7 +150,7 @@ func (s *ServerAPI) ListShops(ctx context.Context, in *proto.ListShopsRequest) (
 
 
 <a name="ServerAPI.NewShop"></a>
-### func \(\*ServerAPI\) [NewShop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/service/service.go#L49-L52>)
+### func \(\*ServerAPI\) NewShop
 
 ```go
 func (s *ServerAPI) NewShop(ctx context.Context, in *proto.NewShopRequest) (*proto.NewShopResponse, error)
@@ -159,7 +159,7 @@ func (s *ServerAPI) NewShop(ctx context.Context, in *proto.NewShopRequest) (*pro
 
 
 <a name="Shop"></a>
-## type [Shop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/service/service.go#L19-L43>)
+## type Shop
 
 Тот самый интерфейс, котрый мы передавали в grpcApp
 
@@ -203,11 +203,13 @@ import "pim-sys/internal/shop/storage"
   - [func New\(connectionString string\) \(\*Storage, error\)](<#New>)
   - [func \(s \*Storage\) AlterShop\(ctx context.Context, shopId int32, name string, description string, url string\) error](<#Storage.AlterShop>)
   - [func \(s \*Storage\) CreateShop\(ctx context.Context, userID int, name string, description string, url string\) error](<#Storage.CreateShop>)
+  - [func \(s \*Storage\) DeleteShop\(ctx context.Context, shopId int32\) error](<#Storage.DeleteShop>)
+  - [func \(s \*Storage\) ListShops\(ctx context.Context, userId int32\) \(\[\]\*proto.ShopInfo, error\)](<#Storage.ListShops>)
   - [func \(s \*Storage\) Stop\(\) error](<#Storage.Stop>)
 
 
 <a name="Storage"></a>
-## type [Storage](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/storage/storage.go#L11-L13>)
+## type Storage
 
 
 
@@ -218,7 +220,7 @@ type Storage struct {
 ```
 
 <a name="New"></a>
-### func [New](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/storage/storage.go#L15>)
+### func New
 
 ```go
 func New(connectionString string) (*Storage, error)
@@ -227,7 +229,7 @@ func New(connectionString string) (*Storage, error)
 
 
 <a name="Storage.AlterShop"></a>
-### func \(\*Storage\) [AlterShop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/storage/storage.go#L49-L55>)
+### func \(\*Storage\) AlterShop
 
 ```go
 func (s *Storage) AlterShop(ctx context.Context, shopId int32, name string, description string, url string) error
@@ -236,7 +238,7 @@ func (s *Storage) AlterShop(ctx context.Context, shopId int32, name string, desc
 
 
 <a name="Storage.CreateShop"></a>
-### func \(\*Storage\) [CreateShop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/storage/storage.go#L28-L34>)
+### func \(\*Storage\) CreateShop
 
 ```go
 func (s *Storage) CreateShop(ctx context.Context, userID int, name string, description string, url string) error
@@ -244,8 +246,26 @@ func (s *Storage) CreateShop(ctx context.Context, userID int, name string, descr
 
 
 
+<a name="Storage.DeleteShop"></a>
+### func \(\*Storage\) DeleteShop
+
+```go
+func (s *Storage) DeleteShop(ctx context.Context, shopId int32) error
+```
+
+
+
+<a name="Storage.ListShops"></a>
+### func \(\*Storage\) ListShops
+
+```go
+func (s *Storage) ListShops(ctx context.Context, userId int32) ([]*proto.ShopInfo, error)
+```
+
+
+
 <a name="Storage.Stop"></a>
-### func \(\*Storage\) [Stop](<https://github.com/Saeshnikov/PIMsys/blob/main/internal/shop/storage/storage.go#L24>)
+### func \(\*Storage\) Stop
 
 ```go
 func (s *Storage) Stop() error

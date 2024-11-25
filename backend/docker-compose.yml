@@ -20,10 +20,12 @@ services:
     build:
       context:    ./docker
       dockerfile: main-image
-    entrypoint: go run cmd/sso/main.go
+    entrypoint: bash -c "mkdir -p cover &&
+      go build -cover -o /app cmd/sso/main.go &&
+      GOCOVERDIR=cover /app"
     volumes:
       - "$PWD:$PWD:rw"
-    working_dir: $PWD/backend
+    working_dir: $PWD
     container_name: auth
     depends_on:
       - db
@@ -37,10 +39,12 @@ services:
     build:
       context:    ./docker
       dockerfile: main-image
-    entrypoint: go run cmd/shop/main.go
+    entrypoint: bash -c "mkdir -p cover &&
+      go build -cover -o /app cmd/shop/main.go &&
+      GOCOVERDIR=cover /app"
     volumes:
       - "$PWD:$PWD:rw"
-    working_dir: $PWD/backend
+    working_dir: $PWD
     container_name: shop
     ports:
      - 10001:10001
@@ -51,36 +55,21 @@ services:
       interval: 3s
       retries: 5
 
-  migrations: 
-    container_name: migrations
+  test: 
+    container_name: test
     image: main-image
     build:
       context:    ./docker
       dockerfile: main-image
-    entrypoint: go run cmd/migrator/main.go --migrations-path=migrations
+    entrypoint:  bash -c "
+      go run cmd/migrator/main.go --migrations-path=migrations &&
+      go run cmd/migrator/main.go --migrations-path=tests/migrations --migrations-table=migrations-test &&
+      go test -v ./... " 
     volumes:
       - "$PWD:$PWD:rw"
-    working_dir: $PWD/backend
+    working_dir: $PWD
     depends_on:
       shop : 
         condition: service_healthy
     networks:
     - common-net
-
-  sso-envoy:
-    container_name: "sso-envoy"
-    image: envoy/sso:latest
-    build:
-      context:    ./backend/envoy/sso
-    networks:
-      - common-net
-    ports:
-      - "8000:8000"
-
-  ui:
-    container_name: "ui"
-    image: ui:latest
-    networks:
-      - common-net
-    ports:
-      - 3000:80

@@ -24,8 +24,10 @@ CREATE TABLE users_shop (
   id serial PRIMARY KEY,
   users_id BIGINT NOT NULL,
   shop_id BIGINT NOT NULL,
-  CONSTRAINT fk_users FOREIGN KEY(users_id) REFERENCES "users"(id),
+  CONSTRAINT fk_users FOREIGN KEY(users_id) REFERENCES "users"(id)
+  ON DELETE CASCADE,
   CONSTRAINT fk_shop FOREIGN KEY(shop_id) REFERENCES shop(id)
+  ON DELETE CASCADE
 );
 
 CREATE TABLE branch (
@@ -37,6 +39,7 @@ CREATE TABLE branch (
   type shop_type NOT NULL,
   shop_id BIGINT NOT NULL,
   CONSTRAINT fk_shop FOREIGN KEY(shop_id) REFERENCES shop(id)
+  ON DELETE CASCADE
 );
 
 CREATE TABLE category (
@@ -52,7 +55,8 @@ CREATE TABLE product (
   status product_status NOT NULL,
   branch_id BIGINT NOT NULL,
   name varchar(32) NOT NULL,
-  CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id),
+  CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id)
+  ON DELETE CASCADE,
   CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES category(id)
 );
 
@@ -64,8 +68,10 @@ CREATE TABLE sales (
   product_id BIGINT NOT NULL,
   price float NOT NULL,
   quantity int NOT NULL,
-  CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id),
+  CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id)
+  ON DELETE CASCADE,
   CONSTRAINT fk_product FOREIGN KEY(product_id) REFERENCES product(id)
+  ON DELETE CASCADE
 );
 
 CREATE TABLE log_journal (
@@ -80,8 +86,10 @@ CREATE TABLE category_branch (
   id serial PRIMARY KEY,
   branch_id BIGINT NOT NULL,
   category_id BIGINT NOT NULL,
-  CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id),
+  CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id)
+  ON DELETE CASCADE,
   CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES category(id)
+  ON DELETE CASCADE
 );
 
 CREATE TABLE "attribute" (
@@ -96,14 +104,17 @@ CREATE TABLE "attribute" (
   is_immutable BOOLEAN NOT NULL,
   branch_id BIGINT NOT NULL,
   CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id)
+  ON DELETE CASCADE
 );
 
 CREATE TABLE category_attribute (
   id serial PRIMARY KEY,
   attribute_id BIGINT NOT NULL,
   category_id BIGINT NOT NULL,
-  CONSTRAINT fk_attribute FOREIGN KEY(attribute_id) REFERENCES "attribute"(id),
+  CONSTRAINT fk_attribute FOREIGN KEY(attribute_id) REFERENCES "attribute"(id)
+  ON DELETE CASCADE,
   CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES category(id)
+  ON DELETE CASCADE
 );
 
 CREATE TABLE product_attribute_value (
@@ -114,8 +125,10 @@ CREATE TABLE product_attribute_value (
   value_text TEXT NOT NULL,
   value_number NUMERIC NOT NULL,
   value_boolean BOOLEAN NOT NULL,
-  CONSTRAINT fk_product FOREIGN KEY(product_id) REFERENCES product(id),
+  CONSTRAINT fk_product FOREIGN KEY(product_id) REFERENCES product(id)
+  ON DELETE CASCADE,
   CONSTRAINT fk_attribute FOREIGN KEY(attribute_id) REFERENCES attribute(id)
+  ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS apps

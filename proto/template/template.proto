@@ -1,0 +1,49 @@
+// Версия ProtoBuf
+syntax = "proto3";
+
+// Текущий пакет - указывает пространство имен для сервиса и сообщений. Помогает избегать конфликтов имен.
+package shop;
+
+// Настройки для генерации Go кода.
+option go_package = "pim-sys.proto.v1;proto";
+
+service Template {
+  rpc ListTemplates (ListTemplatesRequest) returns (ListTemplatesResponse);
+  rpc NewTemplate (NewTemplateRequest) returns (NewTemplateResponse);
+  rpc AlterTemplate (AlterTemplateRequest) returns (AlterTemplateResponse);
+  rpc DeleteTemplate (DeleteTemplateRequest) returns (DeleteTemplateResponse);
+}
+
+message NewTemplateRequest {
+  string name = 1;
+  string description = 2;
+  repeated int32 attribute_id = 3;
+}
+
+message NewTemplateResponse {}
+
+message AlterTemplateRequest {
+  string name = 1;
+  string description = 2;
+  repeated int32 attribute_id = 3;
+}
+
+message AlterTemplateResponse{}
+
+message DeleteTemplateRequest {
+  int32 template_id = 1;
+}
+
+message DeleteTemplateResponse {}
+
+message ListTemplatesRequest{}
+
+message ListTemplatesResponse {
+  repeated TemplateInfo info = 1;
+}
+
+message TemplateInfo{
+  int32 template_id = 1;
+  string name = 2;
+  string description = 3;
+}

@@ -1,1 +1,3 @@
 INSERT INTO users (name,email,password,isAdmin,phone) VALUES ('test-user','test-email','test-hash',false,'test-phone');
+INSERT INTO shop (name, avatar_url, description) VALUES ('test-name', 'test-url', 'test-description');
+INSERT INTO users_shop (users_id, shop_id) VALUES (1, 1);

@@ -1,0 +1,6 @@
+log_level: local
+token_tll: 1h
+connection_string: "user=test password=1234 dbname=db1 sslmode=disable"
+grpc: 
+  port: 10003
+  timeout: 1h

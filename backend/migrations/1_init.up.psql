@@ -35,7 +35,7 @@ CREATE TABLE branch (
   name varchar(32) NOT NULL,
   description text,
   address varchar(128) NOT NULL,
-  site varchar(64),
+  site varchar(128),
   type shop_type NOT NULL,
   shop_id BIGINT NOT NULL,
   CONSTRAINT fk_shop FOREIGN KEY(shop_id) REFERENCES shop(id)

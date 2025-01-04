@@ -30,7 +30,7 @@ func TestRegisterLogin_Login_HappyPath(t *testing.T) {
 	require.NotNil(t, respNewShop)
 
 	respAlterShop, err := st.ShopClient.AlterShop(ctx, &proto.AlterShopRequest{
-		ShopId: 1,
+		ShopId: 2,
 		ShopInfo: &proto.ShopInfo{
 			Name:        "new-name",
 			Description: "new-description",
@@ -43,10 +43,10 @@ func TestRegisterLogin_Login_HappyPath(t *testing.T) {
 
 	respListShops, err := st.ShopClient.ListShops(ctx, &proto.ListShopsRequest{})
 	require.NoError(t, err)
-	require.Equal(t, "new-name", respListShops.GetInfo()[0].Name)
+	require.Equal(t, "new-name", respListShops.GetInfo()[1].Name)
 
 	respDeleteShop, err := st.ShopClient.DeleteShop(ctx, &proto.DeleteShopRequest{
-		ShopId: 1,
+		ShopId: 2,
 	})
 	require.NoError(t, err)
 

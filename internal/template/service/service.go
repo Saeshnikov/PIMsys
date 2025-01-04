@@ -21,6 +21,7 @@ type Template interface {
 		ctx context.Context,
 		name string,
 		description string,
+		branch_id int32,
 		attribute_id []int32,
 	) error
 	AlterTemplate(
@@ -55,11 +56,20 @@ func (s *ServerAPI) NewTemplate(
 	if in.Description == "" {
 		return nil, status.Error(codes.InvalidArgument, "description is required")
 	}
-	if in.attribute_id == [] {
+	if in.BranchId == 0 {
+		return nil, status.Error(codes.InvalidArgument, "branch id is required")
+	}
+	if len(in.AttributeId) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "attribute id is required")
 	}
 
-	err := s.template.NewTemplate(ctx, in.GetName(), in.GetDescription(), in.GetAttribute_id())
+	err := s.template.NewTemplate(
+		ctx,
+		in.GetName(),
+		in.GetDescription(),
+		in.GetBranchId(),
+		in.GetAttributeId())
+
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to create new template: %w", err).Error())
 	}
@@ -77,11 +87,11 @@ func (s *ServerAPI) AlterTemplate(
 	if in.Description == "" {
 		return nil, status.Error(codes.InvalidArgument, "description is required")
 	}
-	if in.TemplateId == [] {
+	if len(in.AttributeId) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "template id is required")
 	}
 
-	err := s.template.AlterTemplate(ctx, in.GetAttribute_id(), in.GetName(), in.GetDescription())
+	err := s.template.AlterTemplate(ctx, in.GetName(), in.GetDescription(), in.GetAttributeId())
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to alter shop: %w", err).Error())
 	}
@@ -93,11 +103,11 @@ func (s *ServerAPI) DeleteTemplate(
 	ctx context.Context,
 	in *proto.DeleteTemplateRequest,
 ) (*proto.DeleteTemplateResponse, error) {
-	if in.Template_id == 0 {
+	if in.TemplateId == 0 {
 		return nil, status.Error(codes.InvalidArgument, "template id is required")
 	}
 
-	err := s.template.DeleteTemplate(ctx, in.GetTemplate_id())
+	err := s.template.DeleteTemplate(ctx, in.GetTemplateId())
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to delete template: %w", err).Error())
 	}

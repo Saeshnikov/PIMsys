@@ -3,11 +3,12 @@ package shop_app
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"log/slog"
 	"strconv"
 	"time"
 
-	proto "pim-sys/gen/go/shop"
+	proto "pim-sys/gen/go/template"
 	auth_interceptor "pim-sys/internal/auth-interceptor"
 	grpcapp "pim-sys/internal/grpc"
 	template_service "pim-sys/internal/template/service"
@@ -28,6 +29,7 @@ func (template *Template) NewTemplate(
 	ctx context.Context,
 	name string,
 	description string,
+	branch_id int32,
 	attribute_id []int32,
 ) error {
 
@@ -36,7 +38,7 @@ func (template *Template) NewTemplate(
 		return fmt.Errorf("%s: %v", "getting user_id from context: ", err)
 	}
 
-	err := template.userMustHaveAccess(ctx, shopId)
+	err := template.userMustHaveAccess(ctx, user_id)
 	if err != nil {
 		return fmt.Errorf("%s: %v", "user don't have permissions", err)
 	}
@@ -46,41 +48,41 @@ func (template *Template) NewTemplate(
 		return fmt.Errorf("%s: %v", "converting uid to int: ", err)
 	}
 
-	return template.TemplateStorage.CreateTemplate(ctx, name, description, attribute_id)
+	return template.templateStorage.CreateTemplate(ctx, name, description, attribute_id)
 }
 
-func (shop *Shop) AlterTemplate(
+func (template *Template) AlterTemplate(
 	ctx context.Context,
 	shopId int32,
 	name string,
 	description string,
 	url string,
 ) error {
-	err := shop.userMustHaveAccess(ctx, shopId)
+	err := template.userMustHaveAccess(ctx, shopId)
 	if err != nil {
 		return fmt.Errorf("%s: %v", "checking user permissions", err)
 	}
 
-	return shop.shopStorage.AlterShop(ctx, shopId, name, description, url)
+	return template.templateStorage.AlterTemplate(ctx, shopId, name, description, url)
 }
 
-func (shop *Shop) DeleteShop(
+func (template *Template) DeleteTemplate(
 	ctx context.Context,
-	shopId int32,
+	templateId int32,
 ) error {
 
-	err := shop.userMustHaveAccess(ctx, shopId)
+	err := template.userMustHaveAccess(ctx, shopId)
 	if err != nil {
 		return fmt.Errorf("%s: %v", "checking user permissions", err)
 	}
 
-	return shop.shopStorage.DeleteShop(ctx, shopId)
+	return template.templateStorage.DeleteShop(ctx, shopId)
 }
 
-func (shop *Shop) ListShops(
+func (shop *Template) ListTemplates(
 	ctx context.Context,
 ) (
-	[]*proto.ShopInfo,
+	[]*proto.TemplateInfo,
 	error,
 ) {
 	user_id, err := auth_interceptor.GetFromContext(ctx, "user_id")
@@ -93,7 +95,7 @@ func (shop *Shop) ListShops(
 		return nil, fmt.Errorf("%s: %v", "converting uid to int: ", err)
 	}
 
-	return shop.shopStorage.ListShops(ctx, int32(userId))
+	return shop.templateStorage.ListTemplates(ctx, int32(userId))
 }
 
 func New(
@@ -103,16 +105,16 @@ func New(
 	tokenTTL time.Duration,
 ) *App {
 
-	shopStorage, err := storage.New(connectionString)
+	templateStorage, err := template.New(connectionString)
 	if err != nil {
 		panic(err)
 	}
 
 	registerShop := func(gRPCServer *grpc.Server) {
-		shop_service.Register(
+		template_service.Register(
 			gRPCServer,
-			&Shop{
-				shopStorage: shopStorage,
+			&Template{
+				templateStorage: templateStorage,
 			},
 		)
 	}

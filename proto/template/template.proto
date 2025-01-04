@@ -17,7 +17,8 @@ service Template {
 message NewTemplateRequest {
   string name = 1;
   string description = 2;
-  repeated int32 attribute_id = 3;
+  int32 branch_id = 3;
+  repeated int32 attribute_id = 4;
 }
 
 message NewTemplateResponse {}

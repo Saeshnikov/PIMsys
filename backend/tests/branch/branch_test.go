@@ -34,7 +34,7 @@ func TestRegisterLogin_Login_HappyPath(t *testing.T) {
 	require.NotNil(t, respNewShop)
 
 	respAlterShop, err := st.BranchClient.AlterBranch(ctx, &proto.AlterBranchRequest{
-		BranchId: 1,
+		BranchId: 2,
 		BranchInfo: &proto.BranchInfo{
 			Name:        "new-name",
 			Description: "new-description",
@@ -50,10 +50,10 @@ func TestRegisterLogin_Login_HappyPath(t *testing.T) {
 		ShopId: 1,
 	})
 	require.NoError(t, err)
-	require.Equal(t, "new-name", respListShops.GetInfo()[0].Name)
+	require.Equal(t, "new-name", respListShops.GetInfo()[1].Name)
 
 	respDeleteShop, err := st.BranchClient.DeleteBranch(ctx, &proto.DeleteBranchRequest{
-		BranchId: 1,
+		BranchId: 2,
 	})
 	require.NoError(t, err)
 

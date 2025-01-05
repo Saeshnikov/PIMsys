@@ -28,7 +28,7 @@ docker-bash:
 
 .PHONY: build-docker-images
 build-docker-images:
-	docker build -f docker/main-image -t main-image:latest .
+	docker build -f docker/main-image -t main-image:latest --no-cache .
 
 .PHONY: gomod
 gomod: 

@@ -3,7 +3,6 @@ package shop_app
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"log/slog"
 	"strconv"
 	"time"
@@ -30,40 +29,24 @@ func (template *Template) NewTemplate(
 	name string,
 	description string,
 	branch_id int32,
-	attribute_id []int32,
+	attributes []*proto.AttributeInfo,
 ) error {
-
-	user_id, err := auth_interceptor.GetFromContext(ctx, "user_id")
-	if err != nil {
-		return fmt.Errorf("%s: %v", "getting user_id from context: ", err)
-	}
-
-	err := template.userMustHaveAccess(ctx, user_id)
-	if err != nil {
-		return fmt.Errorf("%s: %v", "user don't have permissions", err)
-	}
-
-	userId, err := strconv.Atoi(user_id)
-	if err != nil {
-		return fmt.Errorf("%s: %v", "converting uid to int: ", err)
-	}
-
-	return template.templateStorage.CreateTemplate(ctx, name, description, attribute_id)
+	return template.templateStorage.CreateTemplate(ctx, branch_id, name, description, attributes)
 }
 
 func (template *Template) AlterTemplate(
 	ctx context.Context,
-	shopId int32,
+	template_id int32,
 	name string,
 	description string,
-	url string,
+	attributes []*proto.AttributeInfo,
 ) error {
-	err := template.userMustHaveAccess(ctx, shopId)
+	err := template.userMustHaveAccess(ctx, template_id)
 	if err != nil {
 		return fmt.Errorf("%s: %v", "checking user permissions", err)
 	}
 
-	return template.templateStorage.AlterTemplate(ctx, shopId, name, description, url)
+	return template.templateStorage.AlterTemplate(ctx, template_id, name, description, attributes)
 }
 
 func (template *Template) DeleteTemplate(
@@ -71,12 +54,12 @@ func (template *Template) DeleteTemplate(
 	templateId int32,
 ) error {
 
-	err := template.userMustHaveAccess(ctx, shopId)
+	err := template.userMustHaveAccess(ctx, templateId)
 	if err != nil {
 		return fmt.Errorf("%s: %v", "checking user permissions", err)
 	}
 
-	return template.templateStorage.DeleteShop(ctx, shopId)
+	return template.templateStorage.DeleteTemplate(ctx, templateId)
 }
 
 func (shop *Template) ListTemplates(
@@ -105,12 +88,12 @@ func New(
 	tokenTTL time.Duration,
 ) *App {
 
-	templateStorage, err := template.New(connectionString)
+	templateStorage, err := storage.New(connectionString)
 	if err != nil {
 		panic(err)
 	}
 
-	registerShop := func(gRPCServer *grpc.Server) {
+	registerTemplate := func(gRPCServer *grpc.Server) {
 		template_service.Register(
 			gRPCServer,
 			&Template{
@@ -119,7 +102,7 @@ func New(
 		)
 	}
 
-	grpcApp := grpcapp.New(log, registerShop, grpcPort, auth_interceptor.AuthInterceptor())
+	grpcApp := grpcapp.New(log, registerTemplate, grpcPort, auth_interceptor.AuthInterceptor())
 
 	return &App{
 		GRPCServer: grpcApp,
@@ -127,13 +110,24 @@ func New(
 }
 
 func (template *Template) userMustHaveAccess(ctx context.Context, template_id int32) error {
-	availableTemplates, err := template.ListTemplates(ctx)
+	user_id, err := auth_interceptor.GetFromContext(ctx, "user_id")
 	if err != nil {
-		return fmt.Errorf("%s: %v", "getting user's available shops: ", err)
+		return fmt.Errorf("%s", "template operations: can't take current user id")
 	}
 
-	for _, available := range availableTemplates {
-		if template_id == available.GetTemplateId() {
+	var user_idInt int32
+	result, err := strconv.Atoi(user_id)
+	user_idInt = int32(result)
+	if err != nil {
+		return fmt.Errorf("%s", "template operations: can't take cast user_id to int32")
+	}
+	availibleCategories, err := template.templateStorage.GetUserListCategories(ctx, user_idInt)
+	if err != nil {
+		return fmt.Errorf("%s", "template operations: can't take user's availible categories")
+	}
+
+	for _, category_id := range availibleCategories {
+		if category_id == template_id {
 			return nil
 		}
 	}

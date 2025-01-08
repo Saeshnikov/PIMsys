@@ -44,9 +44,9 @@ CREATE TABLE branch (
 
 CREATE TABLE category (
   id serial PRIMARY KEY,
-  name varchar(32),
+  name varchar(32) NOT NULL,
   description text NOT NULL,
-  is_unique BOOLEAN NOT NULL
+  is_unique BOOLEAN
 );
 
 CREATE TABLE product (

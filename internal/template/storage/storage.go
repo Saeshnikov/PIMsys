@@ -32,21 +32,37 @@ func (s *Storage) CreateTemplate(
 	branch_id int32,
 	name string,
 	description string,
-	attribute_id []int32,
+	attributes []*proto.AttributeInfo,
 ) error {
 	stmt, err := s.db.Prepare(
 		`with rows as (INSERT INTO category (name, description) VALUES($1, $2) RETURNING id)
-		 INSERT INTO category_branch (branch_id, category_id) VALUES ($3, (SELECT id FROM rows))
-		 INSERT INTO category_attributes(attribute_id, category_id) VALUES ($4, (SELECT id FROM rows))`,
+		 INSERT INTO category_branch (branch_id, category_id) VALUES ($3, (SELECT id FROM rows)) RETURNING id`,
 	)
 	if err != nil {
-		return fmt.Errorf("%s: %w", "creating query: ", err)
+		return fmt.Errorf("%s: %w", "Error in CreateTemplate (step: prepare query INSERT category)", err)
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRowContext(ctx, name, description, branch_id, attribute_id).Err()
+	var category_id int32
+	err = stmt.QueryRowContext(ctx, name, description, branch_id).Scan(&category_id)
 	if err != nil {
-		return fmt.Errorf("%s: %w", "executing query: ", err)
+		return fmt.Errorf("%s: %w", "Error in CreateTemplate query (step: execute query INSERT category): ", err)
+	}
+
+	stmt, err = s.db.Prepare(
+		`with rows as (INSERT INTO attribute (type, is_value_required, is_unique, name, description) VALUES ($1, $2, $3, $4, $5) RETURNING id)
+		 INSERT INTO category_attributes(category_id, attribute_id) VALUES ((SELECT id FROM rows), $7)`,
+	)
+	if err != nil {
+		return fmt.Errorf("%s: %w", "Error in CreateTemplate (step: prepare query INSERT attribute)", err)
+	}
+	defer stmt.Close()
+
+	for _, attr := range attributes {
+		err = stmt.QueryRowContext(ctx, attr.Type, attr.IsValueRequired, attr.IsUnique, attr.Name, attr.Description, category_id).Err()
+		if err != nil {
+			return fmt.Errorf("%s: %w", "Error in CreateTemplate query (step: execute query INSER attribute): ", err)
+		}
 	}
 
 	return nil
@@ -57,17 +73,71 @@ func (s *Storage) AlterTemplate(
 	templateId int32,
 	name string,
 	description string,
-	attribute_id []int32,
+	attributes []*proto.AttributeInfo,
 ) error {
-	stmt, err := s.db.Prepare("UPDATE category SET name=$1, description=$2, description=$3 WHERE id=$4")
+	// Delete existing rows category -> attributes
+	stmt, err := s.db.Prepare("DELETE FROM category_attributes WHERE category_id=$1")
 	if err != nil {
-		return fmt.Errorf("%s: %w", "creating query: ", err)
+		return fmt.Errorf("%s: %w", "Error in AlterTemplate (step: prepare query DELETE)", err)
+	}
+	err = stmt.QueryRowContext(ctx, templateId).Err()
+	if err != nil {
+		return fmt.Errorf("%s: %w", "Error in AlterTemplate (step: execute query DELETE)", err)
+	}
+	stmt.Close()
+
+	// Create new attribute rows
+	var attributeIds []int32
+	stmt, err = s.db.Prepare(
+		`INSERT INTO attribute (type, is_value_required, is_unique, name, description)
+		 VALUES (%1, %2, %3, %4, %5) RETURNING id`,
+	)
+	if err != nil {
+		return fmt.Errorf("%s: %w", "Error in AlterTemplate (step: preparing INSERT query on attributes)", err)
+	}
+	for _, attr := range attributes {
+		var currentAttrId int32
+		err = stmt.QueryRowContext(
+			ctx,
+			attr.Type,
+			attr.IsValueRequired,
+			attr.IsUnique,
+			attr.Name,
+			attr.Description,
+		).Scan(&currentAttrId)
+		if err != nil {
+			return fmt.Errorf("%s: %w", "Error in AlterTemplate (step: execute INSERT query on attributes)", err)
+		}
+		attributeIds = append(attributeIds, currentAttrId)
+	}
+	stmt.Close()
+
+	// Insert into category
+	stmt, err = s.db.Prepare(
+		`INSERT INTO category (name, description)
+		 VALUES (%1, %2)`,
+	)
+	if err != nil {
+		return fmt.Errorf("%s: %w", "Error in AlterTemplate (step: prepare INSERT query on category)", err)
+	}
+	err = stmt.QueryRowContext(ctx, name, description).Err()
+	if err != nil {
+		return fmt.Errorf("%s: %w", "Error in AlterTemplate (step: execute INSERT query on category)", err)
+	}
+	stmt.Close()
+
+	// Insert into category_attributes
+	stmt, err = s.db.Prepare("INSERT INTO category_attributes (attribute_id, category_id) VALUES ($1, $2)")
+	if err != nil {
+		return fmt.Errorf("%s: %w", "Error while executing AlterTemplate query: ", err)
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRowContext(ctx, name, url, description, shopId).Err()
-	if err != nil {
-		return fmt.Errorf("%s: %w", "executing query: ", err)
+	for _, attrId := range attributeIds {
+		err = stmt.QueryRowContext(ctx, templateId, attrId).Err()
+		if err != nil {
+			return fmt.Errorf("%s: %w", "Error while executing AlterTemplate query: ", err)
+		}
 	}
 
 	return nil
@@ -75,17 +145,17 @@ func (s *Storage) AlterTemplate(
 
 func (s *Storage) DeleteTemplate(
 	ctx context.Context,
-	shopId int32,
+	templateId int32,
 ) error {
-	stmt, err := s.db.Prepare("DELETE FROM shop WHERE id=$1") // Нужна валидация на то, что такой ид существует
+	stmt, err := s.db.Prepare("DELETE FROM category WHERE id=$1") // Нужна валидация на то, что такой ид существует
 	if err != nil {
-		return fmt.Errorf("%s: %w", "creating query: ", err)
+		return fmt.Errorf("%s: %w", "Error in DeleteTemplate (step: prepare)", err)
 	}
 	defer stmt.Close()
 
-	err = stmt.QueryRowContext(ctx, shopId).Err()
+	err = stmt.QueryRowContext(ctx, templateId).Err()
 	if err != nil {
-		return fmt.Errorf("%s: %w", "executing query: ", err)
+		return fmt.Errorf("%s: %w", "Error in DeleteTemplate (step: execute)", err)
 	}
 
 	return nil
@@ -93,81 +163,130 @@ func (s *Storage) DeleteTemplate(
 
 func (s *Storage) ListTemplates(
 	ctx context.Context,
-	userId int32,
+	branch_id int32,
 ) (
 	[]*proto.TemplateInfo,
 	error,
 ) {
-
 	var res []*proto.TemplateInfo
 
-	stmt, err := s.db.Prepare("SELECT shop.id,name,description,avatar_url FROM shop JOIN users_shop ON shop.id=users_shop.shop_id WHERE users_shop.users_id=$1") // Добавить поиск с джоином по юзеру
+	/* Get all categories on requested branch*/
+	stmt, err := s.db.Prepare(
+		`SELECT category.id,name,description FROM category 
+		JOIN category_branch ON category.id=category_branch.id WHERE category_branch.branch_id=$1`,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "creating query: ", err)
+		return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: preparing SELECT category query)", err)
+	}
+
+	categoriesRows, err := stmt.QueryContext(ctx, branch_id)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: executing SELECT category query)", err)
+	}
+	stmt.Close()
+
+	/* Get all attributes on every category id */
+	stmt, err = s.db.Prepare(
+		`SELECT attribute.id FROM category_attributes WHERE category_attributes.category_id=$1`,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: preparing1 SELECT category query)", err)
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.QueryContext(ctx, userId)
+	attrMt, err := s.db.Prepare(
+		`SELECT type, is_value_required, is_unique, name, description FROM attribute WHERE id = $1`,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "executing query: ", err)
+		return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: preparing2 SELECT category query)", err)
 	}
+	defer attrMt.Close()
 
-	for rows.Next() {
-		shopInfo := proto.TemplateInfo{}
-		err := rows.Scan(&shopInfo.ShopId, &shopInfo.Name, &shopInfo.Description, &shopInfo.Url)
+	for categoriesRows.Next() {
+		var attributesArray []*proto.AttributeInfo
+		categoryElem := proto.TemplateInfo{}
+
+		// Get category id
+		categoriesRows.Scan(&categoryElem.TemplateId)
+
+		// Get attribute id's on category id
+		attributesIdRows, err := stmt.QueryContext(ctx, categoryElem.TemplateId)
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", "scan query result: ", err)
+			return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: executing SELECT category_attributes query)", err)
 		}
-		res = append(res, &shopInfo)
+		for attributesIdRows.Next() {
+			var currentAttributeId int32
+
+			// Parse attribute id
+			err = attributesIdRows.Scan(&currentAttributeId)
+			if err != nil {
+				return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: parsing attributeRow id)", err)
+			}
+
+			// Get attribute fields on id
+			attributeRows, err := attrMt.QueryContext(ctx, currentAttributeId)
+			if err != nil {
+				return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: executing SELECT attribute query)", err)
+			}
+
+			// Parse attribute rows
+			attrInfo := &proto.AttributeInfo{}
+			for attributeRows.Next() {
+				err = attributeRows.Scan(
+					&attrInfo.Type,
+					&attrInfo.IsValueRequired,
+					&attrInfo.IsUnique,
+					&attrInfo.Name,
+					&attrInfo.Description,
+				)
+				if err != nil {
+					return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: parsing attribute info row)", err)
+				}
+				attributesArray = append(attributesArray, attrInfo)
+			}
+		}
+		categoryElem.Attributes = attributesArray
+		res = append(res, &categoryElem)
 	}
 
 	return res, nil
 }
 
-// // User returns user by email.
-// func (s *Storage) User(ctx context.Context, email string) (User, error) {
-// 	const op = "storage.postgres.User"
+func (s *Storage) GetUserListCategories(
+	ctx context.Context,
+	user_id int32,
+) (
+	[]int32,
+	error,
+) {
+	var resList []int32
+	/* Get all shops on requested user*/
+	stmt, err := s.db.Prepare(
+		`SELECT DISTINCT c.id
+		FROM user u
+		JOIN user_shop us ON u.id = us.user_id
+		JOIN shop s ON us.shop_id = s.id
+		JOIN branch b ON s.id = b.shop_id
+		JOIN category_branch cb ON b.id = cb.branch_id
+		JOIN category c ON cb.category_id = c.id
+		WHERE u.id = %1`,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", "Error in GetUserListCategories (step: preparing SELECT query on user_shop)", err)
+	}
 
-// 	stmt, err := s.db.Prepare("SELECT id, email, password, isAdmin FROM users WHERE email = $1")
-// 	if err != nil {
-// 		return User{}, fmt.Errorf("%s: %w", op, err)
-// 	}
-// 	defer stmt.Close()
+	defer stmt.Close()
 
-// 	row := stmt.QueryRowContext(ctx, email)
+	shopIdRows, err := stmt.QueryContext(ctx, user_id)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: executing SELECT query on user_shop)", err)
+	}
 
-// 	var user User
-// 	err = row.Scan(&user.ID, &user.Email, &user.PassHash, &user.IsAdmin)
-// 	if err != nil {
-// 		if errors.Is(err, sql.ErrNoRows) {
-// 			return User{}, fmt.Errorf("%s: %w", op, auth_errors.ErrUserNotFound)
-// 		}
-// 		return User{}, fmt.Errorf("%s: %w", op, err)
-// 	}
+	for shopIdRows.Next() {
+		var currentShopId int32
+		shopIdRows.Scan(&currentShopId)
+		resList = append(resList, currentShopId)
+	}
 
-// 	return user, nil
-// }
-
-// // IsAdmin checks if the user is an admin.
-// func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error) {
-// 	const op = "storage.postgres.IsAdmin"
-
-// 	stmt, err := s.db.Prepare("SELECT isAdmin FROM users WHERE id = $1")
-// 	if err != nil {
-// 		return false, fmt.Errorf("%s: %w", op, err)
-// 	}
-// 	defer stmt.Close()
-
-// 	row := stmt.QueryRowContext(ctx, userID)
-
-// 	var isAdmin bool
-// 	err = row.Scan(&isAdmin)
-// 	if err != nil {
-// 		if errors.Is(err, sql.ErrNoRows) {
-// 			return false, fmt.Errorf("%s: %w", op, auth_errors.ErrUserNotFound)
-// 		}
-// 		return false, fmt.Errorf("%s: %w", op, err)
-// 	}
-
-// 	return isAdmin, nil
-// }
+	return resList, err
+}

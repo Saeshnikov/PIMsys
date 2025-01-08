@@ -1,5 +1,5 @@
 /**
- * @fileoverview gRPC-Web generated client stub for auth
+ * @fileoverview gRPC-Web generated client stub for branch
  * @enhanceable
  * @public
  */
@@ -8,7 +8,7 @@
 // versions:
 // 	protoc-gen-grpc-web v1.5.0
 // 	protoc              v3.21.12
-// source: sso.proto
+// source: branch.proto
 
 
 /* eslint-disable */
@@ -20,7 +20,7 @@ const grpc = {};
 grpc.web = require('grpc-web');
 
 const proto = {};
-proto.auth = require('./sso_pb.js');
+proto.branch = require('./branch_pb.js');
 
 /**
  * @param {string} hostname
@@ -30,7 +30,7 @@ proto.auth = require('./sso_pb.js');
  * @struct
  * @final
  */
-proto.auth.AuthClient =
+proto.branch.BranchClient =
     function(hostname, credentials, options) {
   if (!options) options = {};
   options.format = 'text';
@@ -56,7 +56,7 @@ proto.auth.AuthClient =
  * @struct
  * @final
  */
-proto.auth.AuthPromiseClient =
+proto.branch.BranchPromiseClient =
     function(hostname, credentials, options) {
   if (!options) options = {};
   options.format = 'text';
@@ -77,246 +77,246 @@ proto.auth.AuthPromiseClient =
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.auth.RegisterRequest,
- *   !proto.auth.RegisterResponse>}
+ *   !proto.branch.ListBranchesRequest,
+ *   !proto.branch.ListBranchesResponse>}
  */
-const methodDescriptor_Auth_Register = new grpc.web.MethodDescriptor(
-  '/auth.Auth/Register',
+const methodDescriptor_Branch_ListBranches = new grpc.web.MethodDescriptor(
+  '/branch.Branch/ListBranches',
   grpc.web.MethodType.UNARY,
-  proto.auth.RegisterRequest,
-  proto.auth.RegisterResponse,
+  proto.branch.ListBranchesRequest,
+  proto.branch.ListBranchesResponse,
   /**
-   * @param {!proto.auth.RegisterRequest} request
+   * @param {!proto.branch.ListBranchesRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.auth.RegisterResponse.deserializeBinary
+  proto.branch.ListBranchesResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.auth.RegisterRequest} request The
+ * @param {!proto.branch.ListBranchesRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.auth.RegisterResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.branch.ListBranchesResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.auth.RegisterResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.branch.ListBranchesResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.auth.AuthClient.prototype.register =
+proto.branch.BranchClient.prototype.listBranches =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/auth.Auth/Register',
+      '/branch.Branch/ListBranches',
       request,
       metadata || {},
-      methodDescriptor_Auth_Register,
+      methodDescriptor_Branch_ListBranches,
       callback);
 };
 
 
 /**
- * @param {!proto.auth.RegisterRequest} request The
+ * @param {!proto.branch.ListBranchesRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.auth.RegisterResponse>}
+ * @return {!Promise<!proto.branch.ListBranchesResponse>}
  *     Promise that resolves to the response
  */
-proto.auth.AuthPromiseClient.prototype.register =
+proto.branch.BranchPromiseClient.prototype.listBranches =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/auth.Auth/Register',
+      '/branch.Branch/ListBranches',
       request,
       metadata || {},
-      methodDescriptor_Auth_Register);
+      methodDescriptor_Branch_ListBranches);
 };
 
 
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.auth.LoginRequest,
- *   !proto.auth.LoginResponse>}
+ *   !proto.branch.NewBranchRequest,
+ *   !proto.branch.NewBranchResponse>}
  */
-const methodDescriptor_Auth_Login = new grpc.web.MethodDescriptor(
-  '/auth.Auth/Login',
+const methodDescriptor_Branch_NewBranch = new grpc.web.MethodDescriptor(
+  '/branch.Branch/NewBranch',
   grpc.web.MethodType.UNARY,
-  proto.auth.LoginRequest,
-  proto.auth.LoginResponse,
+  proto.branch.NewBranchRequest,
+  proto.branch.NewBranchResponse,
   /**
-   * @param {!proto.auth.LoginRequest} request
+   * @param {!proto.branch.NewBranchRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.auth.LoginResponse.deserializeBinary
+  proto.branch.NewBranchResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.auth.LoginRequest} request The
+ * @param {!proto.branch.NewBranchRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.auth.LoginResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.branch.NewBranchResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.auth.LoginResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.branch.NewBranchResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.auth.AuthClient.prototype.login =
+proto.branch.BranchClient.prototype.newBranch =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/auth.Auth/Login',
+      '/branch.Branch/NewBranch',
       request,
       metadata || {},
-      methodDescriptor_Auth_Login,
+      methodDescriptor_Branch_NewBranch,
       callback);
 };
 
 
 /**
- * @param {!proto.auth.LoginRequest} request The
+ * @param {!proto.branch.NewBranchRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.auth.LoginResponse>}
+ * @return {!Promise<!proto.branch.NewBranchResponse>}
  *     Promise that resolves to the response
  */
-proto.auth.AuthPromiseClient.prototype.login =
+proto.branch.BranchPromiseClient.prototype.newBranch =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/auth.Auth/Login',
+      '/branch.Branch/NewBranch',
       request,
       metadata || {},
-      methodDescriptor_Auth_Login);
+      methodDescriptor_Branch_NewBranch);
 };
 
 
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.auth.IsAdminRequest,
- *   !proto.auth.IsAdminResponse>}
+ *   !proto.branch.AlterBranchRequest,
+ *   !proto.branch.AlterBranchResponse>}
  */
-const methodDescriptor_Auth_IsAdmin = new grpc.web.MethodDescriptor(
-  '/auth.Auth/IsAdmin',
+const methodDescriptor_Branch_AlterBranch = new grpc.web.MethodDescriptor(
+  '/branch.Branch/AlterBranch',
   grpc.web.MethodType.UNARY,
-  proto.auth.IsAdminRequest,
-  proto.auth.IsAdminResponse,
+  proto.branch.AlterBranchRequest,
+  proto.branch.AlterBranchResponse,
   /**
-   * @param {!proto.auth.IsAdminRequest} request
+   * @param {!proto.branch.AlterBranchRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.auth.IsAdminResponse.deserializeBinary
+  proto.branch.AlterBranchResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.auth.IsAdminRequest} request The
+ * @param {!proto.branch.AlterBranchRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.auth.IsAdminResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.branch.AlterBranchResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.auth.IsAdminResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.branch.AlterBranchResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.auth.AuthClient.prototype.isAdmin =
+proto.branch.BranchClient.prototype.alterBranch =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/auth.Auth/IsAdmin',
+      '/branch.Branch/AlterBranch',
       request,
       metadata || {},
-      methodDescriptor_Auth_IsAdmin,
+      methodDescriptor_Branch_AlterBranch,
       callback);
 };
 
 
 /**
- * @param {!proto.auth.IsAdminRequest} request The
+ * @param {!proto.branch.AlterBranchRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.auth.IsAdminResponse>}
+ * @return {!Promise<!proto.branch.AlterBranchResponse>}
  *     Promise that resolves to the response
  */
-proto.auth.AuthPromiseClient.prototype.isAdmin =
+proto.branch.BranchPromiseClient.prototype.alterBranch =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/auth.Auth/IsAdmin',
+      '/branch.Branch/AlterBranch',
       request,
       metadata || {},
-      methodDescriptor_Auth_IsAdmin);
+      methodDescriptor_Branch_AlterBranch);
 };
 
 
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.auth.LogoutRequest,
- *   !proto.auth.LogoutResponse>}
+ *   !proto.branch.DeleteBranchRequest,
+ *   !proto.branch.DeleteBranchResponse>}
  */
-const methodDescriptor_Auth_Logout = new grpc.web.MethodDescriptor(
-  '/auth.Auth/Logout',
+const methodDescriptor_Branch_DeleteBranch = new grpc.web.MethodDescriptor(
+  '/branch.Branch/DeleteBranch',
   grpc.web.MethodType.UNARY,
-  proto.auth.LogoutRequest,
-  proto.auth.LogoutResponse,
+  proto.branch.DeleteBranchRequest,
+  proto.branch.DeleteBranchResponse,
   /**
-   * @param {!proto.auth.LogoutRequest} request
+   * @param {!proto.branch.DeleteBranchRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.auth.LogoutResponse.deserializeBinary
+  proto.branch.DeleteBranchResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.auth.LogoutRequest} request The
+ * @param {!proto.branch.DeleteBranchRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.auth.LogoutResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.branch.DeleteBranchResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.auth.LogoutResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.branch.DeleteBranchResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.auth.AuthClient.prototype.logout =
+proto.branch.BranchClient.prototype.deleteBranch =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/auth.Auth/Logout',
+      '/branch.Branch/DeleteBranch',
       request,
       metadata || {},
-      methodDescriptor_Auth_Logout,
+      methodDescriptor_Branch_DeleteBranch,
       callback);
 };
 
 
 /**
- * @param {!proto.auth.LogoutRequest} request The
+ * @param {!proto.branch.DeleteBranchRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.auth.LogoutResponse>}
+ * @return {!Promise<!proto.branch.DeleteBranchResponse>}
  *     Promise that resolves to the response
  */
-proto.auth.AuthPromiseClient.prototype.logout =
+proto.branch.BranchPromiseClient.prototype.deleteBranch =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/auth.Auth/Logout',
+      '/branch.Branch/DeleteBranch',
       request,
       metadata || {},
-      methodDescriptor_Auth_Logout);
+      methodDescriptor_Branch_DeleteBranch);
 };
 
 
-module.exports = proto.auth;
+module.exports = proto.branch;
 

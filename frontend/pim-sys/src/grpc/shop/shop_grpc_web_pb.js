@@ -1,5 +1,5 @@
 /**
- * @fileoverview gRPC-Web generated client stub for auth
+ * @fileoverview gRPC-Web generated client stub for shop
  * @enhanceable
  * @public
  */
@@ -8,7 +8,7 @@
 // versions:
 // 	protoc-gen-grpc-web v1.5.0
 // 	protoc              v3.21.12
-// source: sso.proto
+// source: shop.proto
 
 
 /* eslint-disable */
@@ -20,7 +20,7 @@ const grpc = {};
 grpc.web = require('grpc-web');
 
 const proto = {};
-proto.auth = require('./sso_pb.js');
+proto.shop = require('./shop_pb.js');
 
 /**
  * @param {string} hostname
@@ -30,7 +30,7 @@ proto.auth = require('./sso_pb.js');
  * @struct
  * @final
  */
-proto.auth.AuthClient =
+proto.shop.ShopClient =
     function(hostname, credentials, options) {
   if (!options) options = {};
   options.format = 'text';
@@ -56,7 +56,7 @@ proto.auth.AuthClient =
  * @struct
  * @final
  */
-proto.auth.AuthPromiseClient =
+proto.shop.ShopPromiseClient =
     function(hostname, credentials, options) {
   if (!options) options = {};
   options.format = 'text';
@@ -77,246 +77,246 @@ proto.auth.AuthPromiseClient =
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.auth.RegisterRequest,
- *   !proto.auth.RegisterResponse>}
+ *   !proto.shop.ListShopsRequest,
+ *   !proto.shop.ListShopsResponse>}
  */
-const methodDescriptor_Auth_Register = new grpc.web.MethodDescriptor(
-  '/auth.Auth/Register',
+const methodDescriptor_Shop_ListShops = new grpc.web.MethodDescriptor(
+  '/shop.Shop/ListShops',
   grpc.web.MethodType.UNARY,
-  proto.auth.RegisterRequest,
-  proto.auth.RegisterResponse,
+  proto.shop.ListShopsRequest,
+  proto.shop.ListShopsResponse,
   /**
-   * @param {!proto.auth.RegisterRequest} request
+   * @param {!proto.shop.ListShopsRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.auth.RegisterResponse.deserializeBinary
+  proto.shop.ListShopsResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.auth.RegisterRequest} request The
+ * @param {!proto.shop.ListShopsRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.auth.RegisterResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.shop.ListShopsResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.auth.RegisterResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.shop.ListShopsResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.auth.AuthClient.prototype.register =
+proto.shop.ShopClient.prototype.listShops =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/auth.Auth/Register',
+      '/shop.Shop/ListShops',
       request,
       metadata || {},
-      methodDescriptor_Auth_Register,
+      methodDescriptor_Shop_ListShops,
       callback);
 };
 
 
 /**
- * @param {!proto.auth.RegisterRequest} request The
+ * @param {!proto.shop.ListShopsRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.auth.RegisterResponse>}
+ * @return {!Promise<!proto.shop.ListShopsResponse>}
  *     Promise that resolves to the response
  */
-proto.auth.AuthPromiseClient.prototype.register =
+proto.shop.ShopPromiseClient.prototype.listShops =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/auth.Auth/Register',
+      '/shop.Shop/ListShops',
       request,
       metadata || {},
-      methodDescriptor_Auth_Register);
+      methodDescriptor_Shop_ListShops);
 };
 
 
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.auth.LoginRequest,
- *   !proto.auth.LoginResponse>}
+ *   !proto.shop.NewShopRequest,
+ *   !proto.shop.NewShopResponse>}
  */
-const methodDescriptor_Auth_Login = new grpc.web.MethodDescriptor(
-  '/auth.Auth/Login',
+const methodDescriptor_Shop_NewShop = new grpc.web.MethodDescriptor(
+  '/shop.Shop/NewShop',
   grpc.web.MethodType.UNARY,
-  proto.auth.LoginRequest,
-  proto.auth.LoginResponse,
+  proto.shop.NewShopRequest,
+  proto.shop.NewShopResponse,
   /**
-   * @param {!proto.auth.LoginRequest} request
+   * @param {!proto.shop.NewShopRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.auth.LoginResponse.deserializeBinary
+  proto.shop.NewShopResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.auth.LoginRequest} request The
+ * @param {!proto.shop.NewShopRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.auth.LoginResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.shop.NewShopResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.auth.LoginResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.shop.NewShopResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.auth.AuthClient.prototype.login =
+proto.shop.ShopClient.prototype.newShop =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/auth.Auth/Login',
+      '/shop.Shop/NewShop',
       request,
       metadata || {},
-      methodDescriptor_Auth_Login,
+      methodDescriptor_Shop_NewShop,
       callback);
 };
 
 
 /**
- * @param {!proto.auth.LoginRequest} request The
+ * @param {!proto.shop.NewShopRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.auth.LoginResponse>}
+ * @return {!Promise<!proto.shop.NewShopResponse>}
  *     Promise that resolves to the response
  */
-proto.auth.AuthPromiseClient.prototype.login =
+proto.shop.ShopPromiseClient.prototype.newShop =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/auth.Auth/Login',
+      '/shop.Shop/NewShop',
       request,
       metadata || {},
-      methodDescriptor_Auth_Login);
+      methodDescriptor_Shop_NewShop);
 };
 
 
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.auth.IsAdminRequest,
- *   !proto.auth.IsAdminResponse>}
+ *   !proto.shop.AlterShopRequest,
+ *   !proto.shop.AlterShopResponse>}
  */
-const methodDescriptor_Auth_IsAdmin = new grpc.web.MethodDescriptor(
-  '/auth.Auth/IsAdmin',
+const methodDescriptor_Shop_AlterShop = new grpc.web.MethodDescriptor(
+  '/shop.Shop/AlterShop',
   grpc.web.MethodType.UNARY,
-  proto.auth.IsAdminRequest,
-  proto.auth.IsAdminResponse,
+  proto.shop.AlterShopRequest,
+  proto.shop.AlterShopResponse,
   /**
-   * @param {!proto.auth.IsAdminRequest} request
+   * @param {!proto.shop.AlterShopRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.auth.IsAdminResponse.deserializeBinary
+  proto.shop.AlterShopResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.auth.IsAdminRequest} request The
+ * @param {!proto.shop.AlterShopRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.auth.IsAdminResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.shop.AlterShopResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.auth.IsAdminResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.shop.AlterShopResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.auth.AuthClient.prototype.isAdmin =
+proto.shop.ShopClient.prototype.alterShop =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/auth.Auth/IsAdmin',
+      '/shop.Shop/AlterShop',
       request,
       metadata || {},
-      methodDescriptor_Auth_IsAdmin,
+      methodDescriptor_Shop_AlterShop,
       callback);
 };
 
 
 /**
- * @param {!proto.auth.IsAdminRequest} request The
+ * @param {!proto.shop.AlterShopRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.auth.IsAdminResponse>}
+ * @return {!Promise<!proto.shop.AlterShopResponse>}
  *     Promise that resolves to the response
  */
-proto.auth.AuthPromiseClient.prototype.isAdmin =
+proto.shop.ShopPromiseClient.prototype.alterShop =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/auth.Auth/IsAdmin',
+      '/shop.Shop/AlterShop',
       request,
       metadata || {},
-      methodDescriptor_Auth_IsAdmin);
+      methodDescriptor_Shop_AlterShop);
 };
 
 
 /**
  * @const
  * @type {!grpc.web.MethodDescriptor<
- *   !proto.auth.LogoutRequest,
- *   !proto.auth.LogoutResponse>}
+ *   !proto.shop.DeleteShopRequest,
+ *   !proto.shop.DeleteShopResponse>}
  */
-const methodDescriptor_Auth_Logout = new grpc.web.MethodDescriptor(
-  '/auth.Auth/Logout',
+const methodDescriptor_Shop_DeleteShop = new grpc.web.MethodDescriptor(
+  '/shop.Shop/DeleteShop',
   grpc.web.MethodType.UNARY,
-  proto.auth.LogoutRequest,
-  proto.auth.LogoutResponse,
+  proto.shop.DeleteShopRequest,
+  proto.shop.DeleteShopResponse,
   /**
-   * @param {!proto.auth.LogoutRequest} request
+   * @param {!proto.shop.DeleteShopRequest} request
    * @return {!Uint8Array}
    */
   function(request) {
     return request.serializeBinary();
   },
-  proto.auth.LogoutResponse.deserializeBinary
+  proto.shop.DeleteShopResponse.deserializeBinary
 );
 
 
 /**
- * @param {!proto.auth.LogoutRequest} request The
+ * @param {!proto.shop.DeleteShopRequest} request The
  *     request proto
  * @param {?Object<string, string>} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.auth.LogoutResponse)}
+ * @param {function(?grpc.web.RpcError, ?proto.shop.DeleteShopResponse)}
  *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.auth.LogoutResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.shop.DeleteShopResponse>|undefined}
  *     The XHR Node Readable Stream
  */
-proto.auth.AuthClient.prototype.logout =
+proto.shop.ShopClient.prototype.deleteShop =
     function(request, metadata, callback) {
   return this.client_.rpcCall(this.hostname_ +
-      '/auth.Auth/Logout',
+      '/shop.Shop/DeleteShop',
       request,
       metadata || {},
-      methodDescriptor_Auth_Logout,
+      methodDescriptor_Shop_DeleteShop,
       callback);
 };
 
 
 /**
- * @param {!proto.auth.LogoutRequest} request The
+ * @param {!proto.shop.DeleteShopRequest} request The
  *     request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.auth.LogoutResponse>}
+ * @return {!Promise<!proto.shop.DeleteShopResponse>}
  *     Promise that resolves to the response
  */
-proto.auth.AuthPromiseClient.prototype.logout =
+proto.shop.ShopPromiseClient.prototype.deleteShop =
     function(request, metadata) {
   return this.client_.unaryCall(this.hostname_ +
-      '/auth.Auth/Logout',
+      '/shop.Shop/DeleteShop',
       request,
       metadata || {},
-      methodDescriptor_Auth_Logout);
+      methodDescriptor_Shop_DeleteShop);
 };
 
 
-module.exports = proto.auth;
+module.exports = proto.shop;
 

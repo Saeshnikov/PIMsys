@@ -52,7 +52,28 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10001", "describe"]
-      interval: 3s
+      interval: 5s
+      retries: 5
+
+  products: 
+    image: main-image
+    build:
+      context:    ./docker
+      dockerfile: main-image
+    entrypoint: bash -c "mkdir -p cover &&
+      go build -cover -o /app cmd/products/main.go &&
+      GOCOVERDIR=cover /app"
+    volumes:
+      - "$PWD:$PWD:rw"
+    working_dir: $PWD
+    container_name: products
+    ports:
+     - 10002:10002
+    networks:
+      - common-net
+    healthcheck:
+      test: ["CMD", "grpcurl", "-plaintext","localhost:10002", "describe"]
+      interval: 5s
       retries: 5
 
   branch: 

@@ -1,0 +1,53 @@
+// Версия ProtoBuf
+syntax = "proto3";
+
+// Текущий пакет - указывает пространство имен для сервиса и сообщений. Помогает избегать конфликтов имен.
+package products;
+
+// Настройки для генерации Go кода.
+option go_package = "pim-sys.proto.v1;proto";
+
+service Product {
+  rpc NewProduct (ProductInfo) returns (Empty);
+  rpc AlterProduct (ProductInfoWithId) returns (Empty);
+  rpc DeleteProduct (DeleteProductRequest) returns (Empty);
+  rpc ListProducts (Empty) returns (Products);
+  rpc SellProduct (SellProductRequest) returns (Empty);
+}
+
+message ProductInfo {
+  int32 category_id = 1;
+  int32 branch_id = 2;
+  string status = 3;
+  string name = 4;
+  double price = 5;
+  int64 amount = 6;
+  repeated Attribute attributes = 7;
+}
+
+message Attribute {
+  int32 id = 1;
+  string value_text = 2;
+  int64 value_number = 3;
+  bool value_bool = 4;
+}
+
+message ProductInfoWithId {
+  int32 product_id = 1;
+  ProductInfo product = 2;
+}
+
+message DeleteProductRequest{
+  int32 product_id = 1;
+}
+
+message SellProductRequest{
+  int32 product_id = 1;
+  int64 amount = 2;
+}
+
+message Empty {}
+
+message Products {
+  repeated ProductInfoWithId product = 1;
+}

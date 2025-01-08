@@ -22,13 +22,14 @@ type Template interface {
 		name string,
 		description string,
 		branch_id int32,
-		attribute_id []int32,
+		attributes []*proto.AttributeInfo,
 	) error
 	AlterTemplate(
 		ctx context.Context,
+		template_id int32,
 		name string,
 		description string,
-		attribute_id []int32,
+		attributes []*proto.AttributeInfo,
 	) error
 	DeleteTemplate(
 		ctx context.Context,
@@ -59,8 +60,8 @@ func (s *ServerAPI) NewTemplate(
 	if in.BranchId == 0 {
 		return nil, status.Error(codes.InvalidArgument, "branch id is required")
 	}
-	if len(in.AttributeId) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "attribute id is required")
+	if len(in.Attributes) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "attribute structures is required")
 	}
 
 	err := s.template.NewTemplate(
@@ -68,7 +69,7 @@ func (s *ServerAPI) NewTemplate(
 		in.GetName(),
 		in.GetDescription(),
 		in.GetBranchId(),
-		in.GetAttributeId())
+		in.GetAttributes())
 
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to create new template: %w", err).Error())
@@ -81,17 +82,20 @@ func (s *ServerAPI) AlterTemplate(
 	ctx context.Context,
 	in *proto.AlterTemplateRequest,
 ) (*proto.AlterTemplateResponse, error) {
+	if in.BranchId == 0 {
+		return nil, status.Error(codes.InvalidArgument, "branch_id is required")
+	}
 	if in.Name == "" {
 		return nil, status.Error(codes.InvalidArgument, "name is required")
 	}
 	if in.Description == "" {
 		return nil, status.Error(codes.InvalidArgument, "description is required")
 	}
-	if len(in.AttributeId) == 0 {
+	if len(in.Attributes) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "template id is required")
 	}
 
-	err := s.template.AlterTemplate(ctx, in.GetName(), in.GetDescription(), in.GetAttributeId())
+	err := s.template.AlterTemplate(ctx, in.GetBranchId(), in.GetName(), in.GetDescription(), in.GetAttributes())
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to alter shop: %w", err).Error())
 	}

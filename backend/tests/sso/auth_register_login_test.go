@@ -23,7 +23,7 @@ const (
 func TestRegisterLogin_Login_HappyPath(t *testing.T) {
 	ctx, st := suite.New(t, configPath)
 
-	email := gofakeit.Email()
+	email := gofakeit.FirstName()
 	pass := randomFakePassword()
 	name := gofakeit.FirstName()
 	phone := gofakeit.Phone()
@@ -68,7 +68,7 @@ func TestRegisterLogin_Login_HappyPath(t *testing.T) {
 func TestRegisterLogin_DuplicatedRegistration(t *testing.T) {
 	ctx, st := suite.New(t, configPath)
 
-	email := gofakeit.Email()
+	email := gofakeit.FirstName()
 	pass := randomFakePassword()
 	name := gofakeit.FirstName()
 	phone := gofakeit.Phone()
@@ -107,7 +107,7 @@ func TestRegister_FailCases(t *testing.T) {
 	}{
 		{
 			name:        "Register with Empty Password",
-			email:       gofakeit.Email(),
+			email:       gofakeit.FirstName(),
 			password:    "",
 			nameuser:    gofakeit.FirstName(),
 			phone:       gofakeit.Phone(),
@@ -155,7 +155,7 @@ func TestLogin_FailCases(t *testing.T) {
 	}{
 		{
 			name:        "Login with Empty Password",
-			email:       gofakeit.Email(),
+			email:       gofakeit.FirstName(),
 			password:    "",
 			expectedErr: "password is required",
 		},
@@ -173,7 +173,7 @@ func TestLogin_FailCases(t *testing.T) {
 		},
 		{
 			name:        "Login with Non-Matching Password",
-			email:       gofakeit.Email(),
+			email:       gofakeit.FirstName(),
 			password:    randomFakePassword(),
 			expectedErr: "invalid email or password",
 		},
@@ -182,7 +182,7 @@ func TestLogin_FailCases(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := st.AuthClient.Register(ctx, &proto.RegisterRequest{
-				Email:    gofakeit.Email(),
+				Email:    gofakeit.FirstName(),
 				Password: randomFakePassword(),
 				Name:     gofakeit.FirstName(),
 				Phone:    gofakeit.Phone(),
@@ -200,5 +200,5 @@ func TestLogin_FailCases(t *testing.T) {
 }
 
 func randomFakePassword() string {
-	return gofakeit.Password(true, true, true, true, false, passDefaultLen)
+	return gofakeit.Password(true, true, false, false, false, passDefaultLen)
 }

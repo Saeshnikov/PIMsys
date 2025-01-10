@@ -1,9 +1,0 @@
-INSERT INTO users (name,email,password,isAdmin,phone) 
-VALUES ('test-user','test-email','test-hash',false,'test-phone');
-
-with row as (INSERT INTO shop (name, avatar_url, description) 
-VALUES ('test-shop', '', 'testShop for test template')) INSERT INTO user_shop (shop_id) VALUES (row.id);
-
-INSERT INTO branch (name, shop_id, description, address, site, type) 
-VALUES ('test-branch', (SELECT id FROM shop LIMIT 1), 'descr.', 'addr', 'site', 'online')
-

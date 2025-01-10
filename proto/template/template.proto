@@ -52,7 +52,6 @@ message TemplateInfo{
 }
 
 message AttributeInfo {
-  int32 attribute_id = 1;
   string type = 2;
   bool is_value_required = 3;
   bool is_unique = 4;

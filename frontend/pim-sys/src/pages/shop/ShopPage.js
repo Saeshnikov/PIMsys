@@ -8,6 +8,9 @@ import {
   ShopInfo 
 } from "../../grpc/shop/shop_pb"; // Сгенерированные сообщения
 import { useNavigate } from "react-router-dom";
+import { IconButton } from '@mui/material';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import EditIcon from '@mui/icons-material/Edit';
 import {
   Button,
   TextField,
@@ -52,6 +55,8 @@ const StyledCard = styled(Card)(({ theme }) => ({
 }));
 
 const ShopPage = () => {
+  const deleteIcon = <DeleteForeverIcon />;
+  const editIcon = <EditIcon />;
   const client = new ShopClient("http://localhost:8001"); // URL gRPC-сервера
 
   const [shops, setShops] = useState([]);
@@ -185,10 +190,32 @@ const ShopPage = () => {
           <Grid container spacing={2}>
             {shops.map((shop) => (
               <Grid item xs={12} sm={6} md={4} key={shop.shopId}>
-                  {(editShop==null || editShop.shopId!==shop.shopId) && (<StyledCard onClick={() => setEditShop(shop)}>
-                    <Typography variant="subtitle1" gutterBottom>
-                      {shop.name}
-                    </Typography>
+                  {(editShop==null || editShop.shopId!==shop.shopId) && (<StyledCard>
+                    <Grid container spacing={2}>
+                      <Grid item xs={7}>
+                        <Typography variant="subtitle1" gutterBottom>
+                          {shop.name}
+                        
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={2}>
+                        <IconButton onClick={() => setEditShop(shop)}
+                        variant="filled"
+                        color="primary"
+                        sx={{ alignSelf: "flex-end" }}
+                        >{editIcon}</IconButton>
+                      </Grid>
+                      <Grid item xs={2}>
+                        <IconButton onClick={() => handleDeleteShop(shop.shopId)}
+                        variant="filled"
+                        color="danger"
+                        sx={{ alignSelf: "flex-end" }}
+                        >{deleteIcon}</IconButton>
+                      </Grid>
+                    </Grid>
+                    
+                    
+                    
                     <Chip
                       label="Филиалы"
                       color="primary"
@@ -231,6 +258,7 @@ const ShopPage = () => {
                       color="primary"
                       sx={{ alignSelf: "flex-start" }}
                       >Сохранить</Button>
+
                       <Button onClick={() => setEditShop(null)}
                       variant="contained"
                       color="primary"

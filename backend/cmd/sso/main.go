@@ -17,7 +17,7 @@ func main() {
 
 	log := logger.SetupLogger(cfg.LogLevel)
 
-	application := auth_app.New(log, cfg.Grpc.Port, cfg.ConnectionString, cfg.TokenTTL)
+	application := auth_app.New(log, cfg.Grpc.Port, cfg.ConnectionString, cfg.TokenTLL)
 
 	go func() {
 		application.GRPCServer.MustRun()

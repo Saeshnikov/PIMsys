@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import LocalMallIcon from '@mui/icons-material/LocalMall';
 import InterestsIcon from '@mui/icons-material/Interests';
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import EditIcon from '@mui/icons-material/Edit';
+import { IconButton } from '@mui/material';
 import {
   Button,
   TextField,
@@ -24,6 +27,7 @@ import {
   NewBranchRequest,
   DeleteBranchRequest,
   AlterBranchRequest,
+  BranchInfo,
 } from "../../grpc/branch/branch_pb";
 import { useNavigate } from "react-router-dom";
 
@@ -68,6 +72,9 @@ const BranchPage = () => {
   const [newBranchSite, setNewBranchSite] = useState("");
   const [branchType, setBranchType] = useState("online");
   const [branches, setBranches] = useState([]);
+  const [editBranch, setEditBranch] = useState(null);
+  const deleteIcon = <DeleteForeverIcon />;
+  const editIcon = <EditIcon />;
 
   const branchClient = new BranchClient("http://localhost:8003", null, null);
 
@@ -90,6 +97,34 @@ const BranchPage = () => {
     });
   };
 
+  const handleEditBranch = async () => {
+    const request = new AlterBranchRequest();
+    const branchInfo = new BranchInfo();
+    branchInfo.setBranchId(editBranch.branchId)
+    branchInfo.setName(editBranch.name);
+    branchInfo.setShopId(editBranch.shopId);
+    branchInfo.setDescription(editBranch.description);
+    branchInfo.setAddress(editBranch.address);
+    branchInfo.setSite(editBranch.site);
+    branchInfo.setBranchType(editBranch.branchType);
+    request.setBranchInfo(branchInfo)
+    request.setBranchId(editBranch.branchId);
+    
+    const token = localStorage.getItem("jwt_token");
+    const metadata = {
+      authorization: token,
+    };
+    branchClient.alterBranch(request, metadata, (err, response) => {
+      if (err) {
+        console.error("Ошибка изменения филиала:", err.message);
+        alert("Ошибка изменения филиала:", err.message)
+        return;
+      }
+      setEditBranch(null);
+      loadBranches();
+    });
+  };
+
   const createNewBranch = () => {
     const request = new NewBranchRequest();
     request.setShopId(shopId)
@@ -105,7 +140,7 @@ const BranchPage = () => {
     
     branchClient.newBranch(request, metadata, (err, response) => {
       if (err) {
-        console.error("Error creating branch", err);
+        console.error("Error creating филиала", err);
       } else {
         loadBranches();
         setNewBranchName("");
@@ -128,11 +163,17 @@ const BranchPage = () => {
 
     branchClient.deleteBranch(request, metadata, (err, response) => {
       if (err) {
-        console.error("Error deleting shop", err);
+        console.error("Error deleting филиала", err);
       } else {
         loadBranches();
       }
     });
+  };
+
+  const handleOpenProducts = async (branch) => {
+    localStorage.setItem("branchId", branch.branchId);
+
+    navigate(`/shop/${shopId}/${branch.branchId}/products`);
   };
 
   useEffect(() => {
@@ -223,47 +264,129 @@ const BranchPage = () => {
       <Grid container spacing={2}>
         {branches.map((branch) => (
           <Grid item xs={12} sm={6} md={4} key={branch.branchId}>
-            {/* <Link
-              to={`/branch/${branch.branchId}`} // Добавляем ссылку на магазин
-              style={{ textDecoration: "none" }}
-            > */}
-              <StyledCard>
-                <Typography variant="subtitle1" gutterBottom>
-                  {branch.name}
-                </Typography>
-                
-                <Chip
-                  label={
-                    branch.branchType === "online"
-                      ? "Онлайн-магазин"
-                      : branch.branchType === "offline"
-                      ? "Офлайн-магазин"
-                      : "Магазин на маркетплейсе"
-                  }
-                  color="primary"
-                  variant="outlined"
-                  sx={{ marginBottom: 1 }}
-                />
-                <div></div>
-                <Chip
-                  label="Продукты"
-                  icon ={productIcon}
-                  color="success"
-                  variant="outlined"
-                  sx={{ marginBottom: 1 }}
-                />
-                <Chip
-                  label="Категории"
-                  icon ={categoriesIcon}
-                  color="success"
-                  variant="outlined"
-                  sx={{ marginBottom: 1 }}
-                />
-                <Typography variant="body2" color="textSecondary">
-                  {branch.description}
-                </Typography>
-              </StyledCard>
-            {/* </Link> */}
+              {(editBranch==null || editBranch.branchId!==branch.branchId) && (<StyledCard>
+                <Grid container spacing={2}>
+                  <Grid item xs={7}>
+                      <Typography variant="subtitle1" gutterBottom>
+                        {branch.name}
+                      
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <IconButton onClick={() => setEditBranch(branch)}
+                      variant="filled"
+                      color="primary"
+                      sx={{ alignSelf: "flex-end" }}
+                      >{editIcon}</IconButton>
+                    </Grid>
+                    <Grid item xs={2}>
+                      <IconButton onClick={() => deleteBranch(branch.branchId)}
+                      variant="filled"
+                      color="danger"
+                      sx={{ alignSelf: "flex-end" }}
+                      >{deleteIcon}</IconButton>
+                    </Grid>
+                  </Grid>
+                  <Chip
+                    label={
+                      branch.branchType === "online"
+                        ? "Онлайн-магазин"
+                        : branch.branchType === "offline"
+                        ? "Офлайн-магазин"
+                        : "Магазин на маркетплейсе"
+                    }
+                    color="primary"
+                    variant="outlined"
+                    sx={{ marginBottom: 1 }}
+                  />
+                  <div></div>
+                  <Chip
+                    label="Продукты"
+                    icon ={productIcon}
+                    color="success"
+                    variant="outlined"
+                    sx={{ marginBottom: 1 }}
+                    onClick={() => handleOpenProducts(branch)}
+                  />
+                  <Chip
+                    label="Категории"
+                    icon ={categoriesIcon}
+                    color="success"
+                    variant="outlined"
+                    sx={{ marginBottom: 1 }}
+                  />
+                  <Typography variant="body2" color="textSecondary">
+                    {branch.description}
+                  </Typography>                  
+                  </StyledCard>
+                )}
+                {editBranch!=null && editBranch.branchId===branch.branchId && (
+                <div>
+                  <StyledCard>
+                    <RadioGroup
+                      row
+                      value={editBranch.branchType}
+                      onChange={(e) => setEditBranch({ ...editBranch, branchType: e.target.value })}
+                    >
+                      <FormControlLabel
+                        value="online"
+                        control={<Radio />}
+                        label="Онлайн-магазин"
+                      />
+                      <FormControlLabel
+                        value="offline"
+                        control={<Radio />}
+                        label="Офлайн-магазин"
+                      />
+                      <FormControlLabel
+                        value="marketplace"
+                        control={<Radio />}
+                        label="Магазин на маркетплейсе"
+                      />
+                    </RadioGroup>
+                    <TextField
+                      label="Название филиала"
+                      fullWidth
+                      value={editBranch.name}
+                      onChange={(e) => setEditBranch({ ...editBranch, name: e.target.value })}
+                    />
+                    <TextField
+                      label="Описание филиала"
+                      fullWidth
+                      value={editBranch.description}
+                      onChange={(e) => setEditBranch({ ...editBranch, description: e.target.value })}
+                      multiline
+                      rows={3}
+                    />
+                    <TextField
+                      label="Адрес филиала"
+                      fullWidth
+                      value={editBranch.address}
+                      onChange={(e) => setEditBranch({ ...editBranch, address: e.target.value })}
+                    />
+                    <TextField
+                      label="Сайт филиала"
+                      fullWidth
+                      value={editBranch.site}
+                      onChange={(e) => setEditBranch({ ...editBranch, site: e.target.value })}
+                    />
+                                              
+                    <Button onClick={handleEditBranch} 
+                    variant="contained"
+                    color="primary"
+                    sx={{ alignSelf: "flex-start" }}
+                    >Сохранить</Button>
+
+                    <Button onClick={() => setEditBranch(null)}
+                    variant="contained"
+                    color="primary"
+                    sx={{ alignSelf: "flex-start" }
+                    }>Отмена</Button>
+                  </StyledCard>
+                                  
+                                  
+                </div>
+              )}
           </Grid>
         ))}
       </Grid>

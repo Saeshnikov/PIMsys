@@ -102,7 +102,7 @@ func (s *Storage) AlterProduct(
 	ctx context.Context,
 	content *proto.ProductInfoWithId,
 ) error {
-	stmt, err := s.db.Prepare("UPDATE product SET category_id=$1, status=$2, branch_id=$3, name=$4, amount=$5, price=$6 WHERE id=$7")
+	stmt, err := s.db.Prepare("UPDATE product SET status=$1, branch_id=$2, name=$3, amount=$4, price=$5 WHERE id=$6")
 	if err != nil {
 		return fmt.Errorf("%s: %w", "creating query: ", err)
 	}
@@ -153,7 +153,7 @@ func (s *Storage) ListProducts(
 
 	var res []*proto.ProductInfoWithId
 
-	stmt, err := s.db.Prepare("SELECT product.id,category_id,status,branch_id,name FROM product JOIN users_shop ON (SELECT shop_id from branch where branch.id=product.branch_id)=users_shop.shop_id WHERE users_shop.users_id=$1") // Добавить поиск с джоином по юзеру
+	stmt, err := s.db.Prepare("SELECT product.id,category_id,status,branch_id,name,price,amount FROM product JOIN users_shop ON (SELECT shop_id from branch where branch.id=product.branch_id)=users_shop.shop_id WHERE users_shop.users_id=$1") // Добавить поиск с джоином по юзеру
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "creating query: ", err)
 	}
@@ -167,9 +167,31 @@ func (s *Storage) ListProducts(
 	for rows.Next() {
 		productInfo := proto.ProductInfoWithId{Product: &proto.ProductInfo{}}
 
-		err := rows.Scan(&productInfo.ProductId, &productInfo.Product.CategoryId, &productInfo.Product.Status, &productInfo.Product.BranchId, &productInfo.Product.Name)
+		err := rows.Scan(&productInfo.ProductId, &productInfo.Product.CategoryId, &productInfo.Product.Status, &productInfo.Product.BranchId, &productInfo.Product.Name, &productInfo.Product.Price, &productInfo.Product.Amount)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", "scan query result: ", err)
+		}
+
+		attr, err := s.db.Prepare("SELECT attribute_id,value_text,value_number,value_boolean FROM product_attribute_value WHERE product_id=$1") // Добавить поиск с джоином по юзеру
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", "creating query: ", err)
+		}
+		defer stmt.Close()
+
+		rowsAttr, err := attr.QueryContext(ctx, productInfo.ProductId)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", "executing query: ", err)
+		}
+
+		for rowsAttr.Next() {
+			attribute := &proto.Attribute{}
+
+			err := rowsAttr.Scan(&attribute.Id, &attribute.ValueText, &attribute.ValueNumber, &attribute.ValueBool)
+			if err != nil {
+				return nil, fmt.Errorf("%s: %w", "scan query result: ", err)
+			}
+
+			productInfo.Product.Attributes = append(productInfo.Product.Attributes, attribute)
 		}
 
 		res = append(res, &productInfo)

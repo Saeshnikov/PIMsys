@@ -9,3 +9,8 @@ cd ../../../
 
 cd src/grpc/branch
 protoc --js_out=import_style=commonjs,binary:. --grpc-web_out=import_style=commonjs,mode=grpcwebtext:. branch.proto
+
+cd ../../../
+
+cd src/grpc/products
+protoc --js_out=import_style=commonjs,binary:. --grpc-web_out=import_style=commonjs,mode=grpcwebtext:. products.proto

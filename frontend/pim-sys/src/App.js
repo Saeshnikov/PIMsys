@@ -21,6 +21,7 @@ function App() {
         {/* <Route path="/success" element={<SuccessPage />} /> */}
         <Route path="/shop" element={<ShopPage />} />
         <Route path="/shop/:shopId/branches" element={<BranchPage />} />
+        <Route path="/shop/:shopId/:branchId/products" element={<ProductsPage />} />
       </Routes>
     </Router>
   );

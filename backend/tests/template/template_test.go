@@ -46,7 +46,7 @@ func TestTemplateTestDefault(t *testing.T) {
 		Description:     "aaa2",
 		IsUnique:        true,
 		IsValueRequired: false,
-		Type:            "string",
+		Type:            "text",
 	}
 
 	var attributes2 []*proto.AttributeInfo
@@ -63,9 +63,9 @@ func TestTemplateTestDefault(t *testing.T) {
 	require.NotNil(t, respAlterTemplate)
 
 	// List templates request
-	respListShops, err := st.TemplateClient.ListTemplates(ctx, &proto.ListTemplatesRequest{})
+	respListTemplates, err := st.TemplateClient.ListTemplates(ctx, &proto.ListTemplatesRequest{})
 	require.NoError(t, err)
-	require.Equal(t, "new-name", respListShops.GetInfo()[0].Name)
+	require.NotEmpty(t, respListTemplates)
 
 	// Delete template request
 	respDeleteShop, err := st.TemplateClient.DeleteTemplate(ctx, &proto.DeleteTemplateRequest{

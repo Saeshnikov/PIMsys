@@ -90,7 +90,7 @@ func (s *Storage) AlterTemplate(
 	var attributeIds []int32
 	stmt, err = s.db.Prepare(
 		`INSERT INTO attribute (type, is_value_required, is_unique, name, description)
-		 VALUES (%1, %2, %3, %4, %5) RETURNING id`,
+		 VALUES ($1, $2, $3, $4, $5) RETURNING id`,
 	)
 	if err != nil {
 		return fmt.Errorf("%s: %w", "Error in AlterTemplate (step: preparing INSERT query on attributes)", err)
@@ -115,7 +115,7 @@ func (s *Storage) AlterTemplate(
 	// Insert into category
 	stmt, err = s.db.Prepare(
 		`INSERT INTO category (name, description)
-		 VALUES (%1, %2)`,
+		 VALUES ($1, $2)`,
 	)
 	if err != nil {
 		return fmt.Errorf("%s: %w", "Error in AlterTemplate (step: prepare INSERT query on category)", err)
@@ -187,7 +187,7 @@ func (s *Storage) ListTemplates(
 
 	/* Get all attributes on every category id */
 	stmt, err = s.db.Prepare(
-		`SELECT attribute.id FROM category_attribute WHERE category_attribute.category_id=$1`,
+		`SELECT attribute_id FROM category_attribute WHERE category_attribute.category_id=$1`,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: preparing1 SELECT category query)", err)
@@ -263,13 +263,13 @@ func (s *Storage) GetUserListCategories(
 	/* Get all shops on requested user*/
 	stmt, err := s.db.Prepare(
 		`SELECT DISTINCT c.id
-		FROM user u
-		JOIN user_shop us ON u.id = us.user_id
+		FROM users u
+		JOIN users_shop us ON u.id = us.users_id
 		JOIN shop s ON us.shop_id = s.id
 		JOIN branch b ON s.id = b.shop_id
 		JOIN category_branch cb ON b.id = cb.branch_id
 		JOIN category c ON cb.category_id = c.id
-		WHERE u.id = %1`,
+		WHERE u.id = $1`,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "Error in GetUserListCategories (step: preparing SELECT query on user_shop)", err)

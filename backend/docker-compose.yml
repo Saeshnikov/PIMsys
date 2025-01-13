@@ -107,28 +107,7 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10004", "describe"]
-      interval: 5s
-      retries: 5
-
-  template: 
-    image: main-image
-    build:
-      context:    ./docker
-      dockerfile: main-image
-    entrypoint: bash -c "mkdir -p cover &&
-      go build -cover -o /app cmd/template/main.go &&
-      GOCOVERDIR=cover /app"
-    volumes:
-      - "$PWD:$PWD:rw"
-    working_dir: $PWD
-    container_name: template
-    ports:
-     - 10004:10004
-    networks:
-      - common-net
-    healthcheck:
-      test: ["CMD", "grpcurl", "-plaintext","localhost:10004", "describe"]
-      interval: 5s
+      interval: 100s
       retries: 5
 
   branch: 
@@ -311,4 +290,4 @@ services:
     networks:
       - common-net
     profiles:
-      - products
+      - template

@@ -58,7 +58,7 @@ CREATE TABLE product (
   price float NOT NULL,
   name varchar(32) NOT NULL,
   CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id)
-  ON DELETE CASCADE
+  ON DELETE CASCADE,
   CONSTRAINT fk_category FOREIGN KEY(category_id) REFERENCES category(id)
   ON DELETE CASCADE
 );

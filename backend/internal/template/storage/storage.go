@@ -68,6 +68,7 @@ func (s *Storage) CreateTemplate(
 	return nil
 }
 
+// Not used
 func (s *Storage) AlterTemplate(
 	ctx context.Context,
 	templateId int32,

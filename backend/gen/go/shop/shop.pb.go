@@ -25,12 +25,13 @@ const (
 )
 
 type NewShopRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	Url           string                 `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
-	unknownFields protoimpl.UnknownFields
+	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Name        string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Description string `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
+	Url         string `protobuf:"bytes,3,opt,name=url,proto3" json:"url,omitempty"`
 }
 
 func (x *NewShopRequest) Reset() {
@@ -85,9 +86,9 @@ func (x *NewShopRequest) GetUrl() string {
 }
 
 type NewShopResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
+	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
 }
 
 func (x *NewShopResponse) Reset() {
@@ -121,11 +122,12 @@ func (*NewShopResponse) Descriptor() ([]byte, []int) {
 }
 
 type AlterShopRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ShopId        int32                  `protobuf:"varint,1,opt,name=shop_id,json=shopId,proto3" json:"shop_id,omitempty"`
-	ShopInfo      *ShopInfo              `protobuf:"bytes,2,opt,name=shop_info,json=shopInfo,proto3" json:"shop_info,omitempty"`
-	unknownFields protoimpl.UnknownFields
+	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ShopId   int32     `protobuf:"varint,1,opt,name=shop_id,json=shopId,proto3" json:"shop_id,omitempty"`
+	ShopInfo *ShopInfo `protobuf:"bytes,2,opt,name=shop_info,json=shopInfo,proto3" json:"shop_info,omitempty"`
 }
 
 func (x *AlterShopRequest) Reset() {
@@ -173,9 +175,9 @@ func (x *AlterShopRequest) GetShopInfo() *ShopInfo {
 }
 
 type AlterShopResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
+	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
 }
 
 func (x *AlterShopResponse) Reset() {
@@ -209,10 +211,11 @@ func (*AlterShopResponse) Descriptor() ([]byte, []int) {
 }
 
 type DeleteShopRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ShopId        int32                  `protobuf:"varint,1,opt,name=shop_id,json=shopId,proto3" json:"shop_id,omitempty"`
-	unknownFields protoimpl.UnknownFields
+	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ShopId int32 `protobuf:"varint,1,opt,name=shop_id,json=shopId,proto3" json:"shop_id,omitempty"`
 }
 
 func (x *DeleteShopRequest) Reset() {
@@ -253,9 +256,9 @@ func (x *DeleteShopRequest) GetShopId() int32 {
 }
 
 type DeleteShopResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
+	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
 }
 
 func (x *DeleteShopResponse) Reset() {
@@ -289,13 +292,14 @@ func (*DeleteShopResponse) Descriptor() ([]byte, []int) {
 }
 
 type ShopInfo struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	ShopId        int32                  `protobuf:"varint,1,opt,name=shop_id,json=shopId,proto3" json:"shop_id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Description   string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
-	Url           string                 `protobuf:"bytes,4,opt,name=url,proto3" json:"url,omitempty"`
-	unknownFields protoimpl.UnknownFields
+	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ShopId      int32  `protobuf:"varint,1,opt,name=shop_id,json=shopId,proto3" json:"shop_id,omitempty"`
+	Name        string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description string `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	Url         string `protobuf:"bytes,4,opt,name=url,proto3" json:"url,omitempty"`
 }
 
 func (x *ShopInfo) Reset() {
@@ -357,9 +361,9 @@ func (x *ShopInfo) GetUrl() string {
 }
 
 type ListShopsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
+	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
 }
 
 func (x *ListShopsRequest) Reset() {
@@ -393,10 +397,11 @@ func (*ListShopsRequest) Descriptor() ([]byte, []int) {
 }
 
 type ListShopsResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Info          []*ShopInfo            `protobuf:"bytes,1,rep,name=info,proto3" json:"info,omitempty"`
-	unknownFields protoimpl.UnknownFields
+	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Info []*ShopInfo `protobuf:"bytes,1,rep,name=info,proto3" json:"info,omitempty"`
 }
 
 func (x *ListShopsResponse) Reset() {

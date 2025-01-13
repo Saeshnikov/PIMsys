@@ -34,13 +34,11 @@ build-docker-images:
 gomod: 
 	go mod tidy
 
-.PHONY: test
-test:
+test-%:
 	rm -rf cover
 	docker-compose down --remove-orphans --volumes
-	docker-compose up --force-recreate
+	docker-compose --profile $* up --force-recreate
 	
-
 .PHONY: cover
 docker-cover:
 	docker run --rm -v $$PWD:$$PWD:rw -w $$PWD main-image:latest mkdir -p /cover_merged && \

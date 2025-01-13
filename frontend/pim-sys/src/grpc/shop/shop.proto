@@ -1,0 +1,49 @@
+// Версия ProtoBuf
+syntax = "proto3";
+
+// Текущий пакет - указывает пространство имен для сервиса и сообщений. Помогает избегать конфликтов имен.
+package shop;
+
+// Настройки для генерации Go кода.
+option go_package = "pim-sys.proto.v1;proto";
+
+service Shop {
+  rpc ListShops (ListShopsRequest) returns (ListShopsResponse);
+  rpc NewShop (NewShopRequest) returns (NewShopResponse);
+  rpc AlterShop (AlterShopRequest) returns (AlterShopResponse);
+  rpc DeleteShop (DeleteShopRequest) returns (DeleteShopResponse);
+}
+
+message NewShopRequest {
+  string name = 1;
+  string description = 2;
+  string url = 3;
+}
+
+message NewShopResponse {}
+
+message AlterShopRequest {
+  int32 shop_id = 1;
+  ShopInfo shop_info = 2;
+}
+
+message AlterShopResponse{}
+
+message DeleteShopRequest {
+  int32 shop_id = 1;
+}
+
+message DeleteShopResponse {}
+
+message ShopInfo{
+  int32 shop_id = 1;
+  string name = 2;
+  string description = 3;
+  string url = 4;
+}
+
+message ListShopsRequest{}
+
+message ListShopsResponse {
+  repeated ShopInfo info = 1;
+}

@@ -1,9 +1,16 @@
-INSERT INTO users (name,email,password,isAdmin,phone) 
-VALUES ('test-user','test-email','test-hash',false,'test-phone');
+-- INSERT INTO users (name,email,password,isAdmin,phone) 
+-- VALUES ('test-user','test-email','test-hash',false,'test-phone');
 
-with row as (INSERT INTO shop (name, avatar_url, description) 
-VALUES ('test-shop', '', 'testShop for test template')) INSERT INTO user_shop (shop_id) VALUES (row.id);
+-- with row as (INSERT INTO shop (name, avatar_url, description) 
+-- VALUES ('test-shop', '', 'testShop for test template')) INSERT INTO user_shop (shop_id) VALUES (row.id);
 
-INSERT INTO branch (name, shop_id, description, address, site, type) 
-VALUES ('test-branch', (SELECT id FROM shop LIMIT 1), 'descr.', 'addr', 'site', 'online')
+-- INSERT INTO branch (name, shop_id, description, address, site, type) 
+-- VALUES ('test-branch', (SELECT id FROM shop LIMIT 1), 'descr.', 'addr', 'site', 'online')
 
+
+INSERT INTO shop (name, avatar_url, description) VALUES ('test-name', 'test-url', 'test-description');
+INSERT INTO users_shop (users_id, shop_id) VALUES (1, 1);
+INSERT INTO branch (name, address, type, shop_id,description,site) VALUES ('test-branch', 'test-address', 'online', 1,'','');
+INSERT INTO category (name, description, is_unique) VALUES ('test-category', 'test-description', true);
+INSERT INTO category_branch (branch_id, category_id) VALUES (1, 1);
+INSERT INTO attribute (type, is_value_required, is_unique, name) VALUES ('text', false, false, 'test-attribute');

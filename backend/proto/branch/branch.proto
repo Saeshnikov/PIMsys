@@ -1,0 +1,57 @@
+// Версия ProtoBuf
+syntax = "proto3";
+
+// Текущий пакет - указывает пространство имен для сервиса и сообщений. Помогает избегать конфликтов имен.
+package branch;
+
+// Настройки для генерации Go кода.
+option go_package = "pim-sys.proto.v1;proto";
+
+service Branch {
+  rpc ListBranches (ListBranchesRequest) returns (ListBranchesResponse);
+  rpc NewBranch (NewBranchRequest) returns (NewBranchResponse);
+  rpc AlterBranch (AlterBranchRequest) returns (AlterBranchResponse);
+  rpc DeleteBranch (DeleteBranchRequest) returns (DeleteBranchResponse);
+}
+
+message NewBranchRequest {
+  string name = 1;
+  int32 shop_id = 2;
+  string description = 3;
+  string address = 4;
+  string site = 5;
+  string branch_type = 6;
+}
+
+message NewBranchResponse {}
+
+message AlterBranchRequest {
+  int32 branch_id = 1;
+  BranchInfo branch_info = 2;
+}
+
+message AlterBranchResponse{}
+
+message DeleteBranchRequest {
+  int32 branch_id = 1;
+}
+
+message DeleteBranchResponse {}
+
+message BranchInfo{
+  int32 branch_id = 1;
+  string name = 2;
+  int32 shop_id = 3;
+  string description = 4;
+  string address = 5;
+  string site = 6;
+  string branch_type = 7;
+}
+
+message ListBranchesRequest{
+  int32 shop_id = 1;
+}
+
+message ListBranchesResponse {
+  repeated BranchInfo info = 1;
+}

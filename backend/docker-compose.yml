@@ -52,6 +52,48 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10001", "describe"]
+      interval: 5s
+      retries: 5
+
+  products: 
+    image: main-image
+    build:
+      context:    ./docker
+      dockerfile: main-image
+    entrypoint: bash -c "mkdir -p cover &&
+      go build -cover -o /app cmd/products/main.go &&
+      GOCOVERDIR=cover /app"
+    volumes:
+      - "$PWD:$PWD:rw"
+    working_dir: $PWD
+    container_name: products
+    ports:
+     - 10002:10002
+    networks:
+      - common-net
+    healthcheck:
+      test: ["CMD", "grpcurl", "-plaintext","localhost:10002", "describe"]
+      interval: 5s
+      retries: 5
+
+  branch: 
+    image: main-image
+    build:
+      context:    ./docker
+      dockerfile: main-image
+    entrypoint: bash -c "mkdir -p cover &&
+      go build -cover -o /app cmd/branch/main.go &&
+      GOCOVERDIR=cover /app"
+    volumes:
+      - "$PWD:$PWD:rw"
+    working_dir: $PWD
+    container_name: branch
+    ports:
+     - 10003:10003
+    networks:
+      - common-net
+    healthcheck:
+      test: ["CMD", "grpcurl", "-plaintext","localhost:10003", "describe"]
       interval: 3s
       retries: 5
 
@@ -70,6 +112,8 @@ services:
     working_dir: $PWD
     depends_on:
       shop : 
+        condition: service_healthy
+      branch : 
         condition: service_healthy
     networks:
     - common-net

@@ -100,7 +100,7 @@ func (s *ServerAPI) ListShops(
 ) (*proto.ListShopsResponse, error) {
 	shopInfo, err := s.shop.ListShops(ctx)
 	if err != nil {
-		return nil, status.Error(codes.Internal, fmt.Errorf("failed to delete shop: %w", err).Error())
+		return nil, status.Error(codes.Internal, fmt.Errorf("failed to list shop: %w", err).Error())
 	}
 
 	return &proto.ListShopsResponse{Info: shopInfo}, nil

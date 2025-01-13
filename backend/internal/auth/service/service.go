@@ -6,9 +6,17 @@ import (
 	proto "pim-sys/gen/go/sso"
 	auth_errors "pim-sys/internal/auth/errors"
 
+	"regexp"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+)
+
+const (
+	LoginOrEmailRegex = `^(?:[a-zA-Z0-9]+|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$`
+	PasswordRegex     = `^[a-zA-Z!_?$#@]{8,}$`
+	PhoneRegex        = `^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$`
 )
 
 type serverAPI struct {
@@ -69,8 +77,20 @@ func (s *serverAPI) Register(
 		return nil, status.Error(codes.InvalidArgument, "email is required")
 	}
 
+	rxLoginOrEmail := regexp.MustCompile(LoginOrEmailRegex)
+
+	if !rxLoginOrEmail.MatchString(in.Email) || !(len(in.Email) > 1 && len(in.Email) < 100) {
+		return nil, status.Error(codes.InvalidArgument, "email is not valid")
+	}
+
 	if in.Password == "" {
 		return nil, status.Error(codes.InvalidArgument, "password is required")
+	}
+
+	rxPassword := regexp.MustCompile(PasswordRegex)
+
+	if !rxPassword.MatchString(in.Password) {
+		return nil, status.Error(codes.InvalidArgument, "password is not valid")
 	}
 
 	if in.Name == "" {
@@ -79,6 +99,10 @@ func (s *serverAPI) Register(
 
 	if in.Phone == "" {
 		return nil, status.Error(codes.InvalidArgument, "phone is required")
+	}
+	rxPhone := regexp.MustCompile(PhoneRegex)
+	if !rxPhone.MatchString(in.Phone) {
+		return nil, status.Error(codes.InvalidArgument, "phone is not valid")
 	}
 
 	uid, err := s.auth.RegisterNewUser(ctx, in.GetEmail(), in.GetPassword(), in.GetName(), in.GetPhone())

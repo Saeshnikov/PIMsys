@@ -11,6 +11,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/crypto v0.29.0
+	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.35.1
 	gopkg.in/yaml.v3 v3.0.1

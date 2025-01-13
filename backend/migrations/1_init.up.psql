@@ -1,5 +1,5 @@
 CREATE TYPE shop_type AS ENUM ('online', 'marketplace', 'offline');
-CREATE TYPE attribute_type AS ENUM ('boolean','string','text','image','select','number','video','multiselect');
+CREATE TYPE attribute_type AS ENUM ('boolean','text','number');
 CREATE TYPE product_status AS ENUM ('stock', 'archive', 'withdrawn_from_sale','out_of_stock');
 
 CREATE TABLE "users" (
@@ -35,7 +35,7 @@ CREATE TABLE branch (
   name varchar(32) NOT NULL,
   description text,
   address varchar(128) NOT NULL,
-  site varchar(64),
+  site varchar(128),
   type shop_type NOT NULL,
   shop_id BIGINT NOT NULL,
   CONSTRAINT fk_shop FOREIGN KEY(shop_id) REFERENCES shop(id)
@@ -54,6 +54,8 @@ CREATE TABLE product (
   category_id BIGINT NOT NULL,
   status product_status NOT NULL,
   branch_id BIGINT NOT NULL,
+  amount BIGINT NOT NULL,
+  price float NOT NULL,
   name varchar(32) NOT NULL,
   CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id)
   ON DELETE CASCADE,
@@ -62,8 +64,8 @@ CREATE TABLE product (
 
 CREATE TABLE sales (
   id serial PRIMARY KEY,
-  name varchar(32) NOT NULL,
-  date timestamp NOT NULL,
+  name varchar(32),
+  date INTEGER NOT NULL,
   branch_id BIGINT NOT NULL,
   product_id BIGINT NOT NULL,
   price float NOT NULL,
@@ -95,16 +97,10 @@ CREATE TABLE category_branch (
 CREATE TABLE "attribute" (
   id serial PRIMARY KEY,
   type attribute_type NOT NULL,
-  is_array BOOLEAN NOT NULL,
   is_value_required BOOLEAN NOT NULL,
-  properties JSONB NOT NULL,
   is_unique BOOLEAN NOT NULL,
   name varchar(32) NOT NULL,
-  description text,
-  is_immutable BOOLEAN NOT NULL,
-  branch_id BIGINT NOT NULL,
-  CONSTRAINT fk_branch FOREIGN KEY(branch_id) REFERENCES branch(id)
-  ON DELETE CASCADE
+  description text
 );
 
 CREATE TABLE category_attribute (
@@ -119,7 +115,7 @@ CREATE TABLE category_attribute (
 
 CREATE TABLE product_attribute_value (
   id serial PRIMARY KEY,
-  value JSONB NOT NULL,
+  value JSONB,
   product_id BIGINT NOT NULL,
   attribute_id BIGINT NOT NULL,
   value_text TEXT NOT NULL,

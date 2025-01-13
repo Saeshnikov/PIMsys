@@ -18,7 +18,7 @@ services:
   auth: 
     image: main-image
     build:
-      context:    ./docker
+      context:    ./backend/docker
       dockerfile: main-image
     entrypoint: go run cmd/sso/main.go
     volumes:
@@ -35,7 +35,7 @@ services:
   shop: 
     image: main-image
     build:
-      context:    ./docker
+      context:    ./backend/docker
       dockerfile: main-image
     entrypoint: go run cmd/shop/main.go
     volumes:
@@ -48,6 +48,25 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10001", "describe"]
+      interval: 3s
+      retries: 5
+
+  branch: 
+    image: main-image
+    build:
+      context:    ./backend/docker
+      dockerfile: main-image
+    entrypoint: go run cmd/branch/main.go
+    volumes:
+      - "$PWD:$PWD:rw"
+    working_dir: $PWD/backend
+    container_name: branch
+    ports:
+     - 10003:10003
+    networks:
+      - common-net
+    healthcheck:
+      test: ["CMD", "grpcurl", "-plaintext","localhost:10003", "describe"]
       interval: 3s
       retries: 5
 
@@ -76,7 +95,7 @@ services:
     container_name: test
     image: main-image
     build:
-      context:    ./docker
+      context:    ./backend/docker
       dockerfile: main-image
     entrypoint: go run cmd/migrator/main.go --migrations-path=migrations
     volumes:
@@ -90,7 +109,7 @@ services:
 
   sso-envoy:
     container_name: "sso-envoy"
-    image: envoy/sso:latest
+    image: backend/envoy/sso:latest
     build:
       context:    ./backend/envoy/sso
     networks:
@@ -98,10 +117,22 @@ services:
     ports:
       - "8000:8000"
 
-  ui:
-    container_name: "ui"
-    image: ui:latest
+  shop-envoy:
+    container_name: "shop-envoy"
+    image: envoy/shop:latest
+    build:
+      context:    ./backend/envoy/shop
     networks:
       - common-net
     ports:
-      - 3000:80
+      - "8001:8001"
+
+  branch-envoy:
+    container_name: "branch-envoy"
+    image: envoy/branch:latest
+    build:
+      context:    ./backend/envoy/branch
+    networks:
+      - common-net
+    ports:
+      - "8003:8003"

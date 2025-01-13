@@ -2,15 +2,24 @@
 /**
  * @fileoverview
  * @enhanceable
+ * @suppress {missingRequire} reports error on implicit type usages.
  * @suppress {messageConventions} JS Compiler reports an error if a variable or
  *     field starts with 'MSG_' and isn't a translatable message.
  * @public
  */
 // GENERATED CODE -- DO NOT EDIT!
+/* eslint-disable */
+// @ts-nocheck
 
 var jspb = require('google-protobuf');
 var goog = jspb;
-var global = Function('return this')();
+var global =
+    (typeof globalThis !== 'undefined' && globalThis) ||
+    (typeof window !== 'undefined' && window) ||
+    (typeof global !== 'undefined' && global) ||
+    (typeof self !== 'undefined' && self) ||
+    (function () { return this; }).call(null) ||
+    Function('return this')();
 
 goog.exportSymbol('proto.auth.IsAdminRequest', null, global);
 goog.exportSymbol('proto.auth.IsAdminResponse', null, global);
@@ -220,7 +229,7 @@ proto.auth.IsAdminRequest.prototype.toObject = function(opt_includeInstance) {
  */
 proto.auth.IsAdminRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    userId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+userId: jspb.Message.getFieldWithDefault(msg, 1, 0)
   };
 
   if (includeInstance) {
@@ -350,7 +359,7 @@ proto.auth.IsAdminResponse.prototype.toObject = function(opt_includeInstance) {
  */
 proto.auth.IsAdminResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    isAdmin: jspb.Message.getBooleanFieldWithDefault(msg, 1, false)
+isAdmin: jspb.Message.getBooleanFieldWithDefault(msg, 1, false)
   };
 
   if (includeInstance) {
@@ -480,10 +489,10 @@ proto.auth.RegisterRequest.prototype.toObject = function(opt_includeInstance) {
  */
 proto.auth.RegisterRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    email: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    password: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    name: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    phone: jspb.Message.getFieldWithDefault(msg, 4, "")
+email: jspb.Message.getFieldWithDefault(msg, 1, ""),
+password: jspb.Message.getFieldWithDefault(msg, 2, ""),
+name: jspb.Message.getFieldWithDefault(msg, 3, ""),
+phone: jspb.Message.getFieldWithDefault(msg, 4, "")
   };
 
   if (includeInstance) {
@@ -700,7 +709,7 @@ proto.auth.RegisterResponse.prototype.toObject = function(opt_includeInstance) {
  */
 proto.auth.RegisterResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    userId: jspb.Message.getFieldWithDefault(msg, 1, 0)
+userId: jspb.Message.getFieldWithDefault(msg, 1, 0)
   };
 
   if (includeInstance) {
@@ -830,8 +839,8 @@ proto.auth.LoginRequest.prototype.toObject = function(opt_includeInstance) {
  */
 proto.auth.LoginRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    email: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    password: jspb.Message.getFieldWithDefault(msg, 2, "")
+email: jspb.Message.getFieldWithDefault(msg, 1, ""),
+password: jspb.Message.getFieldWithDefault(msg, 2, "")
   };
 
   if (includeInstance) {
@@ -990,7 +999,7 @@ proto.auth.LoginResponse.prototype.toObject = function(opt_includeInstance) {
  */
 proto.auth.LoginResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    token: jspb.Message.getFieldWithDefault(msg, 1, "")
+token: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1120,7 +1129,7 @@ proto.auth.LogoutRequest.prototype.toObject = function(opt_includeInstance) {
  */
 proto.auth.LogoutRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
-    token: jspb.Message.getFieldWithDefault(msg, 1, "")
+token: jspb.Message.getFieldWithDefault(msg, 1, "")
   };
 
   if (includeInstance) {
@@ -1250,7 +1259,7 @@ proto.auth.LogoutResponse.prototype.toObject = function(opt_includeInstance) {
  */
 proto.auth.LogoutResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    success: jspb.Message.getBooleanFieldWithDefault(msg, 1, false)
+success: jspb.Message.getBooleanFieldWithDefault(msg, 1, false)
   };
 
   if (includeInstance) {

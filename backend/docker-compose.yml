@@ -32,7 +32,14 @@ services:
     ports:
      - 10000:10000
     networks:
-    - common-net
+      - common-net
+    healthcheck:
+      test: ["CMD", "grpcurl", "-plaintext","localhost:10000", "describe"]
+      interval: 5s
+      retries: 5
+    profiles:
+      - auth
+      - all
 
   shop: 
     image: main-image
@@ -47,13 +54,16 @@ services:
     working_dir: $PWD
     container_name: shop
     ports:
-     - 10001:10001
+      - 10001:10001
     networks:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10001", "describe"]
       interval: 5s
       retries: 5
+    profiles:
+      - shop
+      - all
 
   products: 
     image: main-image
@@ -75,6 +85,9 @@ services:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10002", "describe"]
       interval: 5s
       retries: 5
+    profiles:
+      - products
+      - all
 
   branch: 
     image: main-image
@@ -96,6 +109,9 @@ services:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10003", "describe"]
       interval: 5s
       retries: 5
+    profiles:
+      - branch
+      - all
 
   logs: 
     image: main-image
@@ -117,8 +133,11 @@ services:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10005", "describe"]
       interval: 5s
       retries: 5
+    profiles:
+      - logs
+      - all
 
-  test: 
+  test:
     container_name: test
     image: main-image
     build:
@@ -136,5 +155,97 @@ services:
         condition: service_healthy
       branch : 
         condition: service_healthy
+      auth : 
+        condition: service_healthy
+      logs : 
+        condition: service_healthy
+      products : 
+        condition: service_healthy
     networks:
-    - common-net
+      - common-net
+    profiles:
+      - all
+
+  test-shop:
+    container_name: test-shop
+    image: main-image
+    build:
+      context:    ./docker
+      dockerfile: main-image
+    entrypoint:  bash -c "
+      go run cmd/migrator/main.go --migrations-path=migrations &&
+      go run cmd/migrator/main.go --migrations-path=tests/migrations --migrations-table=migrations-test &&
+      go test -v ./tests/shop/... " 
+    volumes:
+      - "$PWD:$PWD:rw"
+    working_dir: $PWD
+    depends_on:
+      shop : 
+        condition: service_healthy
+    networks:
+      - common-net
+    profiles:
+      - shop
+  
+  test-auth:
+    container_name: test-shop
+    image: main-image
+    build:
+      context:    ./docker
+      dockerfile: main-image
+    entrypoint:  bash -c "
+      go run cmd/migrator/main.go --migrations-path=migrations &&
+      go run cmd/migrator/main.go --migrations-path=tests/migrations --migrations-table=migrations-test &&
+      go test -v ./tests/sso/... " 
+    volumes:
+      - "$PWD:$PWD:rw"
+    working_dir: $PWD
+    depends_on:
+      auth : 
+        condition: service_healthy
+    networks:
+      - common-net
+    profiles:
+      - auth
+
+  test-branch:
+    container_name: test-branch
+    image: main-image
+    build:
+      context:    ./docker
+      dockerfile: main-image
+    entrypoint:  bash -c "
+      go run cmd/migrator/main.go --migrations-path=migrations &&
+      go run cmd/migrator/main.go --migrations-path=tests/migrations --migrations-table=migrations-test &&
+      go test -v ./tests/branch/... " 
+    volumes:
+      - "$PWD:$PWD:rw"
+    working_dir: $PWD
+    depends_on:
+      branch : 
+        condition: service_healthy
+    networks:
+      - common-net
+    profiles:
+      - branch
+  
+  test-products:
+    container_name: test-products
+    image: main-image
+    build:
+      context:    ./docker
+      dockerfile: main-image
+    entrypoint:  bash -c "
+      go run cmd/migrator/main.go --migrations-path=migrations &&
+      go run cmd/migrator/main.go --migrations-path=tests/migrations --migrations-table=migrations-test &&
+      go test -v ./tests/products/... " 
+    volumes:
+      - "$PWD:$PWD:rw"
+    working_dir: $PWD
+    depends_on:
+      products : 
+        condition: service_healthy
+    networks:
+      - common-net
+    profiles:
+      - products

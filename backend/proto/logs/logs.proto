@@ -1,0 +1,45 @@
+// Версия ProtoBuf
+syntax = "proto3";
+
+// Текущий пакет - указывает пространство имен для сервиса и сообщений. Помогает избегать конфликтов имен.
+package logs;
+
+// Настройки для генерации Go кода.
+option go_package = "pim-sys.proto.v1;proto";
+
+service Logs {
+  rpc GetLogs (GetLogsRequest) returns (GetLogsResponse);
+  rpc GetGraph (GetGraphRequest) returns (GetGraphResponse);
+}
+
+message GetLogsRequest {
+  int32 product_id = 1;
+}
+
+message GetLogsResponse {
+  repeated Log logs = 1;
+}
+
+message Log {
+  int32 shop_id = 1;
+  int32 branch_id = 2;
+  int32 product_id = 3;
+  string info = 4;
+}
+
+message GetGraphRequest {
+  int32 interval = 1;
+  int64 date_from = 2;
+  int64 date_to = 3;
+  int32 product_id = 4;
+}
+
+message GetGraphResponse {
+  repeated Graph graphs = 1;
+}
+
+message Graph {
+  int64 date = 1;
+  int64 total_sales = 2;
+  int64 total_quantity = 3;
+}

@@ -10,7 +10,6 @@ option go_package = "pim-sys.proto.v1;proto";
 service Template {
   rpc ListTemplates (ListTemplatesRequest) returns (ListTemplatesResponse);
   rpc NewTemplate (NewTemplateRequest) returns (NewTemplateResponse);
-  rpc AlterTemplate (AlterTemplateRequest) returns (AlterTemplateResponse);
   rpc DeleteTemplate (DeleteTemplateRequest) returns (DeleteTemplateResponse);
 }
 
@@ -22,15 +21,6 @@ message NewTemplateRequest {
 }
 
 message NewTemplateResponse {}
-
-message AlterTemplateRequest {
-  int32 branch_id = 1;
-  string name = 2;
-  string description = 3;
-  repeated AttributeInfo attributes = 4;
-}
-
-message AlterTemplateResponse{}
 
 message DeleteTemplateRequest {
   int32 template_id = 1;

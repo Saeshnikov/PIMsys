@@ -24,13 +24,6 @@ type Template interface {
 		branch_id int32,
 		attributes []*proto.AttributeInfo,
 	) error
-	AlterTemplate(
-		ctx context.Context,
-		template_id int32,
-		name string,
-		description string,
-		attributes []*proto.AttributeInfo,
-	) error
 	DeleteTemplate(
 		ctx context.Context,
 		template_id int32,
@@ -76,31 +69,6 @@ func (s *ServerAPI) NewTemplate(
 	}
 
 	return &proto.NewTemplateResponse{}, nil
-}
-
-func (s *ServerAPI) AlterTemplate(
-	ctx context.Context,
-	in *proto.AlterTemplateRequest,
-) (*proto.AlterTemplateResponse, error) {
-	if in.BranchId == 0 {
-		return nil, status.Error(codes.InvalidArgument, "branch_id is required")
-	}
-	if in.Name == "" {
-		return nil, status.Error(codes.InvalidArgument, "name is required")
-	}
-	if in.Description == "" {
-		return nil, status.Error(codes.InvalidArgument, "description is required")
-	}
-	if len(in.Attributes) == 0 {
-		return nil, status.Error(codes.InvalidArgument, "template id is required")
-	}
-
-	err := s.template.AlterTemplate(ctx, in.GetBranchId(), in.GetName(), in.GetDescription(), in.GetAttributes())
-	if err != nil {
-		return nil, status.Error(codes.Internal, fmt.Errorf("failed to alter shop: %w", err).Error())
-	}
-
-	return &proto.AlterTemplateResponse{}, nil
 }
 
 func (s *ServerAPI) DeleteTemplate(

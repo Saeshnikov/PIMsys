@@ -34,21 +34,6 @@ func (template *Template) NewTemplate(
 	return template.templateStorage.CreateTemplate(ctx, branch_id, name, description, attributes)
 }
 
-func (template *Template) AlterTemplate(
-	ctx context.Context,
-	template_id int32,
-	name string,
-	description string,
-	attributes []*proto.AttributeInfo,
-) error {
-	err := template.userMustHaveAccess(ctx, template_id)
-	if err != nil {
-		return fmt.Errorf("%s: %v", "checking user permissions", err)
-	}
-
-	return template.templateStorage.AlterTemplate(ctx, template_id, name, description, attributes)
-}
-
 func (template *Template) DeleteTemplate(
 	ctx context.Context,
 	templateId int32,

@@ -41,27 +41,6 @@ func TestTemplateTestDefault(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, respNewTemplate)
 
-	// Alter template request
-	attribute2 := proto.AttributeInfo{
-		Description:     "aaa2",
-		IsUnique:        true,
-		IsValueRequired: false,
-		Type:            "text",
-	}
-
-	var attributes2 []*proto.AttributeInfo
-	attributes2 = append(attributes2, &attribute2)
-
-	respAlterTemplate, err := st.TemplateClient.AlterTemplate(ctx, &proto.AlterTemplateRequest{
-		Name:        gofakeit.Name(),
-		Description: gofakeit.LastName(),
-		BranchId:    1,
-		Attributes:  attributes2,
-	})
-
-	require.NoError(t, err)
-	require.NotNil(t, respAlterTemplate)
-
 	// List templates request
 	respListTemplates, err := st.TemplateClient.ListTemplates(ctx, &proto.ListTemplatesRequest{})
 	require.NoError(t, err)

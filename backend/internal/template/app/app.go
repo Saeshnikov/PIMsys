@@ -123,7 +123,7 @@ func (template *Template) userMustHaveAccess(ctx context.Context, template_id in
 	}
 	availibleCategories, err := template.templateStorage.GetUserListCategories(ctx, user_idInt)
 	if err != nil {
-		return fmt.Errorf("%s", "template operations: can't take user's availible categories")
+		return fmt.Errorf("%s%w", "template operations: can't take user's availible categories: ", err)
 	}
 
 	for _, category_id := range availibleCategories {

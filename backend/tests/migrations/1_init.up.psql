@@ -1,5 +1,5 @@
--- INSERT INTO users (name,email,password,isAdmin,phone) 
--- VALUES ('test-user','test-email','test-hash',false,'test-phone');
+INSERT INTO users (name,email,password,isAdmin,phone) 
+VALUES ('test-user','test-email','test-hash',false,'test-phone');
 
 -- with row as (INSERT INTO shop (name, avatar_url, description) 
 -- VALUES ('test-shop', '', 'testShop for test template')) INSERT INTO user_shop (shop_id) VALUES (row.id);

@@ -125,7 +125,7 @@ func (s *ServerAPI) ListTemplates(
 ) (*proto.ListTemplatesResponse, error) {
 	templateInfo, err := s.template.ListTemplates(ctx)
 	if err != nil {
-		return nil, status.Error(codes.Internal, fmt.Errorf("failed to delete template: %w", err).Error())
+		return nil, status.Error(codes.Internal, fmt.Errorf("failed to list templates: %w", err).Error())
 	}
 
 	return &proto.ListTemplatesResponse{Info: templateInfo}, nil

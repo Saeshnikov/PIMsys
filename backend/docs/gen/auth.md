@@ -178,9 +178,22 @@ import "pim-sys/internal/auth/service"
 
 ## Index
 
+- [Constants](<#constants>)
 - [func Register\(gRPCServer \*grpc.Server, auth Auth\)](<#Register>)
 - [type Auth](<#Auth>)
 
+
+## Constants
+
+<a name="LoginOrEmailRegex"></a>
+
+```go
+const (
+    LoginOrEmailRegex = `^(?:[a-zA-Z0-9]+|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$`
+    PasswordRegex     = `^[a-zA-Z!_?$#@]{8,}$`
+    PhoneRegex        = `^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$`
+)
+```
 
 <a name="Register"></a>
 ## func Register

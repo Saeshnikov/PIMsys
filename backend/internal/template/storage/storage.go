@@ -51,7 +51,7 @@ func (s *Storage) CreateTemplate(
 
 	stmt, err = s.db.Prepare(
 		`with rows as (INSERT INTO attribute (type, is_value_required, is_unique, name, description) VALUES ($1, $2, $3, $4, $5) RETURNING id)
-		 INSERT INTO category_attributes(category_id, attribute_id) VALUES ((SELECT id FROM rows), $7)`,
+		 INSERT INTO category_attribute(category_id, attribute_id) VALUES ((SELECT id FROM rows), $6)`,
 	)
 	if err != nil {
 		return fmt.Errorf("%s: %w", "Error in CreateTemplate (step: prepare query INSERT attribute)", err)
@@ -61,7 +61,7 @@ func (s *Storage) CreateTemplate(
 	for _, attr := range attributes {
 		err = stmt.QueryRowContext(ctx, attr.Type, attr.IsValueRequired, attr.IsUnique, attr.Name, attr.Description, category_id).Err()
 		if err != nil {
-			return fmt.Errorf("%s: %w", "Error in CreateTemplate query (step: execute query INSER attribute): ", err)
+			return fmt.Errorf("%s: %w", "Error in CreateTemplate query (step: execute query INSERT attribute): ", err)
 		}
 	}
 
@@ -76,7 +76,7 @@ func (s *Storage) AlterTemplate(
 	attributes []*proto.AttributeInfo,
 ) error {
 	// Delete existing rows category -> attributes
-	stmt, err := s.db.Prepare("DELETE FROM category_attributes WHERE category_id=$1")
+	stmt, err := s.db.Prepare("DELETE FROM category_attribute WHERE category_id=$1")
 	if err != nil {
 		return fmt.Errorf("%s: %w", "Error in AlterTemplate (step: prepare query DELETE)", err)
 	}
@@ -127,7 +127,7 @@ func (s *Storage) AlterTemplate(
 	stmt.Close()
 
 	// Insert into category_attributes
-	stmt, err = s.db.Prepare("INSERT INTO category_attributes (attribute_id, category_id) VALUES ($1, $2)")
+	stmt, err = s.db.Prepare("INSERT INTO category_attribute (attribute_id, category_id) VALUES ($1, $2)")
 	if err != nil {
 		return fmt.Errorf("%s: %w", "Error while executing AlterTemplate query: ", err)
 	}
@@ -187,7 +187,7 @@ func (s *Storage) ListTemplates(
 
 	/* Get all attributes on every category id */
 	stmt, err = s.db.Prepare(
-		`SELECT attribute.id FROM category_attributes WHERE category_attributes.category_id=$1`,
+		`SELECT attribute.id FROM category_attribute WHERE category_attribute.category_id=$1`,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: preparing1 SELECT category query)", err)
@@ -212,7 +212,7 @@ func (s *Storage) ListTemplates(
 		// Get attribute id's on category id
 		attributesIdRows, err := stmt.QueryContext(ctx, categoryElem.TemplateId)
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: executing SELECT category_attributes query)", err)
+			return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: executing SELECT category_attribute query)", err)
 		}
 		for attributesIdRows.Next() {
 			var currentAttributeId int32

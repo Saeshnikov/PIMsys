@@ -17,7 +17,7 @@ func main() {
 
 	log := logger.SetupLogger(conf.LogLevel)
 
-	application := template_app.New(log, conf.Grpc.Port, conf.ConnectionString, conf.TokenTTL)
+	application := template_app.New(log, conf.Grpc.Port, conf.ConnectionString, conf.TokenTLL)
 
 	go func() {
 		application.GRPCServer.MustRun()

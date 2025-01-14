@@ -69,30 +69,30 @@ services:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10003", "describe"]
       interval: 3s
       retries: 5
-
-  template: 
+  
+  products: 
     image: main-image
     build:
-      context:    ./docker
+      context:    ./backend/docker
       dockerfile: main-image
     entrypoint: bash -c "mkdir -p cover &&
-      go build -cover -o /app cmd/template/main.go &&
+      go build -cover -o /app cmd/products/main.go &&
       GOCOVERDIR=cover /app"
     volumes:
       - "$PWD:$PWD:rw"
-    working_dir: $PWD
-    container_name: template
+    working_dir: $PWD/backend
+    container_name: products
     ports:
-     - 10004:10004
+     - 10002:10002
     networks:
       - common-net
     healthcheck:
-      test: ["CMD", "grpcurl", "-plaintext","localhost:10004", "describe"]
-      interval: 3s
+      test: ["CMD", "grpcurl", "-plaintext","localhost:10002", "describe"]
+      interval: 5s
       retries: 5
 
-  test: 
-    container_name: test
+  migrations: 
+    container_name: migrations
     image: main-image
     build:
       context:    ./backend/docker
@@ -136,3 +136,13 @@ services:
       - common-net
     ports:
       - "8003:8003"
+
+  products-envoy:
+    container_name: "products-envoy"
+    image: envoy/products:latest
+    build:
+      context:    ./backend/envoy/products
+    networks:
+      - common-net
+    ports:
+      - "8002:8002"

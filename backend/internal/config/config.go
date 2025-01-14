@@ -14,7 +14,7 @@ type Grpc struct {
 type Config struct {
 	ConnectionString string        `yaml:"connection_string"`
 	Grpc             Grpc          `yaml:"grpc"`
-	TokenTTL         time.Duration `yaml:"token_ttl"`
+	TokenTLL         time.Duration `yaml:"token_tll"`
 	LogLevel         string        `yaml:"log_level"`
 }
 

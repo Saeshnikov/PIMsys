@@ -62,7 +62,7 @@ func TestRegisterLogin_Login_HappyPath(t *testing.T) {
 	const deltaSeconds = 1
 
 	// check if exp of token is in correct range, ttl get from st.Cfg.TokenTTL
-	assert.InDelta(t, loginTime.Add(st.Cfg.TokenTTL).Unix(), claims["exp"].(float64), deltaSeconds)
+	assert.InDelta(t, loginTime.Add(st.Cfg.TokenTLL).Unix(), claims["exp"].(float64), deltaSeconds)
 }
 
 func TestRegisterLogin_DuplicatedRegistration(t *testing.T) {

@@ -1,5 +1,5 @@
 log_level: local
-token_ttl: 1h
+token_tll: 1h
 connection_string: "host=db user=test password=1234 dbname=db1 sslmode=disable"
 grpc: 
   port: 10005

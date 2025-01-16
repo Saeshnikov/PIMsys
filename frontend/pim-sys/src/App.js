@@ -7,6 +7,7 @@ import "./App.css";
 import ShopPage from "./pages/shop/ShopPage";
 import BranchPage from "./pages/branch/BranchPage";
 import ProductsPage from "./pages/products/ProductsPage";
+import CategoryPage from "./pages/category/CategoryPage";
 
 // const authClient = new AuthClient("http://localhost:8000");
 
@@ -22,6 +23,7 @@ function App() {
         <Route path="/shop" element={<ShopPage />} />
         <Route path="/shop/:shopId/branches" element={<BranchPage />} />
         <Route path="/shop/:shopId/:branchId/products" element={<ProductsPage />} />
+        <Route path="/shop/:shopId/:branchId/category" element={<CategoryPage />} />
       </Routes>
     </Router>
   );

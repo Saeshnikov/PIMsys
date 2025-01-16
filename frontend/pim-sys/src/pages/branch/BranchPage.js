@@ -176,6 +176,12 @@ const BranchPage = () => {
     navigate(`/shop/${shopId}/${branch.branchId}/products`);
   };
 
+  const handleOpenCategory = async (branch) => {
+    localStorage.setItem("branchId", branch.branchId);
+
+    navigate(`/shop/${shopId}/${branch.branchId}/category`);
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("jwt_token");
 
@@ -314,6 +320,7 @@ const BranchPage = () => {
                     color="success"
                     variant="outlined"
                     sx={{ marginBottom: 1 }}
+                    onClick={() => handleOpenCategory(branch)}
                   />
                   <Typography variant="body2" color="textSecondary">
                     {branch.description}

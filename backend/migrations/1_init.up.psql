@@ -134,3 +134,174 @@ CREATE TABLE IF NOT EXISTS apps
     name TEXT NOT NULL UNIQUE,
     secret TEXT NOT NULL UNIQUE
 );
+
+CREATE OR REPLACE FUNCTION add_default_categories() RETURNS TRIGGER 
+AS $add_default_categories$
+BEGIN
+  WITH inserted_categories AS (
+    INSERT INTO category (name, description, is_unique) VALUES 
+    ('Техника', 'Различные виды техники', false),
+    ('Мебель', 'Домашняя и офисная мебель', false),
+    ('Одежда', 'Одежда для всех', false),
+    ('Обувь', 'Различные виды обуви', false),
+    ('Украшения', 'Ювелирные изделия и украшения', false),
+    ('Фрукты и овощи', 'Свежие фрукты и овощи', false)
+    RETURNING id
+  ) 
+  INSERT INTO category_branch (branch_id, category_id)
+    SELECT 1, id FROM inserted_categories;
+
+  INSERT INTO "attribute" (type, is_value_required, is_unique, name, description) VALUES
+  ('number', true, false, 'Цена', 'Стоимость товара'),
+  ('text', true, false, 'Описание', 'Описание товара'),
+  ('number', true, false, 'Вес', 'Вес продукта'),
+  ('text', true, false, 'Цвет', 'Цвет товара'),
+  ('text', true, false, 'Дата поступления', 'Дата поступления на склад'),
+  ('text', true, false, 'Материал', 'Материал товара'),
+  ('text', true, false, 'Срок годности', 'Срок годности товара'),
+  ('text', true, false, 'Производитель', 'Наименование или производитель товара'),
+  ('text', true, false, 'Пол', 'Пол (мужской, женский, унисекс)'),
+  ('text', false, false, 'Сезон', 'Сезон (лето, осень и т.д.)'),
+  ('text', false, false, 'Бренд', 'Бренд производителя товара'),
+  ('text', true, false, 'Страна происхождения', 'Страна, откуда привезен товар'),
+  ('text', true, false, 'Модель', 'Модель техники'),
+  ('text', true, true, 'Спецификации', 'Технические характеристики'),
+  ('number', true, false, 'Год выпуска', 'Год выпуска устройства'),
+  ('number', false, false, 'Энергопотребление', 'Энергопотребление устройства в Вт'),
+  ('text', true, true, 'Тип мебели', 'Тип мебели (стул, стол и т.д.)'),
+  ('text', true, false, 'Размеры', 'Размеры изделия'),
+  ('text', true, true, 'Тип одежды', 'Тип одежды (рубашка, брюки и т.д.)'),
+  ('text', true, true, 'Размер одежды', 'Размер одежды'),
+  ('text', true, true, 'Тип обуви', 'Тип обуви (ботинки, кроссовки и т.д.)'),
+  ('text', true, true, 'Размер обуви', 'Размер обуви'),
+  ('text', false, true, 'Вставки', 'Тип вставок (камни, кристаллы)'),
+  ('text', false, true, 'Тип украшения', 'Тип украшения (кольцо, подвеска и т.д.)'),
+  ('text', true, true, 'Размер украшения', 'Размер украшения');
+
+  INSERT INTO category_attribute (attribute_id, category_id)
+  SELECT a.id, c.id
+  FROM attribute a, category c
+  WHERE c.name = 'Фрукты и овощи' AND a.name IN ('Вес', 'Цена', 'Страна происхождения', 'Дата поступления', 'Срок годности');
+
+  INSERT INTO category_attribute (attribute_id, category_id)
+  SELECT a.id, c.id
+  FROM attribute a, category c
+  WHERE c.name = 'Техника' AND a.name IN ('Модель', 'Производитель', 'Спецификации', 'Цена', 'Год выпуска', 'Энергопотребление', 'Вес');
+
+  INSERT INTO category_attribute (attribute_id, category_id)
+  SELECT a.id, c.id
+  FROM attribute a, category c
+  WHERE c.name = 'Мебель' AND a.name IN ('Тип мебели', 'Материал товара', 'Размеры', 'Цвет', 'Цена', 'Производитель', 'Вес');
+
+  INSERT INTO category_attribute (attribute_id, category_id)
+  SELECT a.id, c.id
+  FROM attribute a, category c
+  WHERE c.name = 'Одежда' AND a.name IN ('Тип одежды', 'Размер одежды', 'Материал товара', 'Цвет', 'Цена', 'Пол', 'Сезон', 'Бренд');
+
+  INSERT INTO category_attribute (attribute_id, category_id)
+  SELECT a.id, c.id
+  FROM attribute a, category c
+  WHERE c.name = 'Обувь' AND a.name IN ('Тип обуви', 'Размер обуви', 'Материал', 'Цвет', 'Цена', 'Пол', 'Сезон', 'Бренд');
+
+  INSERT INTO category_attribute (attribute_id, category_id)
+  SELECT a.id, c.id
+  FROM attribute a, category c
+  WHERE c.name = 'Украшения' AND a.name IN ('Тип украшения', 'Материал', 'Вставки', 'Размер украшения', 'Цена', 'Бренд', 'Вес');
+
+  RETURN NEW;
+END;
+$add_default_categories$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trigger_add_default_categories 
+AFTER INSERT ON branch
+FOR EACH ROW
+EXECUTE FUNCTION add_default_categories();
+
+CREATE OR REPLACE FUNCTION check_product_amount() RETURNS TRIGGER
+AS $check_product_amount$
+BEGIN
+  IF NEW.amount < 0 THEN
+    RAISE EXCEPTION 'new.amount value cannot be below zero: %', NEW.amount;
+  ELSEIF NEW.amount = 0 THEN
+    NEW.status := 'out_of_stock'::product_status;
+  ELSEIF NEW.amount > 0 THEN
+    NEW.status := 'stock'::product_status;
+  END IF;
+
+  RETURN NEW;
+END;
+$check_product_amount$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trigger_update_product_amount
+AFTER UPDATE ON product
+FOR EACH ROW
+EXECUTE FUNCTION check_product_amount();
+
+CREATE OR REPLACE FUNCTION check_product_attribute_value() RETURNS TRIGGER
+AS $check_product_attribute_value$
+DECLARE
+  value_required BOOLEAN;
+  unique_required BOOLEAN;
+  type_attribute attribute_type;
+  temp_row RECORD; -- Для работы с FOR ... IN
+BEGIN
+    -- Получение типа, флага обязательности значения и уникальности из таблицы attribute
+    SELECT type, is_value_required, is_unique
+      INTO type_attribute, value_required, unique_required
+      FROM attribute
+      WHERE id = NEW.attribute_id;
+
+    -- Проверка на обязательность значения
+    IF value_required = true THEN
+      IF (type_attribute = 'text'::attribute_type AND NEW.value_text IS NULL)
+       OR (type_attribute = 'boolean'::attribute_type AND NEW.value_boolean IS NULL)
+       OR (type_attribute = 'number'::attribute_type AND NEW.value_number IS NULL)
+      THEN
+          RAISE EXCEPTION 'product_attribute_value is required in attribute: %', NEW.attribute_id;
+      END IF;
+    END IF;
+
+    -- Проверка на уникальность значения
+    IF unique_required = true THEN
+      IF type_attribute = 'text'::attribute_type THEN
+        FOR temp_row IN
+          SELECT val.value_text AS value FROM product_attribute_value val
+          WHERE val.attribute_id = NEW.attribute_id
+        LOOP
+          IF temp_row.value = NEW.value_text THEN
+            RAISE EXCEPTION 'product_attribute_value:text is not unique';
+          END IF;
+        END LOOP;
+
+      ELSIF type_attribute = 'number'::attribute_type THEN
+        FOR temp_row IN
+          SELECT val.value_number AS value FROM product_attribute_value val
+          WHERE val.attribute_id = NEW.attribute_id
+        LOOP
+          IF temp_row.value = NEW.value_number THEN
+            RAISE EXCEPTION 'product_attribute_value:number is not unique';
+          END IF;
+        END LOOP;
+
+      ELSIF type_attribute = 'boolean'::attribute_type THEN
+        FOR temp_row IN
+          SELECT val.value_boolean AS value FROM product_attribute_value val
+          WHERE val.attribute_id = NEW.attribute_id
+        LOOP
+          IF temp_row.value = NEW.value_boolean THEN
+            RAISE EXCEPTION 'product_attribute_value:boolean is not unique';
+          END IF;
+        END LOOP;
+
+      END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$check_product_attribute_value$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE TRIGGER trigger_insert_product_attribue_value
+AFTER INSERT ON product_attribute_value
+FOR EACH ROW
+EXECUTE FUNCTION check_product_attribute_value();

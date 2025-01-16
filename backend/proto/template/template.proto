@@ -28,7 +28,9 @@ message DeleteTemplateRequest {
 
 message DeleteTemplateResponse {}
 
-message ListTemplatesRequest{}
+message ListTemplatesRequest{
+  int32 branch_id = 1;
+}
 
 message ListTemplatesResponse {
   repeated TemplateInfo info = 1;
@@ -42,6 +44,7 @@ message TemplateInfo{
 }
 
 message AttributeInfo {
+  int32 id = 1;
   string type = 2;
   bool is_value_required = 3;
   bool is_unique = 4;

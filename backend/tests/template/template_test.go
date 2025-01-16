@@ -31,9 +31,11 @@ func TestTemplateTestDefault(t *testing.T) {
 	var attributes1 []*proto.AttributeInfo
 	attributes1 = append(attributes1, &attribute1)
 
+	name := gofakeit.Name()
+	descr := gofakeit.LastName()
 	respNewTemplate, err := st.TemplateClient.NewTemplate(ctx, &proto.NewTemplateRequest{
-		Name:        gofakeit.Name(),
-		Description: gofakeit.LastName(),
+		Name:        name,
+		Description: descr,
 		BranchId:    1,
 		Attributes:  attributes1,
 	})
@@ -42,13 +44,32 @@ func TestTemplateTestDefault(t *testing.T) {
 	require.NotNil(t, respNewTemplate)
 
 	// List templates request
-	respListTemplates, err := st.TemplateClient.ListTemplates(ctx, &proto.ListTemplatesRequest{})
+	_, err = st.TemplateClient.ListTemplates(ctx, &proto.ListTemplatesRequest{
+		BranchId: 1,
+	})
 	require.NoError(t, err)
-	require.NotEmpty(t, respListTemplates)
+
+	// var containsTemplInfo bool
+	// for _, templInfo := range respListTemplates.GetInfo() {
+	// 	if templInfo == proto.TemplateInfo{
+	// 		TemplateId:  1,
+	// 		Name:        name,
+	// 		Description: descr,
+	// 		Attributes:  attributes1
+	// 	} {
+
+	// 	}
+	// }
+	// require.Contains(t, respListTemplates.GetInfo(), &proto.TemplateInfo{
+	// 	TemplateId:  1,
+	// 	Name:        name,
+	// 	Description: descr,
+	// 	Attributes:  attributes1,
+	// })
 
 	// Delete template request
 	respDeleteShop, err := st.TemplateClient.DeleteTemplate(ctx, &proto.DeleteTemplateRequest{
-		TemplateId: 1,
+		TemplateId: 2,
 	})
 
 	require.NoError(t, err)

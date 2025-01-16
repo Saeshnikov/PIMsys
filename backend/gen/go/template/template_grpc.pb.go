@@ -25,7 +25,6 @@ const _ = grpc.SupportPackageIsVersion9
 const (
 	Template_ListTemplates_FullMethodName  = "/shop.Template/ListTemplates"
 	Template_NewTemplate_FullMethodName    = "/shop.Template/NewTemplate"
-	Template_AlterTemplate_FullMethodName  = "/shop.Template/AlterTemplate"
 	Template_DeleteTemplate_FullMethodName = "/shop.Template/DeleteTemplate"
 )
 
@@ -35,7 +34,6 @@ const (
 type TemplateClient interface {
 	ListTemplates(ctx context.Context, in *ListTemplatesRequest, opts ...grpc.CallOption) (*ListTemplatesResponse, error)
 	NewTemplate(ctx context.Context, in *NewTemplateRequest, opts ...grpc.CallOption) (*NewTemplateResponse, error)
-	AlterTemplate(ctx context.Context, in *AlterTemplateRequest, opts ...grpc.CallOption) (*AlterTemplateResponse, error)
 	DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*DeleteTemplateResponse, error)
 }
 
@@ -67,16 +65,6 @@ func (c *templateClient) NewTemplate(ctx context.Context, in *NewTemplateRequest
 	return out, nil
 }
 
-func (c *templateClient) AlterTemplate(ctx context.Context, in *AlterTemplateRequest, opts ...grpc.CallOption) (*AlterTemplateResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AlterTemplateResponse)
-	err := c.cc.Invoke(ctx, Template_AlterTemplate_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *templateClient) DeleteTemplate(ctx context.Context, in *DeleteTemplateRequest, opts ...grpc.CallOption) (*DeleteTemplateResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(DeleteTemplateResponse)
@@ -93,7 +81,6 @@ func (c *templateClient) DeleteTemplate(ctx context.Context, in *DeleteTemplateR
 type TemplateServer interface {
 	ListTemplates(context.Context, *ListTemplatesRequest) (*ListTemplatesResponse, error)
 	NewTemplate(context.Context, *NewTemplateRequest) (*NewTemplateResponse, error)
-	AlterTemplate(context.Context, *AlterTemplateRequest) (*AlterTemplateResponse, error)
 	DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error)
 	mustEmbedUnimplementedTemplateServer()
 }
@@ -110,9 +97,6 @@ func (UnimplementedTemplateServer) ListTemplates(context.Context, *ListTemplates
 }
 func (UnimplementedTemplateServer) NewTemplate(context.Context, *NewTemplateRequest) (*NewTemplateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NewTemplate not implemented")
-}
-func (UnimplementedTemplateServer) AlterTemplate(context.Context, *AlterTemplateRequest) (*AlterTemplateResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method AlterTemplate not implemented")
 }
 func (UnimplementedTemplateServer) DeleteTemplate(context.Context, *DeleteTemplateRequest) (*DeleteTemplateResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteTemplate not implemented")
@@ -174,24 +158,6 @@ func _Template_NewTemplate_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Template_AlterTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AlterTemplateRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(TemplateServer).AlterTemplate(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Template_AlterTemplate_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TemplateServer).AlterTemplate(ctx, req.(*AlterTemplateRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Template_DeleteTemplate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(DeleteTemplateRequest)
 	if err := dec(in); err != nil {
@@ -224,10 +190,6 @@ var Template_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "NewTemplate",
 			Handler:    _Template_NewTemplate_Handler,
-		},
-		{
-			MethodName: "AlterTemplate",
-			Handler:    _Template_AlterTemplate_Handler,
 		},
 		{
 			MethodName: "DeleteTemplate",

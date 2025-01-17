@@ -47,23 +47,20 @@ func (template *Template) DeleteTemplate(
 	return template.templateStorage.DeleteTemplate(ctx, templateId)
 }
 
-func (shop *Template) ListTemplates(
+func (template *Template) ListTemplates(
 	ctx context.Context,
+	branch_id int32,
 ) (
 	[]*proto.TemplateInfo,
 	error,
 ) {
-	user_id, err := auth_interceptor.GetFromContext(ctx, "user_id")
+
+	err := template.userMustHaveAccess(ctx, branch_id)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %v", "getting user_id from context: ", err)
+		return nil, fmt.Errorf("%s: %v", "checking user permissions", err)
 	}
 
-	userId, err := strconv.Atoi(user_id)
-	if err != nil {
-		return nil, fmt.Errorf("%s: %v", "converting uid to int: ", err)
-	}
-
-	return shop.templateStorage.ListTemplates(ctx, int32(userId))
+	return template.templateStorage.ListTemplates(ctx, int32(branch_id))
 }
 
 func New(
@@ -94,7 +91,7 @@ func New(
 	}
 }
 
-func (template *Template) userMustHaveAccess(ctx context.Context, template_id int32) error {
+func (template *Template) userMustHaveAccess(ctx context.Context, branch_id int32) error {
 	user_id, err := auth_interceptor.GetFromContext(ctx, "user_id")
 	if err != nil {
 		return fmt.Errorf("%s", "template operations: can't take current user id")
@@ -106,16 +103,16 @@ func (template *Template) userMustHaveAccess(ctx context.Context, template_id in
 	if err != nil {
 		return fmt.Errorf("%s", "template operations: can't take cast user_id to int32")
 	}
-	availibleCategories, err := template.templateStorage.GetUserListCategories(ctx, user_idInt)
+	availibleBranches, err := template.templateStorage.GetUserListBranches(ctx, user_idInt)
 	if err != nil {
-		return fmt.Errorf("%s%w", "template operations: can't take user's availible categories: ", err)
+		return fmt.Errorf("%s%w", "template operations: can't take user's availible branches: ", err)
 	}
 
-	for _, category_id := range availibleCategories {
-		if category_id == template_id {
+	for _, category_id := range availibleBranches {
+		if category_id == branch_id {
 			return nil
 		}
 	}
 
-	return fmt.Errorf("%s", "access denied or template does not exist")
+	return fmt.Errorf("%s", "user access to branch denied or branch does not exist")
 }

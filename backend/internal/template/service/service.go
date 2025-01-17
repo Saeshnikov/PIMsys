@@ -30,6 +30,7 @@ type Template interface {
 	) error
 	ListTemplates(
 		ctx context.Context,
+		branch_id int32,
 	) (
 		[]*proto.TemplateInfo,
 		error,
@@ -91,7 +92,10 @@ func (s *ServerAPI) ListTemplates(
 	ctx context.Context,
 	in *proto.ListTemplatesRequest,
 ) (*proto.ListTemplatesResponse, error) {
-	templateInfo, err := s.template.ListTemplates(ctx)
+	if in.BranchId == 0 {
+		return nil, status.Error(codes.InvalidArgument, "branch id is required")
+	}
+	templateInfo, err := s.template.ListTemplates(ctx, in.GetBranchId())
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to list templates: %w", err).Error())
 	}

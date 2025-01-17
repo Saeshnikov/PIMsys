@@ -35,7 +35,7 @@ func (s *Storage) CreateTemplate(
 	attributes []*proto.AttributeInfo,
 ) error {
 	stmt, err := s.db.Prepare(
-		`with rows as (INSERT INTO category (name, description) VALUES($1, $2) RETURNING id)
+		`with rows as (INSERT INTO category (name, description, is_unique) VALUES($1, $2, true) RETURNING id)
 		 INSERT INTO category_branch (branch_id, category_id) VALUES ($3, (SELECT id FROM rows)) RETURNING id`,
 	)
 	if err != nil {
@@ -51,7 +51,7 @@ func (s *Storage) CreateTemplate(
 
 	stmt, err = s.db.Prepare(
 		`with rows as (INSERT INTO attribute (type, is_value_required, is_unique, name, description) VALUES ($1, $2, $3, $4, $5) RETURNING id)
-		 INSERT INTO category_attribute(category_id, attribute_id) VALUES ((SELECT id FROM rows), $6)`,
+		 INSERT INTO category_attribute(category_id, attribute_id) VALUES ($6, (SELECT id FROM rows))`,
 	)
 	if err != nil {
 		return fmt.Errorf("%s: %w", "Error in CreateTemplate (step: prepare query INSERT attribute)", err)
@@ -96,22 +96,22 @@ func (s *Storage) ListTemplates(
 	var res []*proto.TemplateInfo
 
 	/* Get all categories on requested branch*/
-	stmt, err := s.db.Prepare(
+	stmtCategories, err := s.db.Prepare(
 		`SELECT category.id,name,description FROM category 
 		JOIN category_branch ON category.id=category_branch.id WHERE category_branch.branch_id=$1`,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: preparing SELECT category query)", err)
 	}
+	defer stmtCategories.Close()
 
-	categoriesRows, err := stmt.QueryContext(ctx, branch_id)
+	categoriesRows, err := stmtCategories.QueryContext(ctx, branch_id)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: executing SELECT category query)", err)
 	}
-	stmt.Close()
 
 	/* Get all attributes on every category id */
-	stmt, err = s.db.Prepare(
+	stmt, err := s.db.Prepare(
 		`SELECT attribute_id FROM category_attribute WHERE category_attribute.category_id=$1`,
 	)
 	if err != nil {
@@ -130,9 +130,11 @@ func (s *Storage) ListTemplates(
 	for categoriesRows.Next() {
 		var attributesArray []*proto.AttributeInfo
 		categoryElem := proto.TemplateInfo{}
-
 		// Get category id
-		categoriesRows.Scan(&categoryElem.TemplateId)
+		err := categoriesRows.Scan(&categoryElem.TemplateId, &categoryElem.Name, &categoryElem.Description)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %w", "scanning categories rows: ", err)
+		}
 
 		// Get attribute id's on category id
 		attributesIdRows, err := stmt.QueryContext(ctx, categoryElem.TemplateId)
@@ -155,7 +157,9 @@ func (s *Storage) ListTemplates(
 			}
 
 			// Parse attribute rows
-			attrInfo := &proto.AttributeInfo{}
+			attrInfo := &proto.AttributeInfo{
+				Id: currentAttributeId,
+			}
 			for attributeRows.Next() {
 				err = attributeRows.Scan(
 					&attrInfo.Type,
@@ -170,6 +174,7 @@ func (s *Storage) ListTemplates(
 				attributesArray = append(attributesArray, attrInfo)
 			}
 		}
+
 		categoryElem.Attributes = attributesArray
 		res = append(res, &categoryElem)
 	}
@@ -177,7 +182,7 @@ func (s *Storage) ListTemplates(
 	return res, nil
 }
 
-func (s *Storage) GetUserListCategories(
+func (s *Storage) GetUserListBranches(
 	ctx context.Context,
 	user_id int32,
 ) (
@@ -187,30 +192,28 @@ func (s *Storage) GetUserListCategories(
 	var resList []int32
 	/* Get all shops on requested user*/
 	stmt, err := s.db.Prepare(
-		`SELECT DISTINCT c.id
+		`SELECT b.id
 		FROM users u
 		JOIN users_shop us ON u.id = us.users_id
 		JOIN shop s ON us.shop_id = s.id
 		JOIN branch b ON s.id = b.shop_id
-		JOIN category_branch cb ON b.id = cb.branch_id
-		JOIN category c ON cb.category_id = c.id
 		WHERE u.id = $1`,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "Error in GetUserListCategories (step: preparing SELECT query on user_shop)", err)
+		return nil, fmt.Errorf("%s: %w", "Error in GetUserListBranches (step: preparing SELECT query on user_shop)", err)
 	}
 
 	defer stmt.Close()
 
-	shopIdRows, err := stmt.QueryContext(ctx, user_id)
+	branchIdRows, err := stmt.QueryContext(ctx, user_id)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", "Error in ListTemplates (step: executing SELECT query on user_shop)", err)
+		return nil, fmt.Errorf("%s: %w", "Error in GetUserListBranches (step: executing SELECT query on user_shop)", err)
 	}
 
-	for shopIdRows.Next() {
-		var currentShopId int32
-		shopIdRows.Scan(&currentShopId)
-		resList = append(resList, currentShopId)
+	for branchIdRows.Next() {
+		var currentBranchId int32
+		branchIdRows.Scan(&currentBranchId)
+		resList = append(resList, currentBranchId)
 	}
 
 	return resList, err

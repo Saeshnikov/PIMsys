@@ -19,3 +19,8 @@ cd ../../../
 
 cd src/grpc/template
 protoc --js_out=import_style=commonjs,binary:. --grpc-web_out=import_style=commonjs,mode=grpcwebtext:. template.proto
+
+cd ../../../
+
+cd src/grpc/logs
+protoc --js_out=import_style=commonjs,binary:. --grpc-web_out=import_style=commonjs,mode=grpcwebtext:. logs.proto

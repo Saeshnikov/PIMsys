@@ -76,13 +76,9 @@ func (logs *Logs) GetGraph(
 			return nil, fmt.Errorf("%s: %v", "failed to get sales: ", err)
 		}
 		dateFrom = oneIntervalLater.Unix()
-		var temp proto.Graph
-		var flag bool = false
+		temp := proto.Graph{Date: dateFrom, TotalSales: 0, TotalQuantity: 0}
+
 		for _, sale := range sales {
-			if !flag {
-				temp.Date = sale.Date
-				flag = true
-			}
 			temp.TotalSales += sale.TotalSales
 			temp.TotalQuantity += sale.TotalQuantity
 		}

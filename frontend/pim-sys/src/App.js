@@ -6,6 +6,7 @@ import SuccessPage from "./pages/SuccessPage"; // Страница успеха
 import "./App.css";
 import ShopPage from "./pages/shop/ShopPage";
 import LogsPage from "./pages/logs/LogsPage";
+import GraphsPage from "./pages/logs/GraphPage";
 import BranchPage from "./pages/branch/BranchPage";
 import ProductsPage from "./pages/products/ProductsPage";
 import CategoryPage from "./pages/category/CategoryPage";
@@ -23,6 +24,7 @@ function App() {
         {/* <Route path="/success" element={<SuccessPage />} /> */}
         <Route path="/shop" element={<ShopPage />} />
         <Route path="/logs" element={<LogsPage />} />
+        <Route path="/graphs" element={<GraphsPage />} />
         <Route path="/shop/:shopId/branches" element={<BranchPage />} />
         <Route path="/shop/:shopId/:branchId/products" element={<ProductsPage />} />
         <Route path="/shop/:shopId/:branchId/category" element={<CategoryPage />} />

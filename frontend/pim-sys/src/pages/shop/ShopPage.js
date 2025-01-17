@@ -158,6 +158,14 @@ const ShopPage = () => {
         >
           Логи
         </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {navigate(`/graphs`)}}
+          sx={{ alignSelf: "flex-start" }}
+        >
+          Графики
+        </Button>
         <StyledPage>
           <Divider sx={{ marginY: 3 }} />
           <Typography variant="h6" gutterBottom>

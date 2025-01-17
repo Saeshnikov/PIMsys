@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ProductClient } from "../../grpc/products/products_grpc_web_pb"; // Клиент gRPC
+import { TemplateClient } from "../../grpc/template/template_grpc_web_pb"; // Клиент gRPC
 import { useParams } from "react-router-dom";
 import { 
   ProductInfo, 
@@ -9,6 +10,12 @@ import {
   Products,
   Empty,
 } from "../../grpc/products/products_pb"; // Сгенерированные сообщения
+import { 
+  ListTemplatesResponse,
+  ListTemplatesRequest,
+  TemplateInfo,
+  AttributeInfo,
+} from "../../grpc/template/template_pb"; // Сгенерированные сообщения
 import { useNavigate } from "react-router-dom";
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
@@ -63,6 +70,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
 
 const ProductsPage = () => {
   const client = new ProductClient("http://localhost:8002"); // URL gRPC-сервера
+  const templateClient = new TemplateClient("http://localhost:8004"); // URL gRPC-сервера
   const { branchId } = useParams();
 
   const [products, setProducts] = useState([]);
@@ -92,7 +100,7 @@ const ProductsPage = () => {
     const request = new Empty();
     client.listProducts(request, metadata, (err, response) => {
       if (err) {
-        console.error("Ошибка загрузки списка магазинов:", err.message);
+        console.error("Ошибка загрузки списка продуктов:", err.message);
         return;
       }
       setProducts(response.getProductList().map((product) => product.toObject()));
@@ -110,7 +118,23 @@ const ProductsPage = () => {
           attributes: tmp.product.attributesList}
       }))
     });
-    setCategories([{ categoryId:1,name: "test-category", description: "test-description",attributes:[{id:1,type:"text",name: "test-attribute-text"},{id:2,type:"number",name: "test-attribute-numeric"}]}])
+    const templateRequest = new ListTemplatesRequest();
+    templateRequest.setBranchId(branchId);
+    templateClient.listTemplates(templateRequest, metadata, (err, response) => {
+      if (err) {
+        console.error("Ошибка загрузки списка категорий:", err.message);
+        return;
+      }
+      setCategories(response.getInfoList().map((template) => {
+        const tmp = template.toObject();
+        console.log(tmp)
+        // console.log(tmp.product.attributesList)
+        return {categoryId: tmp.templateId,
+          name: tmp.name,
+          description: tmp.description,
+          attributes: tmp.attributesList}
+      }));
+    })
   };
 
   const handleAddProduct = async () => {
@@ -382,106 +406,6 @@ const ProductsPage = () => {
             </Button>
           </StyledForm>}
 
-
-
-          {/* <Divider sx={{ marginY: 3 }} />
-          <Grid container spacing={2}>
-            {products.map((product) => (
-              <Grid item xs={12} sm={6} md={4} key={product.productId}>
-                  {(editProduct==null || editProduct.productId!==product.productId) && (<StyledCard onClick={() => setEditProduct(product)}>
-                    <Typography variant="subtitle1" gutterBottom>
-                      {product.product.name}
-                    </Typography>
-                    <Chip
-                      label={
-                        product.product.status === "stock"
-                          ? "В продаже"
-                          : product.product.status === "archive"
-                          ? "В архиве"
-                          : product.product.status === "withdrawn_from_sale"
-                          ? "Снято с продажи"
-                          : "Нет в наличии"
-                      }
-                      color="primary"
-                      variant="outlined"
-                      sx={{ marginBottom: 1 }}
-                    />
-                    <Typography variant="body2" color="textSecondary">
-                      Количество: {product.product.amount}
-                    </Typography>
-                    <Typography variant="body2" color="textSecondary">
-                      Цена: {product.product.price}
-                    </Typography>
-                  </StyledCard>
-                  )}
-                  {editProduct!=null && editProduct.productId===product.productId && (
-                  <div>
-                    <StyledCard>
-                      <TextField
-                        label="Название продукта"
-                        fullWidth
-                        value={newProduct.name}
-                        onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                      />
-                      <TextField
-                        label="Цена"
-                        fullWidth
-                        value={newProduct.price}
-                        onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
-                        multiline
-                        rows={3}
-                      />
-                      <TextField
-                        label="Количество"
-                        fullWidth
-                        value={newProduct.amount}
-                        onChange={(e) => setNewProduct({ ...newProduct, amount: e.target.value })}
-                      />
-                      <RadioGroup
-                        row
-                        value={newProduct.status}
-                        onChange={(e) => setNewProduct({ ...newProduct, status: e.target.value })}
-                        >
-                          <FormControlLabel
-                            value="stock"
-                            control={<Radio />}
-                            label="В продаже"
-                          />
-                          <FormControlLabel
-                            value="archive"
-                            control={<Radio />}
-                            label="В архиве"
-                          />
-                          <FormControlLabel
-                            value="withdrawn_from_sale"
-                            control={<Radio />}
-                            label="Снято с продажи"
-                          />
-                          <FormControlLabel
-                            value="out_of_stock"
-                            control={<Radio />}
-                            label="Нет в наличии"
-                          />
-                      </RadioGroup>
-                      
-                      <Button onClick={handleEditProduct} 
-                      variant="contained"
-                      color="primary"
-                      sx={{ alignSelf: "flex-start" }}
-                      >Сохранить</Button>
-                      <Button onClick={() => setEditProduct(null)}
-                      variant="contained"
-                      color="primary"
-                      sx={{ alignSelf: "flex-start" }
-                      }>Отмена</Button>
-                    </StyledCard>
-                    
-                    
-                  </div>
-                )}
-              </Grid>
-            ))}
-          </Grid> */}
           {editProduct!=null && newCategory != null && <StyledForm>
             <Typography variant="subtitle1">Изменить продукт</Typography>
             <TextField

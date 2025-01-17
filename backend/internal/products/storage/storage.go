@@ -110,7 +110,6 @@ func (s *Storage) AlterProduct(
 
 	err = stmt.QueryRowContext(
 		ctx,
-		content.GetProduct().GetCategoryId(),
 		content.GetProduct().GetStatus(),
 		content.GetProduct().GetBranchId(),
 		content.GetProduct().GetName(),

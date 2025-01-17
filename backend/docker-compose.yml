@@ -107,8 +107,10 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10004", "describe"]
-      interval: 100s
+      interval: 5s
       retries: 5
+    profiles:
+      - template
 
   branch: 
     image: main-image

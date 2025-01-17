@@ -6,7 +6,7 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import Alert from "@mui/material/Alert";
 import { styled } from "@mui/material/styles";
-import { RegisterRequest } from "../../grpc/sso/sso_pb";
+import { RegisterRequest,LoginRequest } from "../../grpc/sso/sso_pb";
 import { useNavigate } from "react-router-dom";
 
 
@@ -51,7 +51,26 @@ const RegisterForm = ({ authClient, onSwitchToLogin }) => {
       if (err) {
         setServerError(err.message || "Ошибка регистрации");
       } else {
-        navigate("/shop"); // Перенаправление на страницу успеха
+        authClient.login(request, {}, (err, response) => {
+          if (err) {
+            setServerError(err.message || "Ошибка авторизации");
+          } else {
+            const jwtToken = response.getToken(); // Предположим, что токен приходит в ответе
+            console.log(jwtToken)
+            if (jwtToken) {
+              // Сохраняем токен в localStorage
+              localStorage.setItem("jwt_token", jwtToken);
+    
+              // Очистка ошибки при успешной авторизации
+              setServerError(""); 
+    
+              // Перенаправление на страницу-пример
+              navigate("/shop");
+            } else {
+              setServerError("Токен не получен, повторите попытку.");
+            }
+          }
+        });
       }
     });
   };

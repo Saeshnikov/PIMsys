@@ -79,7 +79,7 @@ func (logs *Logs) GetGraph(
 		temp := proto.Graph{Date: dateFrom, TotalSales: 0, TotalQuantity: 0}
 
 		for _, sale := range sales {
-			temp.TotalSales += sale.TotalSales
+			temp.TotalSales += sale.TotalSales * sale.TotalQuantity
 			temp.TotalQuantity += sale.TotalQuantity
 		}
 		res.Graphs = append(res.Graphs, &temp)

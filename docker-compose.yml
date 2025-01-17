@@ -112,6 +112,27 @@ services:
       interval: 5s
       retries: 5
 
+  logs: 
+    image: main-image
+    build:
+      context:    ./backend/docker
+      dockerfile: main-image
+    entrypoint: bash -c "mkdir -p cover &&
+      go build -cover -o /app cmd/logs/main.go &&
+      GOCOVERDIR=cover /app"
+    volumes:
+      - "$PWD:$PWD:rw"
+    working_dir: $PWD/backend
+    container_name: logs
+    ports:
+     - 10005:10005
+    networks:
+      - common-net
+    healthcheck:
+      test: ["CMD", "grpcurl", "-plaintext","localhost:10005", "describe"]
+      interval: 5s
+      retries: 5
+
   migrations: 
     container_name: migrations
     image: main-image
@@ -177,3 +198,13 @@ services:
       - common-net
     ports:
       - "8004:8004"
+
+  logs-envoy:
+    container_name: "logs-envoy"
+    image: envoy/logs:latest
+    build:
+      context:    ./backend/envoy/logs
+    networks:
+      - common-net
+    ports:
+      - "8005:8005"

@@ -62,7 +62,7 @@ func (s *ServerAPI) NewProduct(
 	}
 
 	if in.CategoryId == 0 {
-		return nil, status.Error(codes.InvalidArgument, "code id is required")
+		return nil, status.Error(codes.InvalidArgument, "category id is required")
 	}
 
 	if in.Price <= 0 {

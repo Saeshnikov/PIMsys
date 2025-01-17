@@ -98,26 +98,31 @@ const ProductsPage = () => {
 
   const fetchProducts = async () => {
     const request = new Empty();
-    client.listProducts(request, metadata, (err, response) => {
-      if (err) {
-        console.error("Ошибка загрузки списка продуктов:", err.message);
-        return;
-      }
-      setProducts(response.getProductList().map((product) => product.toObject()));
-      setRows(response.getProductList().map((product) => {
-        const tmp = product.toObject();
-        // console.log(tmp)
-        // console.log(tmp.product.attributesList)
-        return {id: tmp.productId,
-          status: tmp.product.status,
-          name: tmp.product.name,
-          price: tmp.product.price,
-          amount: tmp.product.amount,
-          branchId: tmp.product.branchId,
-          categoryId: tmp.product.categoryId,
-          attributes: tmp.product.attributesList}
-      }))
-    });
+    if (newCategory) {
+      client.listProducts(request, metadata, (err, response) => {
+        if (err) {
+          console.error("Ошибка загрузки списка продуктов:", err.message);
+          return;
+        }
+        setProducts(response.getProductList().map((product) => product.toObject()));
+        setRows(response.getProductList().map((product) => {
+          
+          const tmp = product.toObject();
+          if (tmp.categoryId = newCategory.categoryId)
+          // console.log(tmp)
+          // console.log(tmp.product.attributesList)
+          return {id: tmp.productId,
+            status: tmp.product.status,
+            name: tmp.product.name,
+            price: tmp.product.price,
+            amount: tmp.product.amount,
+            branchId: tmp.product.branchId,
+            categoryId: tmp.product.categoryId,
+            attributes: tmp.product.attributesList}
+        }))
+      });
+    }
+    
     const templateRequest = new ListTemplatesRequest();
     templateRequest.setBranchId(branchId);
     templateClient.listTemplates(templateRequest, metadata, (err, response) => {

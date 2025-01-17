@@ -209,3 +209,14 @@ services:
       - common-net
     ports:
       - "8005:8005"
+
+  ui:
+    container_name: ui
+    image: ui:latest
+    build:
+      context:    ./frontend/pim-sys
+    networks:
+      - common-net
+    ports:
+      - "3000:80"
+  

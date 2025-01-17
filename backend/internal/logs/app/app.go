@@ -2,7 +2,6 @@ package shop_app
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -44,21 +43,7 @@ func (logs *Logs) GetLogs(
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", "failed getting logs: ", err)
 	}
-	var res []*proto.Log
-	for _, info := range logsInfo {
-
-		var logs []*proto.Log
-		err := json.Unmarshal([]byte(info.Info), &logs)
-
-		if err != nil {
-			return nil, fmt.Errorf("%s: %v", "failed unmarshalling logs: ", err)
-		}
-		for _, log := range logs {
-			res = append(res, log)
-		}
-
-	}
-	return &proto.GetLogsResponse{Logs: res}, nil
+	return &proto.GetLogsResponse{Logs: logsInfo}, nil
 }
 
 func (logs *Logs) GetGraph(

@@ -273,6 +273,7 @@ const ProductsPage = () => {
           valueGetter:  (value, row) => {
             const filteredAttr = row.attributes
             ?.find((attr) => attr.id == attribute.id);
+            if (!filteredAttr){ return ""}
             return attribute.type === "text" ?
               `${filteredAttr.valueText.toString()}`
               : attribute.type === "number"

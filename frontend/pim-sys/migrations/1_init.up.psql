@@ -14,6 +14,12 @@ INSERT INTO product (category_id, status, branch_id, name, price,amount) VALUES
 (1, 'stock', 1, 'test-category3',1.0,1),
 (1, 'stock', 1, 'test-category4',1.0,1),
 (1, 'stock', 1, 'test-category5',1.0,1);
+INSERT INTO product_attribute_value (product_id,attribute_id,value_text,value_number,value_boolean) VALUES
+(1,1,'123',1,false),
+(2,1,'123',1,false),
+(3,1,'123',1,false),
+(4,1,'123',1,false),
+(5,1,'123',1,false);
 INSERT INTO log_journal (shop_id, branch_id, product_id, info) VALUES (1, 99, 99, '[{"product_id":1, "name":"test", "timestamp":1, "action":"test-action", "details":"test-details"}]');
 INSERT INTO sales (name, date, branch_id, product_id, price, quantity) VALUES
 ('01.01.24_1', 1704074400, 1, 1, 20, 3), 

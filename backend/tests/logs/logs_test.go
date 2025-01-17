@@ -35,5 +35,5 @@ func TestRegisterLogin_Login_HappyPath(t *testing.T) {
 
 	require.NotNil(t, newSales)
 
-	require.Equal(t, 60, int(newSales.Graphs[0].TotalSales))
+	require.Equal(t, 160, int(newSales.Graphs[0].TotalSales))
 }

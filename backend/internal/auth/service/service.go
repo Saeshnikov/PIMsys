@@ -79,7 +79,7 @@ func (s *serverAPI) Register(
 
 	rxLoginOrEmail := regexp.MustCompile(LoginOrEmailRegex)
 
-	if !rxLoginOrEmail.MatchString(in.Email) || !(len(in.Email) > 1 && len(in.Email) < 100) {
+	if !rxLoginOrEmail.MatchString(in.Email) || !(len(in.Email) > 1 && len(in.Email) < 16) {
 		return nil, status.Error(codes.InvalidArgument, "email is not valid")
 	}
 

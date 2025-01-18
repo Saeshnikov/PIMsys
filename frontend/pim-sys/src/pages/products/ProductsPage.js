@@ -98,30 +98,22 @@ const ProductsPage = () => {
 
   const fetchProducts = async () => {
     const request = new Empty();
-    if (newCategory) {
-      client.listProducts(request, metadata, (err, response) => {
-        if (err) {
-          console.error("Ошибка загрузки списка продуктов:", err.message);
-          return;
-        }
-        setProducts(response.getProductList().map((product) => product.toObject()));
-        setRows(response.getProductList().map((product) => {
-          
-          const tmp = product.toObject();
-          if (tmp.categoryId = newCategory.categoryId)
-          // console.log(tmp)
-          // console.log(tmp.product.attributesList)
-          return {id: tmp.productId,
-            status: tmp.product.status,
-            name: tmp.product.name,
-            price: tmp.product.price,
-            amount: tmp.product.amount,
-            branchId: tmp.product.branchId,
-            categoryId: tmp.product.categoryId,
-            attributes: tmp.product.attributesList}
-        }))
-      });
-    }
+
+    client.listProducts(request, metadata, (err, response) => {
+      if (err) {
+        console.error("Ошибка загрузки списка продуктов:", err.message);
+        return;
+      }
+      setProducts(response.getProductList().map((product) => product.toObject()));
+      
+    });
+
+    // console.log("newCategory")
+    // console.log(newCategory)
+    // console.log("products")
+    // console.log(products)
+    // console.log("rows")
+    // console.log(rows)
     
     const templateRequest = new ListTemplatesRequest();
     templateRequest.setBranchId(branchId);
@@ -132,7 +124,7 @@ const ProductsPage = () => {
       }
       setCategories(response.getInfoList().map((template) => {
         const tmp = template.toObject();
-        console.log(tmp)
+        // console.log(tmp)
         // console.log(tmp.product.attributesList)
         return {categoryId: tmp.templateId,
           name: tmp.name,
@@ -141,6 +133,11 @@ const ProductsPage = () => {
       }));
     })
   };
+
+  useEffect(() => {
+    handleSetRows(newCategory);
+  }, [newCategory, products]);
+
 
   const handleAddProduct = async () => {
     const request = new ProductInfo();
@@ -162,21 +159,6 @@ const ProductsPage = () => {
       fetchProducts();
     });
   };
-
-  const handleSetEditProduct = async(params) => {
-    const forEdit = new ProductInfoWithId();
-    const productInfo = new ProductInfo();
-    productInfo.setName(params.name);
-    productInfo.setStatus(params.status);
-    productInfo.setAmount(params.amount);
-    productInfo.setPrice(params.price);
-    productInfo.setBranchId(branchId);
-    productInfo.setCategoryId(params.categoryId);
-    forEdit.setProduct(productInfo)
-    forEdit.setProductId(params.id)
-
-    setEditProduct(forEdit)
-  }
 
   const handleEditProduct = async () => {
     const request = new ProductInfoWithId();
@@ -202,9 +184,30 @@ const ProductsPage = () => {
     });
   };
 
+  const handleSetRows = (cat) => {
+    if(!cat){
+      return
+    }
+    setRows(products.filter(
+      (p)=> {return p.product.categoryId === cat.categoryId}
+    ).map((p) => {
+        return {id: p.productId,
+        status: p.product.status,
+        name: p.product.name,
+        price: p.product.price,
+        amount: p.product.amount,
+        branchId: p.product.branchId,
+        categoryId: p.product.categoryId,
+        attributes: p.product.attributesList}
+      // console.log(tmp)
+      // console.log(tmp.product.attributesList)
+      
+    }))
+  }
+
   const handleDeleteProduct = async (Product_id) => {
     const request = new DeleteProductRequest();
-    console.log(Product_id)
+    // console.log(Product_id)
     request.setProductId(Product_id);
 
     client.deleteProduct(request, metadata, (err, response) => {
@@ -355,7 +358,7 @@ const ProductsPage = () => {
               label="Название продукта"
               fullWidth
               value={newProduct.name}
-              onChange={(e) => {setNewProduct({ ...newProduct, name: e.target.value });console.log(newCategory.name) ;}}
+              onChange={(e) => {setNewProduct({ ...newProduct, name: e.target.value });}}
             />
             <TextField
               label="Цена"

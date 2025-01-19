@@ -57,6 +57,9 @@ func (s *ServerAPI) NewTemplate(
 	if len(in.Attributes) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "attribute structures is required")
 	}
+	if len(in.Attributes) > 10 {
+		return nil, status.Error(codes.InvalidArgument, "too many attributes")
+	}
 
 	err := s.template.NewTemplate(
 		ctx,

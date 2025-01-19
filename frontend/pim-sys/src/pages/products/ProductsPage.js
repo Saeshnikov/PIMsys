@@ -7,6 +7,7 @@ import {
   Attribute, 
   ProductInfoWithId, 
   DeleteProductRequest, 
+  SellProductRequest,
   Products,
   Empty,
 } from "../../grpc/products/products_pb"; // Сгенерированные сообщения
@@ -24,6 +25,7 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import EditIcon from '@mui/icons-material/Edit';
 import { IconButton } from '@mui/material';
+import SellIcon from '@mui/icons-material/Sell';
 import {
   Button,
   TextField,
@@ -40,6 +42,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { DataGrid } from '@mui/x-data-grid';
+import Alert from "@mui/material/Alert";
 
 // Стили основной страницы
 const StyledPage = styled(Box)(({ theme }) => ({
@@ -61,13 +64,6 @@ const StyledForm = styled(Box)(({ theme }) => ({
   boxShadow: theme.shadows[1],
 }));
 
-// Стили для карточек магазинов
-const StyledCard = styled(Card)(({ theme }) => ({
-  padding: theme.spacing(2),
-  boxShadow: theme.shadows[1],
-  borderRadius: theme.shape.borderRadius,
-}));
-
 const ProductsPage = () => {
   const client = new ProductClient("http://localhost:8002"); // URL gRPC-сервера
   const templateClient = new TemplateClient("http://localhost:8004"); // URL gRPC-сервера
@@ -81,9 +77,12 @@ const ProductsPage = () => {
   const [newCategory, setNewCategory] = useState(null);
   const [rows, setRows] = useState([]);
   const [columns, setColumns] = useState([]);
+  const [forSale, setForSale] = useState(null);
+  const [serverError, setServerError] = React.useState("");
 
   const deleteIcon = <DeleteForeverIcon />;
   const editIcon = <EditIcon />;
+  const sellIcon = <SellIcon />;
   
   useEffect(() => {
     fetchProducts();
@@ -98,10 +97,12 @@ const ProductsPage = () => {
 
   const fetchProducts = async () => {
     const request = new Empty();
+    setServerError(""); // Очистка ошибки перед новым запросом
 
     client.listProducts(request, metadata, (err, response) => {
       if (err) {
         console.error("Ошибка загрузки списка продуктов:", err.message);
+        setServerError(err.message || "Ошибка загрузки списка продуктов");
         return;
       }
       setProducts(response.getProductList().map((product) => product.toObject()));
@@ -120,17 +121,20 @@ const ProductsPage = () => {
     templateClient.listTemplates(templateRequest, metadata, (err, response) => {
       if (err) {
         console.error("Ошибка загрузки списка категорий:", err.message);
+        setServerError(err.message || "Ошибка загрузки списка категорий");
         return;
       }
       setCategories(response.getInfoList().map((template) => {
         const tmp = template.toObject();
         // console.log(tmp)
         // console.log(tmp.product.attributesList)
+        console.log(tmp.attributesList);
         return {categoryId: tmp.templateId,
           name: tmp.name,
           description: tmp.description,
           attributes: tmp.attributesList}
       }));
+     
     })
   };
 
@@ -140,6 +144,7 @@ const ProductsPage = () => {
 
 
   const handleAddProduct = async () => {
+    setServerError(""); // Очистка ошибки перед новым запросом
     const request = new ProductInfo();
     request.setName(newProduct.name);
     request.setStatus(newProduct.status);
@@ -152,6 +157,7 @@ const ProductsPage = () => {
     client.newProduct(request, metadata, (err, response) => {
       if (err) {
         console.error("Ошибка добавления продукта:", err.message);
+        setServerError(err.message || "Ошибка добавления продукта");
         return;
       }
       // setNewAttributes(null);
@@ -161,6 +167,7 @@ const ProductsPage = () => {
   };
 
   const handleEditProduct = async () => {
+    setServerError(""); // Очистка ошибки перед новым запросом
     const request = new ProductInfoWithId();
     const productInfo = new ProductInfo();
     productInfo.setName(editProduct.name);
@@ -176,10 +183,28 @@ const ProductsPage = () => {
     client.alterProduct(request, metadata, (err, response) => {
       if (err) {
         console.error("Ошибка изменения продукта:", err.message);
-        alert("Ошибка изменения продукта:", err.message)
+        setServerError(err.message || "Ошибка изменения продукта");
         return;
       }
       setEditProduct(null);
+      fetchProducts();
+    });
+  };
+
+  const handleSellProduct = async () => {
+    setServerError(""); // Очистка ошибки перед новым запросом
+    const request = new SellProductRequest();
+    request.setProductId(forSale.id)
+    request.setAmount(forSale.amount)
+    
+
+    client.sellProduct(request, metadata, (err, response) => {
+      if (err) {
+        console.error("Ошибка изменения продукта:", err.message);
+        setServerError(err.message || "Ошибка изменения продукта");
+        return;
+      }
+      setForSale(null);
       fetchProducts();
     });
   };
@@ -206,14 +231,15 @@ const ProductsPage = () => {
   }
 
   const handleDeleteProduct = async (Product_id) => {
+    setServerError(""); // Очистка ошибки перед новым запросом
     const request = new DeleteProductRequest();
     // console.log(Product_id)
     request.setProductId(Product_id);
 
     client.deleteProduct(request, metadata, (err, response) => {
       if (err) {
+        setServerError(err.message || "Ошибка удаления продукта");
         console.error("Ошибка удаления продукта:", err.message);
-        alert("Ошибка удаления продукта:", err.message)
         return;
       }
       fetchProducts();
@@ -257,6 +283,11 @@ const ProductsPage = () => {
           color="primary"
           sx={{ alignSelf: "flex-end" }}
         >{editIcon}</IconButton>
+        <IconButton onClick={() => setForSale({id:params.row.id,name:params.row.name,amount:0})}
+          variant="filled"
+          color="primary"
+          sx={{ alignSelf: "flex-end" }}
+        >{sellIcon}</IconButton>
         <IconButton onClick={() => handleDeleteProduct(params.row.id)}
           variant="filled"
           color="danger"
@@ -271,6 +302,7 @@ const ProductsPage = () => {
     var tmpAttributes = new Array();
     var tmpColumns = new Array();
     tmpColumns.push(...defaultColumns);
+    
     e.attributes?.map((attribute) => {
       const attr = new Attribute();
       attr.setId(attribute.id);
@@ -280,7 +312,7 @@ const ProductsPage = () => {
           headerName: attribute.name,
           valueGetter:  (value, row) => {
             const filteredAttr = row.attributes
-            ?.find((attr) => attr.id == attribute.id);
+            ?.find((attr) => attr.id === attribute.id);
             if (!filteredAttr){ return ""}
             return attribute.type === "text" ?
               `${filteredAttr.valueText.toString()}`
@@ -332,6 +364,11 @@ const ProductsPage = () => {
   return (
     <div >
         <StyledPage sx={{width: '100%'}}>
+          {serverError && (
+            <Box sx={{ mt: 2, width: "100%" }}>
+              <Alert severity="error">{serverError}</Alert>
+            </Box>
+          )}
           <Divider sx={{ marginY: 3 }}/>
           <Typography variant="h6" gutterBottom>
             Продукты
@@ -399,11 +436,29 @@ const ProductsPage = () => {
                 />
             </RadioGroup>
              {newCategory.attributes?.map((attribute) => (
+              <div>
+              {attribute.isValueRequired &&
+                <Chip
+                  label="required"
+                  color="primary"
+                  variant="outlined"
+                  sx={{ marginBottom: 1 }}
+                />
+              }
+              {attribute.isUnique &&
+                <Chip
+                  label="unique"
+                  color="primary"
+                  variant="outlined"
+                  sx={{ marginBottom: 1 }}
+                />
+              }
               <TextField
               label={attribute.name}
                 fullWidth
                 onChange={(e) => handleNewAttributes(attribute.id, e.target.value )}
               />
+              </div>
             ))}
             <Button
               variant="contained"
@@ -473,6 +528,31 @@ const ProductsPage = () => {
               variant="contained"
               color="primary"
               onClick={() => setEditProduct(null)}
+              sx={{ alignSelf: "flex-start" }}
+            >
+              Отмена
+            </Button>
+          </StyledForm>}
+          {forSale && newCategory && <StyledForm>
+            <Typography variant="subtitle1">Продать {forSale.Name}</Typography>
+            <TextField
+              label="Количество"
+              fullWidth
+              value={forSale.amount}
+              onChange={(e) => {setForSale({ ...forSale, amount: e.target.value });}}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSellProduct}
+              sx={{ alignSelf: "flex-start" }}
+            >
+              Продать
+            </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => setForSale(null)}
               sx={{ alignSelf: "flex-start" }}
             >
               Отмена

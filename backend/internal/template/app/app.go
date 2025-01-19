@@ -38,8 +38,11 @@ func (template *Template) DeleteTemplate(
 	ctx context.Context,
 	templateId int32,
 ) error {
-
-	err := template.userMustHaveAccess(ctx, templateId)
+	branchId, err := template.templateStorage.GetBranchIdFromTemplateId(ctx, templateId)
+	if err != nil {
+		return fmt.Errorf("%s: %v", "getting branch_id from template_id", err)
+	}
+	err = template.userMustHaveAccess(ctx, branchId)
 	if err != nil {
 		return fmt.Errorf("%s: %v", "checking user permissions", err)
 	}

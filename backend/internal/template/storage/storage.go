@@ -218,3 +218,31 @@ func (s *Storage) GetUserListBranches(
 
 	return resList, err
 }
+
+func (s *Storage) GetBranchIdFromTemplateId(
+	ctx context.Context,
+	template_id int32,
+) (
+	int32,
+	error,
+) {
+	stmt, err := s.db.Prepare(
+		`SELECT branch_id
+		FROM category_branch
+		WHERE category_id = $1`,
+	)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %w", "Error in GetBranchIdFromTemplateId: ", err)
+	}
+
+	defer stmt.Close()
+
+	var branchid int32
+
+	err = stmt.QueryRowContext(ctx, template_id).Scan(&branchid)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %w", "Error in GetBranchIdFromTemplateId executing query: ", err)
+	}
+
+	return branchid, err
+}

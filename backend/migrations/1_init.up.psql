@@ -149,10 +149,10 @@ BEGIN
     RETURNING id
   ) 
   INSERT INTO category_branch (branch_id, category_id)
-    SELECT 1, id FROM inserted_categories;
+    (SELECT NEW.id, id from inserted_categories);
 
   INSERT INTO "attribute" (type, is_value_required, is_unique, name, description) VALUES
-  ('number', true, false, 'Цена', 'Стоимость товара'),
+
   ('text', true, false, 'Описание', 'Описание товара'),
   ('number', true, false, 'Вес', 'Вес продукта'),
   ('text', true, false, 'Цвет', 'Цвет товара'),
@@ -181,32 +181,32 @@ BEGIN
   INSERT INTO category_attribute (attribute_id, category_id)
   SELECT a.id, c.id
   FROM attribute a, category c
-  WHERE c.name = 'Фрукты и овощи' AND a.name IN ('Вес', 'Цена', 'Страна происхождения', 'Дата поступления', 'Срок годности');
+  WHERE c.name = 'Фрукты и овощи' AND a.name IN ('Вес', 'Страна происхождения', 'Дата поступления', 'Срок годности');
 
   INSERT INTO category_attribute (attribute_id, category_id)
   SELECT a.id, c.id
   FROM attribute a, category c
-  WHERE c.name = 'Техника' AND a.name IN ('Модель', 'Производитель', 'Спецификации', 'Цена', 'Год выпуска', 'Энергопотребление', 'Вес');
+  WHERE c.name = 'Техника' AND a.name IN ('Модель', 'Производитель', 'Спецификации', 'Год выпуска', 'Энергопотребление', 'Вес');
 
   INSERT INTO category_attribute (attribute_id, category_id)
   SELECT a.id, c.id
   FROM attribute a, category c
-  WHERE c.name = 'Мебель' AND a.name IN ('Тип мебели', 'Материал товара', 'Размеры', 'Цвет', 'Цена', 'Производитель', 'Вес');
+  WHERE c.name = 'Мебель' AND a.name IN ('Тип мебели', 'Материал товара', 'Размеры', 'Цвет', 'Производитель', 'Вес');
 
   INSERT INTO category_attribute (attribute_id, category_id)
   SELECT a.id, c.id
   FROM attribute a, category c
-  WHERE c.name = 'Одежда' AND a.name IN ('Тип одежды', 'Размер одежды', 'Материал товара', 'Цвет', 'Цена', 'Пол', 'Сезон', 'Бренд');
+  WHERE c.name = 'Одежда' AND a.name IN ('Тип одежды', 'Размер одежды', 'Материал товара', 'Цвет', 'Пол', 'Сезон', 'Бренд');
 
   INSERT INTO category_attribute (attribute_id, category_id)
   SELECT a.id, c.id
   FROM attribute a, category c
-  WHERE c.name = 'Обувь' AND a.name IN ('Тип обуви', 'Размер обуви', 'Материал', 'Цвет', 'Цена', 'Пол', 'Сезон', 'Бренд');
+  WHERE c.name = 'Обувь' AND a.name IN ('Тип обуви', 'Размер обуви', 'Материал', 'Цвет', 'Пол', 'Сезон', 'Бренд');
 
   INSERT INTO category_attribute (attribute_id, category_id)
   SELECT a.id, c.id
   FROM attribute a, category c
-  WHERE c.name = 'Украшения' AND a.name IN ('Тип украшения', 'Материал', 'Вставки', 'Размер украшения', 'Цена', 'Бренд', 'Вес');
+  WHERE c.name = 'Украшения' AND a.name IN ('Тип украшения', 'Материал', 'Вставки', 'Размер украшения', 'Бренд', 'Вес');
 
   RETURN NEW;
 END;

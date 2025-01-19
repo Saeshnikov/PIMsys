@@ -41,7 +41,11 @@ func (products *Products) NewProduct(
 	for _, attr := range content.Attributes {
 		err = products.productsStorage.AlterAttributes(ctx, productId, attr)
 		if err != nil {
-			return fmt.Errorf("%s: %v", "alter attributes: ", err)
+			errDelete := products.DeleteProduct(ctx, &proto.DeleteProductRequest{ProductId: productId})
+			if errDelete != nil {
+				return fmt.Errorf("%s: %v", "unexpected error: ", err)
+			}
+			return fmt.Errorf("%s: %v", "add attributes: ", err)
 		}
 	}
 	return nil

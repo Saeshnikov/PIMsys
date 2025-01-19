@@ -302,6 +302,6 @@ $check_product_attribute_value$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE TRIGGER trigger_insert_product_attribue_value
-AFTER INSERT ON product_attribute_value
+BEFORE INSERT ON product_attribute_value
 FOR EACH ROW
 EXECUTE FUNCTION check_product_attribute_value();

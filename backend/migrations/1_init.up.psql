@@ -135,78 +135,100 @@ CREATE TABLE IF NOT EXISTS apps
     secret TEXT NOT NULL UNIQUE
 );
 
-CREATE OR REPLACE FUNCTION add_default_categories() RETURNS TRIGGER 
+CREATE OR REPLACE FUNCTION add_default_categories() 
+RETURNS TRIGGER 
 AS $add_default_categories$
+DECLARE
+  inserted_categories int[] := '{}'; -- Массив ID категорий
+  inserted_attributes int[] := '{}'; -- Массив ID атрибутов
+  category_id int; -- Переменная для цикла FOREACH
 BEGIN
-  WITH inserted_categories AS (
-    INSERT INTO category (name, description, is_unique) VALUES 
-    ('Техника', 'Различные виды техники', false),
-    ('Мебель', 'Домашняя и офисная мебель', false),
-    ('Одежда', 'Одежда для всех', false),
-    ('Обувь', 'Различные виды обуви', false),
-    ('Украшения', 'Ювелирные изделия и украшения', false),
-    ('Фрукты и овощи', 'Свежие фрукты и овощи', false)
-    RETURNING id
-  ) 
-  INSERT INTO category_branch (branch_id, category_id)
-    (SELECT NEW.id, id from inserted_categories);
 
-  INSERT INTO "attribute" (type, is_value_required, is_unique, name, description) VALUES
+  WITH webpage_rows AS (
+    INSERT INTO category (name, description, is_unique) 
+      VALUES 
+        ('Техника', 'Различные виды техники', false),
+        ('Мебель', 'Домашняя и офисная мебель', false),
+        ('Одежда', 'Одежда для всех', false),
+        ('Обувь', 'Различные виды обуви', false),
+        ('Украшения', 'Ювелирные изделия и украшения', false),
+        ('Фрукты и овощи', 'Свежие фрукты и овощи', false)
+      RETURNING id
+    )
+  SELECT array_agg(id)
+    INTO inserted_categories
+    FROM webpage_rows;
 
-  ('text', true, false, 'Описание', 'Описание товара'),
-  ('number', true, false, 'Вес', 'Вес продукта'),
-  ('text', true, false, 'Цвет', 'Цвет товара'),
-  ('text', true, false, 'Дата поступления', 'Дата поступления на склад'),
-  ('text', true, false, 'Материал', 'Материал товара'),
-  ('text', true, false, 'Срок годности', 'Срок годности товара'),
-  ('text', true, false, 'Производитель', 'Наименование или производитель товара'),
-  ('text', true, false, 'Пол', 'Пол (мужской, женский, унисекс)'),
-  ('text', false, false, 'Сезон', 'Сезон (лето, осень и т.д.)'),
-  ('text', false, false, 'Бренд', 'Бренд производителя товара'),
-  ('text', true, false, 'Страна происхождения', 'Страна, откуда привезен товар'),
-  ('text', true, false, 'Модель', 'Модель техники'),
-  ('text', true, true, 'Спецификации', 'Технические характеристики'),
-  ('number', true, false, 'Год выпуска', 'Год выпуска устройства'),
-  ('number', false, false, 'Энергопотребление', 'Энергопотребление устройства в Вт'),
-  ('text', true, true, 'Тип мебели', 'Тип мебели (стул, стол и т.д.)'),
-  ('text', true, false, 'Размеры', 'Размеры изделия'),
-  ('text', true, true, 'Тип одежды', 'Тип одежды (рубашка, брюки и т.д.)'),
-  ('text', true, true, 'Размер одежды', 'Размер одежды'),
-  ('text', true, true, 'Тип обуви', 'Тип обуви (ботинки, кроссовки и т.д.)'),
-  ('text', true, true, 'Размер обуви', 'Размер обуви'),
-  ('text', false, true, 'Вставки', 'Тип вставок (камни, кристаллы)'),
-  ('text', false, true, 'Тип украшения', 'Тип украшения (кольцо, подвеска и т.д.)'),
-  ('text', true, true, 'Размер украшения', 'Размер украшения');
+  -- Связываем добавленные категории с текущей веткой
+  FOREACH category_id IN ARRAY inserted_categories
+  LOOP
+    INSERT INTO category_branch (branch_id, category_id) VALUES (NEW.id, category_id);
+  END LOOP;
+
+  -- Добавляем атрибуты и сохраняем их ID
+  WITH webpage_rows AS (
+  INSERT INTO attribute (type, is_value_required, is_unique, name, description)
+  VALUES
+    ('text', true, false, 'Описание', 'Описание товара'),
+    ('number', true, false, 'Вес', 'Вес продукта'),
+    ('text', true, false, 'Цвет', 'Цвет товара'),
+    ('text', true, false, 'Дата поступления', 'Дата поступления на склад'),
+    ('text', true, false, 'Материал', 'Материал товара'),
+    ('text', true, false, 'Срок годности', 'Срок годности товара'),
+    ('text', true, false, 'Производитель', 'Наименование или производитель товара'),
+    ('text', true, false, 'Пол', 'Пол (мужской, женский, унисекс)'),
+    ('text', false, false, 'Сезон', 'Сезон (лето, осень и т.д.)'),
+    ('text', false, false, 'Бренд', 'Бренд производителя товара'),
+    ('text', true, false, 'Страна происхождения', 'Страна, откуда привезен товар'),
+    ('text', true, false, 'Модель', 'Модель техники'),
+    ('text', true, true, 'Спецификации', 'Технические характеристики'),
+    ('number', true, false, 'Год выпуска', 'Год выпуска устройства'),
+    ('number', false, false, 'Энергопотребление', 'Энергопотребление устройства в Вт'),
+    ('text', true, true, 'Тип мебели', 'Тип мебели (стул, стол и т.д.)'),
+    ('text', true, false, 'Размеры', 'Размеры изделия'),
+    ('text', true, true, 'Тип одежды', 'Тип одежды (рубашка, брюки и т.д.)'),
+    ('text', true, true, 'Размер одежды', 'Размер одежды'),
+    ('text', true, true, 'Тип обуви', 'Тип обуви (ботинки, кроссовки и т.д.)'),
+    ('text', true, true, 'Размер обуви', 'Размер обуви'),
+    ('text', false, true, 'Вставки', 'Тип вставок (камни, кристаллы)'),
+    ('text', false, true, 'Тип украшения', 'Тип украшения (кольцо, подвеска и т.д.)'),
+    ('text', true, true, 'Размер украшения', 'Размер украшения')
+  RETURNING id)
+  SELECT array_agg(id)
+    INTO inserted_attributes
+    FROM webpage_rows;
+
+   -- Привязываем атрибуты к категориям
+    INSERT INTO category_attribute (attribute_id, category_id)
+  SELECT a.id, c.id
+  FROM attribute a, category c
+  WHERE c.name = 'Фрукты и овощи' AND c.id = ANY(inserted_categories) AND a.id = ANY(inserted_attributes) AND a.name IN ('Вес', 'Страна происхождения', 'Дата поступления', 'Срок годности');
 
   INSERT INTO category_attribute (attribute_id, category_id)
   SELECT a.id, c.id
   FROM attribute a, category c
-  WHERE c.name = 'Фрукты и овощи' AND a.name IN ('Вес', 'Страна происхождения', 'Дата поступления', 'Срок годности');
+  WHERE c.name = 'Техника' AND c.id = ANY(inserted_categories) AND a.id = ANY(inserted_attributes) AND a.name IN ('Модель', 'Производитель', 'Спецификации', 'Год выпуска', 'Энергопотребление', 'Вес');
 
   INSERT INTO category_attribute (attribute_id, category_id)
   SELECT a.id, c.id
   FROM attribute a, category c
-  WHERE c.name = 'Техника' AND a.name IN ('Модель', 'Производитель', 'Спецификации', 'Год выпуска', 'Энергопотребление', 'Вес');
+  WHERE c.name = 'Мебель' AND c.id = ANY(inserted_categories) AND a.id = ANY(inserted_attributes) AND a.name IN ('Тип мебели', 'Материал товара', 'Размеры', 'Цвет', 'Производитель', 'Вес');
 
   INSERT INTO category_attribute (attribute_id, category_id)
   SELECT a.id, c.id
   FROM attribute a, category c
-  WHERE c.name = 'Мебель' AND a.name IN ('Тип мебели', 'Материал товара', 'Размеры', 'Цвет', 'Производитель', 'Вес');
+  WHERE c.name = 'Одежда' AND c.id = ANY(inserted_categories) AND a.id = ANY(inserted_attributes) AND a.name IN ('Тип одежды', 'Размер одежды', 'Материал товара', 'Цвет', 'Пол', 'Сезон', 'Бренд');
 
   INSERT INTO category_attribute (attribute_id, category_id)
   SELECT a.id, c.id
   FROM attribute a, category c
-  WHERE c.name = 'Одежда' AND a.name IN ('Тип одежды', 'Размер одежды', 'Материал товара', 'Цвет', 'Пол', 'Сезон', 'Бренд');
+  WHERE c.name = 'Обувь' AND c.id = ANY(inserted_categories) AND a.id = ANY(inserted_attributes) AND a.name IN ('Тип обуви', 'Размер обуви', 'Материал', 'Цвет', 'Пол', 'Сезон', 'Бренд');
 
   INSERT INTO category_attribute (attribute_id, category_id)
   SELECT a.id, c.id
   FROM attribute a, category c
-  WHERE c.name = 'Обувь' AND a.name IN ('Тип обуви', 'Размер обуви', 'Материал', 'Цвет', 'Пол', 'Сезон', 'Бренд');
+  WHERE c.name = 'Украшения' AND c.id = ANY(inserted_categories) AND a.id = ANY(inserted_attributes) AND a.name IN ('Тип украшения', 'Материал', 'Вставки', 'Размер украшения', 'Бренд', 'Вес');
 
-  INSERT INTO category_attribute (attribute_id, category_id)
-  SELECT a.id, c.id
-  FROM attribute a, category c
-  WHERE c.name = 'Украшения' AND a.name IN ('Тип украшения', 'Материал', 'Вставки', 'Размер украшения', 'Бренд', 'Вес');
 
   RETURN NEW;
 END;

@@ -327,3 +327,44 @@ CREATE OR REPLACE TRIGGER trigger_insert_product_attribue_value
 BEFORE INSERT ON product_attribute_value
 FOR EACH ROW
 EXECUTE FUNCTION check_product_attribute_value();
+
+CREATE OR REPLACE FUNCTION product_update_log() RETURNS TRIGGER
+AS $product_update_log$
+DECLARE
+log_info text;
+product_shop_id BIGINT;
+BEGIN 
+  SELECT shop_id
+  INTO product_shop_id
+  FROM branch 
+  WHERE id = OLD.branch_id
+  LIMIT 1;
+
+  log_info := 'Изменено: ';
+  IF NEW.name <> OLD.name THEN
+    log_info := log_info || 'название (' || OLD.name || ' -> ' || NEW.name || ') ';
+  END IF;
+  IF NEW.category_id <> OLD.category_id THEN
+    log_info := log_info || 'id категории (' || OLD.category_id || ' -> ' || NEW.category_id || ') ';
+  END IF;
+  IF NEW.status <> OLD.status THEN
+    log_info := log_info || 'статус (' || OLD.status || ' -> ' || NEW.status || ') ';
+  END IF;
+  IF NEW.amount <> OLD.amount THEN
+    log_info := log_info || 'количество (' || OLD.amount || ' -> ' || NEW.amount || ') ';
+  END IF;
+  IF NEW.price <> OLD.price THEN
+    log_info := log_info || 'цена (' || OLD.price || ' -> ' || NEW.price || ') ';
+  END IF;
+
+  INSERT INTO log_journal(shop_id, branch_id, product_id, info) VALUES
+  (product_shop_id, NEW.branch_id, NEW.id, log_info);
+
+  RETURN NEW;
+END;
+$product_update_log$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trigger_update_product
+BEFORE UPDATE ON product
+FOR EACH ROW
+EXECUTE FUNCTION product_update_log();

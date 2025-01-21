@@ -67,19 +67,23 @@ func (s *Storage) GetSales(
 	ctx context.Context,
 	TimeFrom int64,
 	TimeTo int64,
+	userId int32,
 ) (
 	[]*proto.Graph,
 	error,
 ) {
 	var res []*proto.Graph
 
-	stmt, err := s.db.Prepare("SELECT date, price, quantity FROM sales WHERE date >= $1 and date <= $2")
+	stmt, err := s.db.Prepare(`SELECT sales.date, sales.price, sales.quantity FROM sales
+								JOIN branch ON sales.branch_id=branch.id
+								JOIN users_shop ON users_shop.shop_id=branch.shop_id
+								WHERE sales.date >= $1 and sales.date <= $2 and users_shop.users_id= $3`)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "creating query: ", err)
 	}
 	defer stmt.Close()
 
-	rows, err := stmt.QueryContext(ctx, TimeFrom, TimeTo)
+	rows, err := stmt.QueryContext(ctx, TimeFrom, TimeTo, userId)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "executing query: ", err)
 	}

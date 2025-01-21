@@ -55,7 +55,17 @@ func (logs *Logs) GetGraph(
 	var res proto.GetGraphResponse
 	var oneIntervalLater time.Time
 
-	err := logs.logsStorage.GetMinDate(ctx, dateFrom)
+	user_id, err := auth_interceptor.GetFromContext(ctx, "user_id")
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", "getting user_id from context: ", err)
+	}
+
+	userId, err := strconv.Atoi(user_id)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %v", "converting uid to int: ", err)
+	}
+
+	err = logs.logsStorage.GetMinDate(ctx, dateFrom)
 	if err != nil {
 		return nil, fmt.Errorf("%v", err)
 	}
@@ -71,7 +81,7 @@ func (logs *Logs) GetGraph(
 			return nil, fmt.Errorf("failed to get interval: invalid interval")
 		}
 
-		sales, err := logs.logsStorage.GetSales(ctx, dateFrom, oneIntervalLater.Unix())
+		sales, err := logs.logsStorage.GetSales(ctx, dateFrom, oneIntervalLater.Unix(), int32(userId))
 		if err != nil {
 			return nil, fmt.Errorf("%s: %v", "failed to get sales: ", err)
 		}

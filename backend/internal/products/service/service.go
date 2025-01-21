@@ -136,11 +136,11 @@ func (s *ServerAPI) SellProduct(
 	ctx context.Context,
 	in *proto.SellProductRequest,
 ) (*proto.Empty, error) {
-	if in.ProductId == 0 {
+	if in.ProductId <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "product id is required")
 	}
 
-	if in.Amount == 0 {
+	if in.Amount <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "amount is required")
 	}
 

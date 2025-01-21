@@ -275,7 +275,7 @@ BEGIN
 
     -- Проверка на обязательность значения
     IF value_required = true THEN
-      IF (type_attribute = 'text'::attribute_type AND NEW.value_text IS NULL)
+      IF (type_attribute = 'text'::attribute_type AND NEW.value_text ='')
        OR (type_attribute = 'boolean'::attribute_type AND NEW.value_boolean IS NULL)
        OR (type_attribute = 'number'::attribute_type AND NEW.value_number IS NULL)
       THEN

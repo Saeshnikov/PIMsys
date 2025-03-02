@@ -20,8 +20,18 @@ type App struct {
 	GRPCServer *grpcapp.App
 }
 
+type Storage interface {
+	CreateShop(ctx context.Context, userId int, name string, description string, url string) error
+	AlterShop(ctx context.Context, shopId int32, name string, description string, url string) error
+	DeleteShop(ctx context.Context, shopId int32) error
+	ListShops(ctx context.Context, userId int32) (
+		[]*proto.ShopInfo,
+		error,
+	)
+}
+
 type Shop struct {
-	shopStorage *storage.Storage
+	ShopStorage Storage
 }
 
 func (shop *Shop) NewShop(
@@ -41,7 +51,7 @@ func (shop *Shop) NewShop(
 		return fmt.Errorf("%s: %v", "converting uid to int: ", err)
 	}
 
-	return shop.shopStorage.CreateShop(ctx, userId, name, description, url)
+	return shop.ShopStorage.CreateShop(ctx, userId, name, description, url)
 }
 
 func (shop *Shop) AlterShop(
@@ -56,7 +66,7 @@ func (shop *Shop) AlterShop(
 		return fmt.Errorf("%s: %v", "checking user permissions", err)
 	}
 
-	return shop.shopStorage.AlterShop(ctx, shopId, name, description, url)
+	return shop.ShopStorage.AlterShop(ctx, shopId, name, description, url)
 }
 
 func (shop *Shop) DeleteShop(
@@ -69,7 +79,7 @@ func (shop *Shop) DeleteShop(
 		return fmt.Errorf("%s: %v", "checking user permissions", err)
 	}
 
-	return shop.shopStorage.DeleteShop(ctx, shopId)
+	return shop.ShopStorage.DeleteShop(ctx, shopId)
 }
 
 func (shop *Shop) ListShops(
@@ -88,7 +98,7 @@ func (shop *Shop) ListShops(
 		return nil, fmt.Errorf("%s: %v", "converting uid to int: ", err)
 	}
 
-	return shop.shopStorage.ListShops(ctx, int32(userId))
+	return shop.ShopStorage.ListShops(ctx, int32(userId))
 }
 
 func New(
@@ -107,7 +117,7 @@ func New(
 		shop_service.Register(
 			gRPCServer,
 			&Shop{
-				shopStorage: shopStorage,
+				ShopStorage: shopStorage,
 			},
 		)
 	}

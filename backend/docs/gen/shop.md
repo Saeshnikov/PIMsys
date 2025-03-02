@@ -15,6 +15,7 @@ import "pim-sys/internal/shop/app"
   - [func \(shop \*Shop\) DeleteShop\(ctx context.Context, shopId int32\) error](<#Shop.DeleteShop>)
   - [func \(shop \*Shop\) ListShops\(ctx context.Context\) \(\[\]\*proto.ShopInfo, error\)](<#Shop.ListShops>)
   - [func \(shop \*Shop\) NewShop\(ctx context.Context, name string, description string, url string\) error](<#Shop.NewShop>)
+- [type Storage](<#Storage>)
 
 
 <a name="App"></a>
@@ -44,7 +45,7 @@ func New(log *slog.Logger, grpcPort int, connectionString string, tokenTTL time.
 
 ```go
 type Shop struct {
-    // contains filtered or unexported fields
+    ShopStorage Storage
 }
 ```
 
@@ -83,6 +84,23 @@ func (shop *Shop) NewShop(ctx context.Context, name string, description string, 
 ```
 
 
+
+<a name="Storage"></a>
+## type Storage
+
+
+
+```go
+type Storage interface {
+    CreateShop(ctx context.Context, userId int, name string, description string, url string) error
+    AlterShop(ctx context.Context, shopId int32, name string, description string, url string) error
+    DeleteShop(ctx context.Context, shopId int32) error
+    ListShops(ctx context.Context, userId int32) (
+        []*proto.ShopInfo,
+        error,
+    )
+}
+```
 
 # shop\_service
 

@@ -9,7 +9,9 @@ clean-gen:
 .PHONY: generate
 generate: clean-gen
 	mkdir -p gen/go
-	go generate ./...
+	go generate ./proto/...
+	go generate ./internal/...
+	go generate .
 
 .PHONY: build
 build: cmd/*

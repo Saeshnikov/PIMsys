@@ -19,9 +19,9 @@ const (
 	PhoneRegex        = `^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$`
 )
 
-type serverAPI struct {
+type ServerAPI struct {
 	proto.UnimplementedAuthServer
-	auth Auth
+	Auth Auth
 }
 
 type Auth interface {
@@ -41,10 +41,10 @@ type Auth interface {
 }
 
 func Register(gRPCServer *grpc.Server, auth Auth) {
-	proto.RegisterAuthServer(gRPCServer, &serverAPI{auth: auth})
+	proto.RegisterAuthServer(gRPCServer, &ServerAPI{Auth: auth})
 }
 
-func (s *serverAPI) Login(
+func (s *ServerAPI) Login(
 	ctx context.Context,
 	in *proto.LoginRequest,
 ) (*proto.LoginResponse, error) {
@@ -56,7 +56,7 @@ func (s *serverAPI) Login(
 		return nil, status.Error(codes.InvalidArgument, "password is required")
 	}
 
-	token, err := s.auth.Login(ctx, in.GetEmail(), in.GetPassword())
+	token, err := s.Auth.Login(ctx, in.GetEmail(), in.GetPassword())
 
 	if err != nil {
 		if errors.Is(err, auth_errors.ErrInvalidCredentials) {
@@ -69,7 +69,7 @@ func (s *serverAPI) Login(
 	return &proto.LoginResponse{Token: token}, nil
 }
 
-func (s *serverAPI) Register(
+func (s *ServerAPI) Register(
 	ctx context.Context,
 	in *proto.RegisterRequest,
 ) (*proto.RegisterResponse, error) {
@@ -105,7 +105,7 @@ func (s *serverAPI) Register(
 		return nil, status.Error(codes.InvalidArgument, "phone is not valid")
 	}
 
-	uid, err := s.auth.RegisterNewUser(ctx, in.GetEmail(), in.GetPassword(), in.GetName(), in.GetPhone())
+	uid, err := s.Auth.RegisterNewUser(ctx, in.GetEmail(), in.GetPassword(), in.GetName(), in.GetPhone())
 
 	if err != nil {
 		if errors.Is(err, auth_errors.ErrUserExists) {
@@ -117,7 +117,7 @@ func (s *serverAPI) Register(
 	return &proto.RegisterResponse{UserId: uid}, nil
 }
 
-func (s *serverAPI) IsAdmin(
+func (s *ServerAPI) IsAdmin(
 	ctx context.Context,
 	in *proto.IsAdminRequest,
 ) (*proto.IsAdminResponse, error) {
@@ -125,7 +125,7 @@ func (s *serverAPI) IsAdmin(
 		return nil, status.Error(codes.InvalidArgument, "user_id is required")
 	}
 
-	isAdmin, err := s.auth.IsAdmin(ctx, in.GetUserId())
+	isAdmin, err := s.Auth.IsAdmin(ctx, in.GetUserId())
 	if err != nil {
 		if errors.Is(err, auth_errors.ErrUserNotFound) {
 			return nil, status.Error(codes.NotFound, "user not found")

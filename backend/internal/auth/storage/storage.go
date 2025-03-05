@@ -10,8 +10,12 @@ import (
 	"github.com/lib/pq"
 )
 
+type DB interface {
+	Prepare(query string) (*sql.Stmt, error)
+	Close() error
+}
 type Storage struct {
-	db *sql.DB
+	DB DB
 }
 
 func New(connectionString string) (*Storage, error) {
@@ -22,11 +26,11 @@ func New(connectionString string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return &Storage{db: db}, nil
+	return &Storage{DB: db}, nil
 }
 
 func (s *Storage) Stop() error {
-	return s.db.Close()
+	return s.DB.Close()
 }
 
 // SaveUser saves user to db.
@@ -35,7 +39,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte, n
 
 	const isAdmin = false // will be fixed
 
-	stmt, err := s.db.Prepare("INSERT INTO users(email, password, name, phone, isAdmin) VALUES($1, $2, $3, $4, $5) RETURNING id")
+	stmt, err := s.DB.Prepare("INSERT INTO users(email, password, name, phone, isAdmin) VALUES($1, $2, $3, $4, $5) RETURNING id")
 	if err != nil {
 		fmt.Println(err.Error())
 		return 0, fmt.Errorf("%s: %w", op, err)
@@ -61,7 +65,7 @@ func (s *Storage) SaveUser(ctx context.Context, email string, passHash []byte, n
 func (s *Storage) User(ctx context.Context, email string) (User, error) {
 	const op = "storage.postgres.User"
 
-	stmt, err := s.db.Prepare("SELECT id, email, password, isAdmin FROM users WHERE email = $1")
+	stmt, err := s.DB.Prepare("SELECT id, email, password, isAdmin FROM users WHERE email = $1")
 	if err != nil {
 		return User{}, fmt.Errorf("%s: %w", op, err)
 	}
@@ -85,7 +89,7 @@ func (s *Storage) User(ctx context.Context, email string) (User, error) {
 func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	const op = "storage.postgres.IsAdmin"
 
-	stmt, err := s.db.Prepare("SELECT isAdmin FROM users WHERE id = $1")
+	stmt, err := s.DB.Prepare("SELECT isAdmin FROM users WHERE id = $1")
 	if err != nil {
 		return false, fmt.Errorf("%s: %w", op, err)
 	}

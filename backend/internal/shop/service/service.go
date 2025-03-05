@@ -12,7 +12,7 @@ import (
 
 type ServerAPI struct {
 	proto.UnimplementedShopServer // Хитрая штука, о ней ниже
-	shop                          Shop
+	Shop                          Shop
 }
 
 // Тот самый интерфейс, котрый мы передавали в grpcApp
@@ -43,7 +43,7 @@ type Shop interface {
 }
 
 func Register(gRPCServer *grpc.Server, shop Shop) {
-	proto.RegisterShopServer(gRPCServer, &ServerAPI{shop: shop})
+	proto.RegisterShopServer(gRPCServer, &ServerAPI{Shop: shop})
 }
 
 func (s *ServerAPI) NewShop(
@@ -54,7 +54,7 @@ func (s *ServerAPI) NewShop(
 		return nil, status.Error(codes.InvalidArgument, "name is required")
 	}
 
-	err := s.shop.NewShop(ctx, in.GetName(), in.GetDescription(), in.GetUrl())
+	err := s.Shop.NewShop(ctx, in.GetName(), in.GetDescription(), in.GetUrl())
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to create new shop: %w", err).Error())
 	}
@@ -70,7 +70,7 @@ func (s *ServerAPI) AlterShop(
 		return nil, status.Error(codes.InvalidArgument, "shop id is required")
 	}
 
-	err := s.shop.AlterShop(ctx, in.GetShopId(), in.ShopInfo.GetName(), in.ShopInfo.GetDescription(), in.ShopInfo.Url)
+	err := s.Shop.AlterShop(ctx, in.GetShopId(), in.ShopInfo.GetName(), in.ShopInfo.GetDescription(), in.ShopInfo.Url)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to alter shop: %w", err).Error())
 	}
@@ -86,7 +86,7 @@ func (s *ServerAPI) DeleteShop(
 		return nil, status.Error(codes.InvalidArgument, "shop id is required")
 	}
 
-	err := s.shop.DeleteShop(ctx, in.GetShopId())
+	err := s.Shop.DeleteShop(ctx, in.GetShopId())
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to delete shop: %w", err).Error())
 	}
@@ -98,7 +98,7 @@ func (s *ServerAPI) ListShops(
 	ctx context.Context,
 	in *proto.ListShopsRequest,
 ) (*proto.ListShopsResponse, error) {
-	shopInfo, err := s.shop.ListShops(ctx)
+	shopInfo, err := s.Shop.ListShops(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to list shop: %w", err).Error())
 	}

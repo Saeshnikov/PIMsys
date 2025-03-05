@@ -136,7 +136,7 @@ func Register(gRPCServer *grpc.Server, shop Shop)
 ```go
 type ServerAPI struct {
     proto.UnimplementedShopServer // Хитрая штука, о ней ниже
-    // contains filtered or unexported fields
+    Shop                          Shop
 }
 ```
 
@@ -217,6 +217,7 @@ import "pim-sys/internal/shop/storage"
 
 ## Index
 
+- [type DB](<#DB>)
 - [type Storage](<#Storage>)
   - [func New\(connectionString string\) \(\*Storage, error\)](<#New>)
   - [func \(s \*Storage\) AlterShop\(ctx context.Context, shopId int32, name string, description string, url string\) error](<#Storage.AlterShop>)
@@ -226,6 +227,18 @@ import "pim-sys/internal/shop/storage"
   - [func \(s \*Storage\) Stop\(\) error](<#Storage.Stop>)
 
 
+<a name="DB"></a>
+## type DB
+
+
+
+```go
+type DB interface {
+    Prepare(query string) (*sql.Stmt, error)
+    Close() error
+}
+```
+
 <a name="Storage"></a>
 ## type Storage
 
@@ -233,7 +246,7 @@ import "pim-sys/internal/shop/storage"
 
 ```go
 type Storage struct {
-    // contains filtered or unexported fields
+    DB DB
 }
 ```
 

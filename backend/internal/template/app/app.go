@@ -11,7 +11,7 @@ import (
 	auth_interceptor "pim-sys/internal/auth-interceptor"
 	grpcapp "pim-sys/internal/grpc"
 	template_service "pim-sys/internal/template/service"
-	"pim-sys/internal/template/storage"
+	storage "pim-sys/internal/template/storage"
 
 	"google.golang.org/grpc"
 )

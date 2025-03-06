@@ -12,7 +12,9 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
-//go:generate mockery --testonly --name Storage --dir . --outpkg template_app_test --output .0
+//go:generate mockery --testonly --name Storage --dir . --outpkg template_app_test --output .
+
+// 9 tests
 
 func TestTemplate_NewTemplate(t *testing.T) {
 	type fields struct {

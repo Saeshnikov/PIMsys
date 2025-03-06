@@ -1,4 +1,4 @@
-package storage
+package template_storage
 
 import (
 	"context"
@@ -11,7 +11,12 @@ import (
 )
 
 type Storage struct {
-	db *sql.DB
+	DB DB
+}
+
+type DB interface {
+	Prepare(query string) (*sql.Stmt, error)
+	Close() error
 }
 
 func New(connectionString string) (*Storage, error) {
@@ -20,11 +25,11 @@ func New(connectionString string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %w", "opening database connection: ", err)
 	}
 
-	return &Storage{db: db}, nil
+	return &Storage{DB: db}, nil
 }
 
 func (s *Storage) Stop() error {
-	return s.db.Close()
+	return s.DB.Close()
 }
 
 func (s *Storage) CreateTemplate(
@@ -34,7 +39,7 @@ func (s *Storage) CreateTemplate(
 	description string,
 	attributes []*proto.AttributeInfo,
 ) error {
-	stmt, err := s.db.Prepare(
+	stmt, err := s.DB.Prepare(
 		`with rows as (INSERT INTO category (name, description, is_unique) VALUES($1, $2, true) RETURNING id)
 		 INSERT INTO category_branch (branch_id, category_id) VALUES ($3, (SELECT id FROM rows)) RETURNING id`,
 	)
@@ -49,7 +54,7 @@ func (s *Storage) CreateTemplate(
 		return fmt.Errorf("%s: %w", "Error in CreateTemplate query (step: execute query INSERT category): ", err)
 	}
 
-	stmt, err = s.db.Prepare(
+	stmt, err = s.DB.Prepare(
 		`with rows as (INSERT INTO attribute (type, is_value_required, is_unique, name, description) VALUES ($1, $2, $3, $4, $5) RETURNING id)
 		 INSERT INTO category_attribute(category_id, attribute_id) VALUES ($6, (SELECT id FROM rows))`,
 	)
@@ -59,7 +64,14 @@ func (s *Storage) CreateTemplate(
 	defer stmt.Close()
 
 	for _, attr := range attributes {
-		err = stmt.QueryRowContext(ctx, attr.Type, attr.IsValueRequired, attr.IsUnique, attr.Name, attr.Description, category_id).Err()
+		err = stmt.QueryRowContext(
+			ctx,
+			attr.Type,
+			attr.IsValueRequired,
+			attr.IsUnique,
+			attr.Name,
+			attr.Description,
+			category_id).Err()
 		if err != nil {
 			return fmt.Errorf("%s: %w", "Error in CreateTemplate query (step: execute query INSERT attribute): ", err)
 		}
@@ -72,7 +84,7 @@ func (s *Storage) DeleteTemplate(
 	ctx context.Context,
 	templateId int32,
 ) error {
-	stmt, err := s.db.Prepare("DELETE FROM category WHERE id=$1") // Нужна валидация на то, что такой ид существует
+	stmt, err := s.DB.Prepare("DELETE FROM category WHERE id=$1") // Нужна валидация на то, что такой ид существует
 	if err != nil {
 		return fmt.Errorf("%s: %w", "Error in DeleteTemplate (step: prepare)", err)
 	}
@@ -96,7 +108,7 @@ func (s *Storage) ListTemplates(
 	var res []*proto.TemplateInfo
 
 	/* Get all categories on requested branch*/
-	stmtCategories, err := s.db.Prepare(
+	stmtCategories, err := s.DB.Prepare(
 		`SELECT category.id,name,description FROM category 
 		JOIN category_branch ON category.id=category_branch.id WHERE category_branch.branch_id=$1`,
 	)
@@ -111,7 +123,7 @@ func (s *Storage) ListTemplates(
 	}
 
 	/* Get all attributes on every category id */
-	stmt, err := s.db.Prepare(
+	stmt, err := s.DB.Prepare(
 		`SELECT attribute_id FROM category_attribute WHERE category_attribute.category_id=$1`,
 	)
 	if err != nil {
@@ -119,7 +131,7 @@ func (s *Storage) ListTemplates(
 	}
 	defer stmt.Close()
 
-	attrMt, err := s.db.Prepare(
+	attrMt, err := s.DB.Prepare(
 		`SELECT type, is_value_required, is_unique, name, description FROM attribute WHERE id = $1`,
 	)
 	if err != nil {
@@ -178,7 +190,6 @@ func (s *Storage) ListTemplates(
 		categoryElem.Attributes = attributesArray
 		res = append(res, &categoryElem)
 	}
-
 	return res, nil
 }
 
@@ -191,7 +202,7 @@ func (s *Storage) GetUserListBranches(
 ) {
 	var resList []int32
 	/* Get all shops on requested user*/
-	stmt, err := s.db.Prepare(
+	stmt, err := s.DB.Prepare(
 		`SELECT b.id
 		FROM users u
 		JOIN users_shop us ON u.id = us.users_id
@@ -226,7 +237,7 @@ func (s *Storage) GetBranchIdFromTemplateId(
 	int32,
 	error,
 ) {
-	stmt, err := s.db.Prepare(
+	stmt, err := s.DB.Prepare(
 		`SELECT branch_id
 		FROM category_branch
 		WHERE category_id = $1`,

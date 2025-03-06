@@ -12,7 +12,7 @@ import (
 
 type ServerAPI struct {
 	proto.UnimplementedTemplateServer // Хитрая штука, о ней ниже
-	template                          Template
+	Template                          Template
 }
 
 // Тот самый интерфейс, котрый мы передавали в grpcApp
@@ -38,7 +38,7 @@ type Template interface {
 }
 
 func Register(gRPCServer *grpc.Server, template Template) {
-	proto.RegisterTemplateServer(gRPCServer, &ServerAPI{template: template})
+	proto.RegisterTemplateServer(gRPCServer, &ServerAPI{Template: template})
 }
 
 func (s *ServerAPI) NewTemplate(
@@ -61,7 +61,7 @@ func (s *ServerAPI) NewTemplate(
 		return nil, status.Error(codes.InvalidArgument, "too many attributes")
 	}
 
-	err := s.template.NewTemplate(
+	err := s.Template.NewTemplate(
 		ctx,
 		in.GetName(),
 		in.GetDescription(),
@@ -83,7 +83,7 @@ func (s *ServerAPI) DeleteTemplate(
 		return nil, status.Error(codes.InvalidArgument, "template id is required")
 	}
 
-	err := s.template.DeleteTemplate(ctx, in.GetTemplateId())
+	err := s.Template.DeleteTemplate(ctx, in.GetTemplateId())
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to delete template: %w", err).Error())
 	}
@@ -98,7 +98,7 @@ func (s *ServerAPI) ListTemplates(
 	if in.BranchId == 0 {
 		return nil, status.Error(codes.InvalidArgument, "branch id is required")
 	}
-	templateInfo, err := s.template.ListTemplates(ctx, in.GetBranchId())
+	templateInfo, err := s.Template.ListTemplates(ctx, in.GetBranchId())
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to list templates: %w", err).Error())
 	}

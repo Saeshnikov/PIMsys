@@ -1,4 +1,4 @@
-package shop_app
+package template_app
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	auth_interceptor "pim-sys/internal/auth-interceptor"
 	grpcapp "pim-sys/internal/grpc"
 	template_service "pim-sys/internal/template/service"
-	"pim-sys/internal/template/storage"
+	storage "pim-sys/internal/template/storage"
 
 	"google.golang.org/grpc"
 )
@@ -20,8 +20,43 @@ type App struct {
 	GRPCServer *grpcapp.App
 }
 
+type Storage interface {
+	CreateTemplate(
+		ctx context.Context,
+		branch_id int32,
+		name string,
+		description string,
+		attributes []*proto.AttributeInfo,
+	) error
+	DeleteTemplate(
+		ctx context.Context,
+		templateId int32,
+	) error
+	ListTemplates(
+		ctx context.Context,
+		branch_id int32,
+	) (
+		[]*proto.TemplateInfo,
+		error,
+	)
+	GetUserListBranches(
+		ctx context.Context,
+		user_id int32,
+	) (
+		[]int32,
+		error,
+	)
+	GetBranchIdFromTemplateId(
+		ctx context.Context,
+		template_id int32,
+	) (
+		int32,
+		error,
+	)
+}
+
 type Template struct {
-	templateStorage *storage.Storage
+	TemplateStorage Storage
 }
 
 func (template *Template) NewTemplate(
@@ -31,14 +66,14 @@ func (template *Template) NewTemplate(
 	branch_id int32,
 	attributes []*proto.AttributeInfo,
 ) error {
-	return template.templateStorage.CreateTemplate(ctx, branch_id, name, description, attributes)
+	return template.TemplateStorage.CreateTemplate(ctx, branch_id, name, description, attributes)
 }
 
 func (template *Template) DeleteTemplate(
 	ctx context.Context,
 	templateId int32,
 ) error {
-	branchId, err := template.templateStorage.GetBranchIdFromTemplateId(ctx, templateId)
+	branchId, err := template.TemplateStorage.GetBranchIdFromTemplateId(ctx, templateId)
 	if err != nil {
 		return fmt.Errorf("%s: %v", "getting branch_id from template_id", err)
 	}
@@ -47,7 +82,7 @@ func (template *Template) DeleteTemplate(
 		return fmt.Errorf("%s: %v", "checking user permissions", err)
 	}
 
-	return template.templateStorage.DeleteTemplate(ctx, templateId)
+	return template.TemplateStorage.DeleteTemplate(ctx, templateId)
 }
 
 func (template *Template) ListTemplates(
@@ -63,7 +98,7 @@ func (template *Template) ListTemplates(
 		return nil, fmt.Errorf("%s: %v", "checking user permissions", err)
 	}
 
-	return template.templateStorage.ListTemplates(ctx, int32(branch_id))
+	return template.TemplateStorage.ListTemplates(ctx, int32(branch_id))
 }
 
 func New(
@@ -82,7 +117,7 @@ func New(
 		template_service.Register(
 			gRPCServer,
 			&Template{
-				templateStorage: templateStorage,
+				TemplateStorage: templateStorage,
 			},
 		)
 	}
@@ -106,7 +141,7 @@ func (template *Template) userMustHaveAccess(ctx context.Context, branch_id int3
 	if err != nil {
 		return fmt.Errorf("%s", "template operations: can't take cast user_id to int32")
 	}
-	availibleBranches, err := template.templateStorage.GetUserListBranches(ctx, user_idInt)
+	availibleBranches, err := template.TemplateStorage.GetUserListBranches(ctx, user_idInt)
 	if err != nil {
 		return fmt.Errorf("%s%w", "template operations: can't take user's availible branches: ", err)
 	}

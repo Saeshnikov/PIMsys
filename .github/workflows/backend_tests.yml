@@ -13,15 +13,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Get into backend folder
-        run: cd backend
         
       - name: Set up Docker
         uses: docker/setup-docker-action@v3
 
       - name: Build Docker images
-        run: make build-docker-images
+        run: cd backend && make build-docker-images
 
       - name: Run tests
         run: make test-all

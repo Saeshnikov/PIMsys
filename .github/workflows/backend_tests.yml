@@ -14,6 +14,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Get into backend folder
+        run: cd backend
+        
       - name: Set up Docker
         uses: docker/setup-docker-action@v3
 

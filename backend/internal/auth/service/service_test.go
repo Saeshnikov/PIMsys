@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// 19 тестов
+// 27 тестов
 //go:generate mockery --testonly --name Auth --dir . --outpkg auth_service_test --output .
 
 func Test_serverAPI_Login(t *testing.T) {

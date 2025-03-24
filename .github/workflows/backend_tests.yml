@@ -21,4 +21,4 @@ jobs:
         run: cd backend && make build-docker-images
 
       - name: Run tests
-        run: make test-all
+        run: cd backend && make test-all

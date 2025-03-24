@@ -204,8 +204,9 @@ func TestServerAPI_Register(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		//email len should be >1 and <16
 		{
-			name: "email is not valid",
+			name: "email is not valid(len = 1)",
 			fields: fields{
 				Auth: func() *Auth {
 					return &Auth{}
@@ -213,7 +214,102 @@ func TestServerAPI_Register(t *testing.T) {
 			},
 			args: args{
 				in: &proto.RegisterRequest{
-					Email:    "wrongmail@@mail.ru",
+					Email:    "a",
+					Password: "aaaaaaaa",
+					Name:     "testname",
+					Phone:    "79999999999",
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "email is valid(len = 2)",
+			fields: fields{
+				Auth: func() *Auth {
+					auth := &Auth{}
+					auth.Mock.On(
+						"RegisterNewUser",
+						mock.Anything,
+						"aa",
+						"aaaaaaaa",
+						"testname",
+						"79999999999",
+					).Return(int64(1), nil)
+					return auth
+				},
+			},
+			args: args{
+				in: &proto.RegisterRequest{
+					Email:    "aa",
+					Password: "aaaaaaaa",
+					Name:     "testname",
+					Phone:    "79999999999",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "email is valid(len = 5)",
+			fields: fields{
+				Auth: func() *Auth {
+					auth := &Auth{}
+					auth.Mock.On(
+						"RegisterNewUser",
+						mock.Anything,
+						"aaaaa",
+						"aaaaaaaa",
+						"testname",
+						"79999999999",
+					).Return(int64(1), nil)
+					return auth
+				},
+			},
+			args: args{
+				in: &proto.RegisterRequest{
+					Email:    "aaaaa",
+					Password: "aaaaaaaa",
+					Name:     "testname",
+					Phone:    "79999999999",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "email is valid(len = 15)",
+			fields: fields{
+				Auth: func() *Auth {
+					auth := &Auth{}
+					auth.Mock.On(
+						"RegisterNewUser",
+						mock.Anything,
+						"aaaaaaaaaaaaaaa",
+						"aaaaaaaa",
+						"testname",
+						"79999999999",
+					).Return(int64(1), nil)
+					return auth
+				},
+			},
+			args: args{
+				in: &proto.RegisterRequest{
+					Email:    "aaaaaaaaaaaaaaa",
+					Password: "aaaaaaaa",
+					Name:     "testname",
+					Phone:    "79999999999",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "email is not valid(len = 16)",
+			fields: fields{
+				Auth: func() *Auth {
+					return &Auth{}
+				},
+			},
+			args: args{
+				in: &proto.RegisterRequest{
+					Email:    "aaaaaaaaaaaaaaaa",
 					Password: "aaaaaaaa",
 					Name:     "testname",
 					Phone:    "79999999999",
@@ -238,8 +334,9 @@ func TestServerAPI_Register(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		//pass len should be >=8
 		{
-			name: "pass is not valid",
+			name: "pass is not valid(len = 7)",
 			fields: fields{
 				Auth: func() *Auth {
 					return &Auth{}
@@ -248,12 +345,107 @@ func TestServerAPI_Register(t *testing.T) {
 			args: args{
 				in: &proto.RegisterRequest{
 					Email:    "admin",
-					Password: "1234",
+					Password: "aaaaaaa",
 					Name:     "testname",
 					Phone:    "79999999999",
 				},
 			},
 			wantErr: true,
+		},
+		{
+			name: "pass is valid(len = 8)",
+			fields: fields{
+				Auth: func() *Auth {
+					auth := &Auth{}
+					auth.Mock.On(
+						"RegisterNewUser",
+						mock.Anything,
+						"admin",
+						"aaaaaaaa",
+						"testname",
+						"79999999999",
+					).Return(int64(1), nil)
+					return auth
+				},
+			},
+			args: args{
+				in: &proto.RegisterRequest{
+					Email:    "admin",
+					Password: "aaaaaaaa",
+					Name:     "testname",
+					Phone:    "79999999999",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "pass is valid(len = 9)",
+			fields: fields{
+				Auth: func() *Auth {
+					auth := &Auth{}
+					auth.Mock.On(
+						"RegisterNewUser",
+						mock.Anything,
+						"admin",
+						"aaaaaaaaa",
+						"testname",
+						"79999999999",
+					).Return(int64(1), nil)
+					return auth
+				},
+			},
+			args: args{
+				in: &proto.RegisterRequest{
+					Email:    "admin",
+					Password: "aaaaaaaaa",
+					Name:     "testname",
+					Phone:    "79999999999",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "pass is not valid(contains invalid symbol)",
+			fields: fields{
+				Auth: func() *Auth {
+					return &Auth{}
+				},
+			},
+			args: args{
+				in: &proto.RegisterRequest{
+					Email:    "admin",
+					Password: "aaaaaaaa'",
+					Name:     "testname",
+					Phone:    "79999999999",
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "pass is valid(with all symbols)",
+			fields: fields{
+				Auth: func() *Auth {
+					auth := &Auth{}
+					auth.Mock.On(
+						"RegisterNewUser",
+						mock.Anything,
+						"admin",
+						"aA!_?$#@",
+						"testname",
+						"79999999999",
+					).Return(int64(1), nil)
+					return auth
+				},
+			},
+			args: args{
+				in: &proto.RegisterRequest{
+					Email:    "admin",
+					Password: "aA!_?$#@",
+					Name:     "testname",
+					Phone:    "79999999999",
+				},
+			},
+			wantErr: false,
 		},
 		{
 			name: "name is missing",

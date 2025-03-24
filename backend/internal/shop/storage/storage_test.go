@@ -3,7 +3,6 @@ package storage_test
 import (
 	"context"
 	"errors"
-	"fmt"
 	proto "pim-sys/gen/go/shop"
 	"pim-sys/internal/shop/storage"
 	"testing"
@@ -403,7 +402,6 @@ func TestStorage_ListShops(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := tt.s(t).ListShops(tt.args.ctx, tt.args.userId)
-			fmt.Println(got)
 			if tt.wantErr {
 				require.Error(t, err)
 				return

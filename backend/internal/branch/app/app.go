@@ -20,8 +20,17 @@ type App struct {
 	GRPCServer *grpcapp.App
 }
 
+type Storage interface {
+	CreateBranch(ctx context.Context, name string, shopID int32, description string, address string, site string, branch_type string) error
+	GetShopId(ctx context.Context, branchId int32) (int32, error)
+	AlterBranch(ctx context.Context, name string, branchId int32, description string, address string, site string) error
+	DeleteBranch(ctx context.Context, branchId int32) error
+	ListBranches(ctx context.Context, shopId int32) ([]*proto.BranchInfo, error)
+	ListShops(ctx context.Context, userId int32) ([]int32, error)
+}
+
 type Branch struct {
-	branchStorage *storage.Storage
+	BranchStorage Storage
 }
 
 func (branch *Branch) NewBranch(
@@ -39,7 +48,7 @@ func (branch *Branch) NewBranch(
 		return fmt.Errorf("%s: %v", "checking user permissions", err)
 	}
 
-	return branch.branchStorage.CreateBranch(ctx, name, shop_id, description, address, site, branch_type) //sdfsaf
+	return branch.BranchStorage.CreateBranch(ctx, name, shop_id, description, address, site, branch_type) //sdfsaf
 }
 
 func (branch *Branch) AlterBranch(
@@ -50,7 +59,7 @@ func (branch *Branch) AlterBranch(
 	address string,
 	site string,
 ) error {
-	shop_id, err := branch.branchStorage.GetShopId(ctx, branchId)
+	shop_id, err := branch.BranchStorage.GetShopId(ctx, branchId)
 	if err != nil {
 		return fmt.Errorf("%s: %v", "getting shop_id ", err)
 	}
@@ -59,7 +68,7 @@ func (branch *Branch) AlterBranch(
 		return fmt.Errorf("%s: %v", "checking user permissions", err)
 	}
 
-	return branch.branchStorage.AlterBranch(ctx, name, branchId, description, address, site)
+	return branch.BranchStorage.AlterBranch(ctx, name, branchId, description, address, site)
 }
 
 func (branch *Branch) DeleteBranch(
@@ -67,7 +76,7 @@ func (branch *Branch) DeleteBranch(
 	branchId int32,
 ) error {
 
-	shop_id, err := branch.branchStorage.GetShopId(ctx, branchId)
+	shop_id, err := branch.BranchStorage.GetShopId(ctx, branchId)
 	if err != nil {
 		return fmt.Errorf("%s: %v", "getting shop_id ", err)
 	}
@@ -77,7 +86,7 @@ func (branch *Branch) DeleteBranch(
 		return fmt.Errorf("%s: %v", "checking user permissions", err)
 	}
 
-	return branch.branchStorage.DeleteBranch(ctx, branchId)
+	return branch.BranchStorage.DeleteBranch(ctx, branchId)
 }
 
 func (branch *Branch) ListBranches(
@@ -87,7 +96,7 @@ func (branch *Branch) ListBranches(
 	[]*proto.BranchInfo,
 	error,
 ) {
-	return branch.branchStorage.ListBranches(ctx, shop_id)
+	return branch.BranchStorage.ListBranches(ctx, shop_id)
 }
 
 func New(
@@ -106,7 +115,7 @@ func New(
 		branch_service.Register(
 			gRPCServer,
 			&Branch{
-				branchStorage: branchStorage,
+				BranchStorage: branchStorage,
 			},
 		)
 	}
@@ -134,7 +143,7 @@ func (branch *Branch) ListShops(
 		return nil, fmt.Errorf("%s: %v", "converting uid to int: ", err)
 	}
 
-	return branch.branchStorage.ListShops(ctx, int32(userId))
+	return branch.BranchStorage.ListShops(ctx, int32(userId))
 }
 
 func (branch *Branch) userMustHaveAccess(ctx context.Context, shopId int32) error {

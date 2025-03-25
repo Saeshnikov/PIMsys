@@ -2,6 +2,7 @@ package product_service_test
 
 import (
 	"context"
+	"errors"
 	proto "pim-sys/gen/go/products"
 	service "pim-sys/internal/products/service"
 	"testing"
@@ -49,6 +50,141 @@ func TestServerAPI_NewProduct(t *testing.T) {
 				},
 			},
 			wantErr: false,
+		},
+		{
+			name: "service error",
+			s: func() *service.ServerAPI {
+				product := &Product{}
+				product.Mock.On(
+					"NewProduct",
+					mock.Anything,
+					mock.Anything,
+				).Return(errors.New("err"))
+				return &service.ServerAPI{Product: product}
+			},
+			args: args{
+				ctx: context.TODO(),
+				in: &proto.ProductInfo{
+					CategoryId: 1,
+					BranchId:   1,
+					Status:     "status",
+					Name:       "name",
+					Price:      1.0,
+					Amount:     1,
+					Attributes: []*proto.Attribute{
+						{},
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "category id is required",
+			s: func() *service.ServerAPI {
+				product := &Product{}
+				product.Mock.On(
+					"NewProduct",
+					mock.Anything,
+					mock.Anything,
+				).Return(nil)
+				return &service.ServerAPI{Product: product}
+			},
+			args: args{
+				ctx: context.TODO(),
+				in: &proto.ProductInfo{
+					CategoryId: 0,
+					BranchId:   1,
+					Status:     "status",
+					Name:       "name",
+					Price:      1.0,
+					Amount:     1,
+					Attributes: []*proto.Attribute{
+						{},
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "branch id is required",
+			s: func() *service.ServerAPI {
+				product := &Product{}
+				product.Mock.On(
+					"NewProduct",
+					mock.Anything,
+					mock.Anything,
+				).Return(nil)
+				return &service.ServerAPI{Product: product}
+			},
+			args: args{
+				ctx: context.TODO(),
+				in: &proto.ProductInfo{
+					CategoryId: 1,
+					BranchId:   0,
+					Status:     "status",
+					Name:       "name",
+					Price:      1.0,
+					Amount:     1,
+					Attributes: []*proto.Attribute{
+						{},
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "name is required",
+			s: func() *service.ServerAPI {
+				product := &Product{}
+				product.Mock.On(
+					"NewProduct",
+					mock.Anything,
+					mock.Anything,
+				).Return(nil)
+				return &service.ServerAPI{Product: product}
+			},
+			args: args{
+				ctx: context.TODO(),
+				in: &proto.ProductInfo{
+					CategoryId: 1,
+					BranchId:   1,
+					Status:     "status",
+					Name:       "",
+					Price:      1.0,
+					Amount:     1,
+					Attributes: []*proto.Attribute{
+						{},
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "Amount mus be positive or nil",
+			s: func() *service.ServerAPI {
+				product := &Product{}
+				product.Mock.On(
+					"NewProduct",
+					mock.Anything,
+					mock.Anything,
+				).Return(nil)
+				return &service.ServerAPI{Product: product}
+			},
+			args: args{
+				ctx: context.TODO(),
+				in: &proto.ProductInfo{
+					CategoryId: 1,
+					BranchId:   1,
+					Status:     "status",
+					Name:       "name",
+					Price:      1.0,
+					Amount:     -1,
+					Attributes: []*proto.Attribute{
+						{},
+					},
+				},
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -122,7 +258,7 @@ func TestServerAPI_AlterProduct(t *testing.T) {
 					ProductId: 1,
 					Product: &proto.ProductInfo{
 						Price:  0,
-						Amount: 0,
+						Amount: -1,
 					},
 				},
 			},
@@ -145,7 +281,7 @@ func TestServerAPI_AlterProduct(t *testing.T) {
 					ProductId: 0,
 					Product: &proto.ProductInfo{
 						Price:  1.0,
-						Amount: 0,
+						Amount: -1,
 					},
 				},
 			},
@@ -169,6 +305,36 @@ func TestServerAPI_AlterProduct(t *testing.T) {
 					Product: &proto.ProductInfo{
 						Price:  0,
 						Amount: 1,
+					},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "service err",
+			s: func() *service.ServerAPI {
+				product := &Product{}
+				product.Mock.On(
+					"AlterProduct",
+					mock.Anything,
+					mock.Anything,
+				).Return(errors.New("err"))
+				return &service.ServerAPI{Product: product}
+			},
+			args: args{
+				ctx: context.TODO(),
+				in: &proto.ProductInfoWithId{
+					ProductId: 1,
+					Product: &proto.ProductInfo{
+						CategoryId: 1,
+						BranchId:   1,
+						Status:     "status",
+						Name:       "name",
+						Price:      1.0,
+						Amount:     1,
+						Attributes: []*proto.Attribute{
+							{},
+						},
 					},
 				},
 			},
@@ -218,6 +384,44 @@ func TestServerAPI_DeleteProduct(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name: "service err",
+			s: func() *service.ServerAPI {
+				product := &Product{}
+				product.Mock.On(
+					"DeleteProduct",
+					mock.Anything,
+					mock.Anything,
+				).Return(errors.New("err"))
+				return &service.ServerAPI{Product: product}
+			},
+			args: args{
+				ctx: context.TODO(),
+				in: &proto.DeleteProductRequest{
+					ProductId: 1,
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "product id is required",
+			s: func() *service.ServerAPI {
+				product := &Product{}
+				product.Mock.On(
+					"DeleteProduct",
+					mock.Anything,
+					mock.Anything,
+				).Return(nil)
+				return &service.ServerAPI{Product: product}
+			},
+			args: args{
+				ctx: context.TODO(),
+				in: &proto.DeleteProductRequest{
+					ProductId: 0,
+				},
+			},
+			wantErr: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -258,6 +462,22 @@ func TestServerAPI_ListProducts(t *testing.T) {
 				in:  &proto.Empty{},
 			},
 			wantErr: false,
+		},
+		{
+			name: "service err",
+			s: func() *service.ServerAPI {
+				product := &Product{}
+				product.Mock.On(
+					"ListProducts",
+					mock.Anything,
+				).Return([]*proto.ProductInfoWithId{}, errors.New("err"))
+				return &service.ServerAPI{Product: product}
+			},
+			args: args{
+				ctx: context.TODO(),
+				in:  &proto.Empty{},
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -304,6 +524,46 @@ func TestServerAPI_SellProduct(t *testing.T) {
 				},
 			},
 			wantErr: false,
+		},
+		{
+			name: "product id is required",
+			s: func() *service.ServerAPI {
+				product := &Product{}
+				product.Mock.On(
+					"SellProduct",
+					mock.Anything,
+					mock.Anything,
+				).Return(nil)
+				return &service.ServerAPI{Product: product}
+			},
+			args: args{
+				ctx: context.TODO(),
+				in: &proto.SellProductRequest{
+					ProductId: 0,
+					Amount:    1,
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "amount is required",
+			s: func() *service.ServerAPI {
+				product := &Product{}
+				product.Mock.On(
+					"SellProduct",
+					mock.Anything,
+					mock.Anything,
+				).Return(nil)
+				return &service.ServerAPI{Product: product}
+			},
+			args: args{
+				ctx: context.TODO(),
+				in: &proto.SellProductRequest{
+					ProductId: 1,
+					Amount:    0,
+				},
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {

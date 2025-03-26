@@ -385,7 +385,7 @@ func TestServerAPI_ListTemplates(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "ListTemplates invalid branchId",
+			name: "ListTemplates db error",
 			fields: fields{
 				template: func() template_service.Template {
 					template := &Template{}

@@ -12,7 +12,7 @@ import (
 
 type ServerAPI struct {
 	proto.UnimplementedLogsServer // Хитрая штука, о ней ниже
-	logs                          Logs
+	Logs                          Logs
 }
 
 // Тот самый интерфейс, который мы передавали в grpcApp
@@ -28,7 +28,7 @@ type Logs interface { //!!!!!!!!!!!!!!
 }
 
 func Register(gRPCServer *grpc.Server, logs Logs) {
-	proto.RegisterLogsServer(gRPCServer, &ServerAPI{logs: logs})
+	proto.RegisterLogsServer(gRPCServer, &ServerAPI{Logs: logs})
 }
 
 func (s *ServerAPI) GetLogs(
@@ -38,7 +38,7 @@ func (s *ServerAPI) GetLogs(
 	if in.ProductId <= 0 {
 		return nil, status.Error(codes.InvalidArgument, "product_id cannot be less than equal to zero")
 	}
-	logs, err := s.logs.GetLogs(ctx, in)
+	logs, err := s.Logs.GetLogs(ctx, in)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to get logs: %w", err).Error())
 	}
@@ -52,7 +52,7 @@ func (s *ServerAPI) GetGraph(
 	if in.DateFrom >= in.DateTo {
 		return nil, status.Error(codes.InvalidArgument, "inaccurate start date")
 	}
-	graphs, err := s.logs.GetGraph(ctx, in)
+	graphs, err := s.Logs.GetGraph(ctx, in)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to get graph: %w", err).Error())
 	}

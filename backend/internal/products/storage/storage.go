@@ -12,7 +12,7 @@ import (
 )
 
 type Storage struct {
-	db *sql.DB
+	DB *sql.DB
 }
 
 func New(connectionString string) (*Storage, error) {
@@ -21,11 +21,11 @@ func New(connectionString string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %w", "opening database connection: ", err)
 	}
 
-	return &Storage{db: db}, nil
+	return &Storage{DB: db}, nil
 }
 
 func (s *Storage) Stop() error {
-	return s.db.Close()
+	return s.DB.Close()
 }
 
 func (s *Storage) CreateProduct(
@@ -33,7 +33,7 @@ func (s *Storage) CreateProduct(
 	content *proto.ProductInfo,
 ) (int32, error) {
 	// Добавление нового шопа и связи с юзером
-	stmt, err := s.db.Prepare(
+	stmt, err := s.DB.Prepare(
 		"INSERT INTO product (category_id, status, branch_id, name, price, amount) VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
 	)
 	if err != nil {
@@ -67,7 +67,7 @@ func (s *Storage) AlterAttributes(
 	attr *proto.Attribute,
 ) error {
 	// Добавление нового шопа и связи с юзером
-	stmt, err := s.db.Prepare(
+	stmt, err := s.DB.Prepare(
 		`UPDATE product_attribute_value SET value_text=$3, value_number=$4, value_boolean=$5 WHERE product_id=$1 AND attribute_id=$2;`,
 	)
 	if err != nil {
@@ -80,7 +80,7 @@ func (s *Storage) AlterAttributes(
 		return fmt.Errorf("%s: %w", "executing query: ", err)
 	}
 
-	stmt, err = s.db.Prepare(
+	stmt, err = s.DB.Prepare(
 		`INSERT INTO product_attribute_value (product_id, attribute_id, value_text, value_number, value_boolean) 
        		SELECT $1, $2, $3, $4, $5 
        		WHERE NOT EXISTS (SELECT * FROM product_attribute_value WHERE product_id=$1 AND attribute_id=$2);`,
@@ -102,7 +102,7 @@ func (s *Storage) AlterProduct(
 	ctx context.Context,
 	content *proto.ProductInfoWithId,
 ) error {
-	stmt, err := s.db.Prepare("UPDATE product SET status=$1, branch_id=$2, name=$3, amount=$4, price=$5 WHERE id=$6")
+	stmt, err := s.DB.Prepare("UPDATE product SET status=$1, branch_id=$2, name=$3, amount=$4, price=$5 WHERE id=$6")
 	if err != nil {
 		return fmt.Errorf("%s: %w", "creating query: ", err)
 	}
@@ -128,7 +128,7 @@ func (s *Storage) DeleteProduct(
 	ctx context.Context,
 	content *proto.DeleteProductRequest,
 ) error {
-	stmt, err := s.db.Prepare("DELETE FROM product WHERE id=$1") // Нужна валидация на то, что такой ид существует
+	stmt, err := s.DB.Prepare("DELETE FROM product WHERE id=$1") // Нужна валидация на то, что такой ид существует
 	if err != nil {
 		return fmt.Errorf("%s: %w", "creating query: ", err)
 	}
@@ -152,7 +152,7 @@ func (s *Storage) ListProducts(
 
 	var res []*proto.ProductInfoWithId
 
-	stmt, err := s.db.Prepare("SELECT product.id,category_id,status,branch_id,name,price,amount FROM product JOIN users_shop ON (SELECT shop_id from branch where branch.id=product.branch_id)=users_shop.shop_id WHERE users_shop.users_id=$1") // Добавить поиск с джоином по юзеру
+	stmt, err := s.DB.Prepare("SELECT product.id,category_id,status,branch_id,name,price,amount FROM product JOIN users_shop ON (SELECT shop_id from branch where branch.id=product.branch_id)=users_shop.shop_id WHERE users_shop.users_id=$1") // Добавить поиск с джоином по юзеру
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "creating query: ", err)
 	}
@@ -171,7 +171,7 @@ func (s *Storage) ListProducts(
 			return nil, fmt.Errorf("%s: %w", "scan query result: ", err)
 		}
 
-		attr, err := s.db.Prepare("SELECT attribute_id,value_text,value_number,value_boolean FROM product_attribute_value WHERE product_id=$1") // Добавить поиск с джоином по юзеру
+		attr, err := s.DB.Prepare("SELECT attribute_id,value_text,value_number,value_boolean FROM product_attribute_value WHERE product_id=$1") // Добавить поиск с джоином по юзеру
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", "creating query: ", err)
 		}
@@ -203,7 +203,7 @@ func (s *Storage) SellProduct(
 	ctx context.Context,
 	content *proto.SellProductRequest,
 ) error {
-	stmt, err := s.db.Prepare("UPDATE product SET amount=amount-$1 WHERE id=$2")
+	stmt, err := s.DB.Prepare("UPDATE product SET amount=amount-$1 WHERE id=$2")
 	if err != nil {
 		return fmt.Errorf("%s: %w", "creating query: ", err)
 	}
@@ -218,7 +218,7 @@ func (s *Storage) SellProduct(
 		return fmt.Errorf("%s: %w", "executing query: ", err)
 	}
 
-	insertSales, err := s.db.Prepare("INSERT INTO sales (date,branch_id,product_id,price,quantity) VALUES ($1,(SELECT branch_id FROM product WHERE id=$2),$2,(SELECT price FROM product WHERE id=$2),$3)")
+	insertSales, err := s.DB.Prepare("INSERT INTO sales (date,branch_id,product_id,price,quantity) VALUES ($1,(SELECT branch_id FROM product WHERE id=$2),$2,(SELECT price FROM product WHERE id=$2),$3)")
 	if err != nil {
 		return fmt.Errorf("%s: %w", "creating query: ", err)
 	}
@@ -247,7 +247,7 @@ func (s *Storage) GetAccessableBranchIds(
 
 	var res []int32
 
-	stmt, err := s.db.Prepare("SELECT branch.id FROM branch JOIN users_shop ON branch.shop_id=users_shop.shop_id WHERE users_shop.users_id=$1") // Добавить поиск с джоином по юзеру
+	stmt, err := s.DB.Prepare("SELECT branch.id FROM branch JOIN users_shop ON branch.shop_id=users_shop.shop_id WHERE users_shop.users_id=$1") // Добавить поиск с джоином по юзеру
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "creating query: ", err)
 	}

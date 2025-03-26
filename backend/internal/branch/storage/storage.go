@@ -11,7 +11,12 @@ import (
 )
 
 type Storage struct {
-	db *sql.DB
+	DB DB
+}
+
+type DB interface {
+	Prepare(query string) (*sql.Stmt, error)
+	Close() error
 }
 
 func New(connectionString string) (*Storage, error) {
@@ -20,11 +25,11 @@ func New(connectionString string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %w", "opening database connection: ", err)
 	}
 
-	return &Storage{db: db}, nil
+	return &Storage{DB: db}, nil
 }
 
 func (s *Storage) Stop() error {
-	return s.db.Close()
+	return s.DB.Close()
 }
 
 func (s *Storage) CreateBranch(
@@ -37,7 +42,7 @@ func (s *Storage) CreateBranch(
 	branch_type string,
 ) error {
 	// Добавление нового шопа и связи с юзером
-	stmt, err := s.db.Prepare(
+	stmt, err := s.DB.Prepare(
 		"INSERT INTO branch (name, description, address, site, type, shop_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING id",
 	)
 	if err != nil {
@@ -61,7 +66,7 @@ func (s *Storage) AlterBranch(
 	address string,
 	site string,
 ) error {
-	stmt, err := s.db.Prepare("UPDATE branch SET name=$1, description=$2, address=$3, site=$4 WHERE id=$5")
+	stmt, err := s.DB.Prepare("UPDATE branch SET name=$1, description=$2, address=$3, site=$4 WHERE id=$5")
 	if err != nil {
 		return fmt.Errorf("%s: %w", "creating query: ", err)
 	}
@@ -79,7 +84,7 @@ func (s *Storage) DeleteBranch(
 	ctx context.Context,
 	branchId int32,
 ) error {
-	stmt, err := s.db.Prepare("DELETE FROM branch WHERE id=$1") // Нужна валидация на то, что такой ид существует
+	stmt, err := s.DB.Prepare("DELETE FROM branch WHERE id=$1") // Нужна валидация на то, что такой ид существует
 	if err != nil {
 		return fmt.Errorf("%s: %w", "creating query: ", err)
 	}
@@ -103,7 +108,7 @@ func (s *Storage) ListBranches(
 
 	var res []*proto.BranchInfo
 
-	stmt, err := s.db.Prepare("SELECT branch.id, name, description, address, site, type FROM branch WHERE shop_id=$1")
+	stmt, err := s.DB.Prepare("SELECT branch.id, name, description, address, site, type FROM branch WHERE shop_id=$1")
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "creating query: ", err)
 	}
@@ -136,7 +141,7 @@ func (s *Storage) ListShops(
 
 	var res []int32
 
-	stmt, err := s.db.Prepare("SELECT shop.id FROM shop JOIN users_shop ON shop.id=users_shop.shop_id WHERE users_shop.users_id=$1") // Добавить поиск с джоином по юзеру
+	stmt, err := s.DB.Prepare("SELECT shop.id FROM shop JOIN users_shop ON shop.id=users_shop.shop_id WHERE users_shop.users_id=$1") // Добавить поиск с джоином по юзеру
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "creating query: ", err)
 	}
@@ -166,7 +171,7 @@ func (s *Storage) GetShopId(
 	int32,
 	error,
 ) {
-	stmt, err := s.db.Prepare("SELECT shop_id FROM branch WHERE id=$1")
+	stmt, err := s.DB.Prepare("SELECT shop_id FROM branch WHERE id=$1")
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", "creating query: ", err)
 	}

@@ -12,7 +12,7 @@ import (
 
 type ServerAPI struct {
 	proto.UnimplementedBranchServer // Хитрая штука, о ней ниже
-	branch                          Branch
+	Branch                          Branch
 }
 
 // Тот самый интерфейс, котрый мы передавали в grpcApp
@@ -48,7 +48,7 @@ type Branch interface {
 }
 
 func Register(gRPCServer *grpc.Server, branch Branch) {
-	proto.RegisterBranchServer(gRPCServer, &ServerAPI{branch: branch})
+	proto.RegisterBranchServer(gRPCServer, &ServerAPI{Branch: branch})
 }
 
 func (s *ServerAPI) NewBranch(
@@ -67,7 +67,7 @@ func (s *ServerAPI) NewBranch(
 	if in.Address == "" && in.Site == "" {
 		return nil, status.Error(codes.InvalidArgument, "address or site is required")
 	}
-	err := s.branch.NewBranch(ctx, in.GetName(), in.GetShopId(), in.GetDescription(), in.GetAddress(), in.GetSite(), in.GetBranchType())
+	err := s.Branch.NewBranch(ctx, in.GetName(), in.GetShopId(), in.GetDescription(), in.GetAddress(), in.GetSite(), in.GetBranchType())
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to create new branch: %w", err).Error())
 	}
@@ -83,7 +83,7 @@ func (s *ServerAPI) AlterBranch(
 		return nil, status.Error(codes.InvalidArgument, "branch id is required")
 	}
 
-	err := s.branch.AlterBranch(ctx, in.GetBranchId(), in.BranchInfo.GetName(), in.BranchInfo.GetDescription(), in.BranchInfo.Address, in.BranchInfo.Site)
+	err := s.Branch.AlterBranch(ctx, in.GetBranchId(), in.BranchInfo.GetName(), in.BranchInfo.GetDescription(), in.BranchInfo.Address, in.BranchInfo.Site)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to alter branch: %w", err).Error())
 	}
@@ -99,7 +99,7 @@ func (s *ServerAPI) DeleteBranch(
 		return nil, status.Error(codes.InvalidArgument, "branch id is required")
 	}
 
-	err := s.branch.DeleteBranch(ctx, in.GetBranchId())
+	err := s.Branch.DeleteBranch(ctx, in.GetBranchId())
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to delete branch: %w", err).Error())
 	}
@@ -111,7 +111,7 @@ func (s *ServerAPI) ListBranches(
 	ctx context.Context,
 	in *proto.ListBranchesRequest,
 ) (*proto.ListBranchesResponse, error) {
-	branchInfo, err := s.branch.ListBranches(ctx, in.ShopId)
+	branchInfo, err := s.Branch.ListBranches(ctx, in.ShopId)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to list branches: %w", err).Error())
 	}

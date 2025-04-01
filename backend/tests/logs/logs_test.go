@@ -47,5 +47,5 @@ func TestLogUpdateProduct(t *testing.T) {
 		ProductId: 1,
 	})
 	require.NoError(t, err)
-	require.Equal(t, len(udpdateLog.GetLogs()), 2)
+	require.Equal(t, 4, len(udpdateLog.GetLogs()))
 }

@@ -1,0 +1,30 @@
+name: Run Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-docker-images:
+    name: Setup docker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Docker
+        uses: docker/setup-docker-action@v3
+
+      - name: Install Docker Compose
+        run: |
+          sudo apt update
+          sudo apt install docker-compose
+          docker compose version
+
+      - name: Build Docker images
+        run: cd backend && make build-docker-images
+
+      - name: Run tests
+        run: cd backend && make test-all

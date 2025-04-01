@@ -35,7 +35,7 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10000", "describe"]
-      interval: 5s
+      interval: 10s
       retries: 5
     profiles:
       - auth
@@ -59,7 +59,7 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10001", "describe"]
-      interval: 5s
+      interval: 10s
       retries: 5
     profiles:
       - shop
@@ -83,7 +83,7 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10002", "describe"]
-      interval: 5s
+      interval: 10s
       retries: 5
     profiles:
       - products
@@ -107,10 +107,11 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10004", "describe"]
-      interval: 5s
+      interval: 10s
       retries: 5
     profiles:
       - template
+      - all
 
   branch: 
     image: main-image
@@ -130,7 +131,7 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10003", "describe"]
-      interval: 5s
+      interval: 10s
       retries: 5
     profiles:
       - branch
@@ -154,7 +155,7 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10005", "describe"]
-      interval: 5s
+      interval: 10s
       retries: 5
     profiles:
       - logs

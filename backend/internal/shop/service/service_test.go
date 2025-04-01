@@ -28,7 +28,7 @@ func TestServerAPI_NewShop(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "default",
+			name: "correct_1",
 			s: func() *service.ServerAPI {
 				shop := &Shop{}
 				shop.Mock.On(
@@ -46,6 +46,54 @@ func TestServerAPI_NewShop(t *testing.T) {
 					Name:        "name",
 					Description: "description",
 					Url:         "url",
+				},
+			},
+			want:    &proto.NewShopResponse{},
+			wantErr: false,
+		},
+		{
+			name: "correct_2",
+			s: func() *service.ServerAPI {
+				shop := &Shop{}
+				shop.Mock.On(
+					"NewShop",
+					mock.Anything,
+					mock.Anything,
+					mock.Anything,
+					mock.Anything,
+				).Return(nil)
+				return &service.ServerAPI{Shop: shop}
+			},
+			args: args{
+				ctx: context.TODO(),
+				in: &proto.NewShopRequest{
+					Name:        "name1",
+					Description: "description1",
+					Url:         "url1",
+				},
+			},
+			want:    &proto.NewShopResponse{},
+			wantErr: false,
+		},
+		{
+			name: "correct_3",
+			s: func() *service.ServerAPI {
+				shop := &Shop{}
+				shop.Mock.On(
+					"NewShop",
+					mock.Anything,
+					mock.Anything,
+					mock.Anything,
+					mock.Anything,
+				).Return(nil)
+				return &service.ServerAPI{Shop: shop}
+			},
+			args: args{
+				ctx: context.TODO(),
+				in: &proto.NewShopRequest{
+					Name:        "1name1",
+					Description: "1description1",
+					Url:         "1url1",
 				},
 			},
 			want:    &proto.NewShopResponse{},
@@ -178,7 +226,7 @@ func TestServerAPI_AlterShop(t *testing.T) {
 			wantErr: true,
 		},
 		{
-			name: "shop id is required",
+			name: "shop error",
 			s: func() *service.ServerAPI {
 				shop := &Shop{}
 				shop.Mock.On(

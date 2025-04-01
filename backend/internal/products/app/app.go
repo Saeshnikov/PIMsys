@@ -1,4 +1,4 @@
-package shop_app
+package product_app
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	proto "pim-sys/gen/go/products"
 	auth_interceptor "pim-sys/internal/auth-interceptor"
 	grpcapp "pim-sys/internal/grpc"
-	shop_service "pim-sys/internal/products/service"
+	product_service "pim-sys/internal/products/service"
 	"pim-sys/internal/products/storage"
 
 	"google.golang.org/grpc"
@@ -20,8 +20,46 @@ type App struct {
 	GRPCServer *grpcapp.App
 }
 
+type Storage interface {
+	CreateProduct(
+		ctx context.Context,
+		content *proto.ProductInfo,
+	) (int32, error)
+	AlterAttributes(
+		ctx context.Context,
+		productId int32,
+		attr *proto.Attribute,
+	) error
+	AlterProduct(
+		ctx context.Context,
+		content *proto.ProductInfoWithId,
+	) error
+	DeleteProduct(
+		ctx context.Context,
+		content *proto.DeleteProductRequest,
+	) error
+	ListProducts(
+		ctx context.Context,
+		userId int32,
+	) (
+		[]*proto.ProductInfoWithId,
+		error,
+	)
+	SellProduct(
+		ctx context.Context,
+		content *proto.SellProductRequest,
+	) error
+	GetAccessableBranchIds(
+		ctx context.Context,
+		userId int32,
+	) (
+		[]int32,
+		error,
+	)
+}
+
 type Products struct {
-	productsStorage *storage.Storage
+	ProductsStorage Storage
 }
 
 func (products *Products) NewProduct(
@@ -33,13 +71,13 @@ func (products *Products) NewProduct(
 	if err != nil {
 		return fmt.Errorf("%s: %v", "checking user permissions: ", err)
 	}
-	productId, err := products.productsStorage.CreateProduct(ctx, content)
+	productId, err := products.ProductsStorage.CreateProduct(ctx, content)
 	if err != nil {
 		return fmt.Errorf("%s: %v", "creating product: ", err)
 	}
 
 	for _, attr := range content.Attributes {
-		err = products.productsStorage.AlterAttributes(ctx, productId, attr)
+		err = products.ProductsStorage.AlterAttributes(ctx, productId, attr)
 		if err != nil {
 			errDelete := products.DeleteProduct(ctx, &proto.DeleteProductRequest{ProductId: productId})
 			if errDelete != nil {
@@ -60,7 +98,7 @@ func (products *Products) AlterProduct(
 		return fmt.Errorf("%s: %v", "checking user permissions: ", err)
 	}
 
-	return products.productsStorage.AlterProduct(ctx, content)
+	return products.ProductsStorage.AlterProduct(ctx, content)
 }
 
 func (products *Products) DeleteProduct(
@@ -73,7 +111,7 @@ func (products *Products) DeleteProduct(
 		return fmt.Errorf("%s: %v", "checking user permissions: ", err)
 	}
 
-	return products.productsStorage.DeleteProduct(ctx, content)
+	return products.ProductsStorage.DeleteProduct(ctx, content)
 }
 
 func (products *Products) ListProducts(
@@ -92,7 +130,7 @@ func (products *Products) ListProducts(
 		return nil, fmt.Errorf("%s: %v", "converting uid to int: ", err)
 	}
 
-	return products.productsStorage.ListProducts(ctx, int32(userId))
+	return products.ProductsStorage.ListProducts(ctx, int32(userId))
 }
 
 func (products *Products) SellProduct(
@@ -104,7 +142,7 @@ func (products *Products) SellProduct(
 		return fmt.Errorf("%s: %v", "checking user permissions: ", err)
 	}
 
-	return products.productsStorage.SellProduct(ctx, content)
+	return products.ProductsStorage.SellProduct(ctx, content)
 }
 
 func New(
@@ -120,10 +158,10 @@ func New(
 	}
 
 	registerProduct := func(gRPCServer *grpc.Server) {
-		shop_service.Register(
+		product_service.Register(
 			gRPCServer,
 			&Products{
-				productsStorage: productsStorage,
+				ProductsStorage: productsStorage,
 			},
 		)
 	}
@@ -161,7 +199,7 @@ func (products *Products) userMustHaveAccessToBranch(ctx context.Context, brachI
 		return fmt.Errorf("%s: %v", "converting uid to int: ", err)
 	}
 
-	availableProducts, err := products.productsStorage.GetAccessableBranchIds(ctx, int32(userId))
+	availableProducts, err := products.ProductsStorage.GetAccessableBranchIds(ctx, int32(userId))
 	if err != nil {
 		return fmt.Errorf("%s: %v", "getting user's available shops: ", err)
 	}

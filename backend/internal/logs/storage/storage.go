@@ -10,7 +10,7 @@ import (
 )
 
 type Storage struct {
-	db *sql.DB
+	DB *sql.DB
 }
 
 func New(connectionString string) (*Storage, error) {
@@ -19,11 +19,11 @@ func New(connectionString string) (*Storage, error) {
 		return nil, fmt.Errorf("%s: %w", "opening database connection: ", err)
 	}
 
-	return &Storage{db: db}, nil
+	return &Storage{DB: db}, nil
 }
 
 func (s *Storage) Stop() error {
-	return s.db.Close()
+	return s.DB.Close()
 }
 
 type Sales struct {
@@ -40,7 +40,7 @@ func (s *Storage) GetLogs(
 ) {
 	var res []*proto.Log
 
-	stmt, err := s.db.Prepare("SELECT log_journal.shop_id, log_journal.branch_id, log_journal.product_id, log_journal.info FROM log_journal JOIN users_shop ON log_journal.shop_id=users_shop.shop_id WHERE users_shop.users_id=$1")
+	stmt, err := s.DB.Prepare("SELECT log_journal.shop_id, log_journal.branch_id, log_journal.product_id, log_journal.info FROM log_journal JOIN users_shop ON log_journal.shop_id=users_shop.shop_id WHERE users_shop.users_id=$1")
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", "creating query: ", err)
 	}
@@ -74,7 +74,7 @@ func (s *Storage) GetSales(
 ) {
 	var res []*proto.Graph
 
-	stmt, err := s.db.Prepare(`SELECT sales.date, sales.price, sales.quantity FROM sales
+	stmt, err := s.DB.Prepare(`SELECT sales.date, sales.price, sales.quantity FROM sales
 								JOIN branch ON sales.branch_id=branch.id
 								JOIN users_shop ON users_shop.shop_id=branch.shop_id
 								WHERE sales.date >= $1 and sales.date <= $2 and users_shop.users_id= $3`)
@@ -104,7 +104,7 @@ func (s *Storage) GetMinDate(
 	ctx context.Context,
 	dateFrom int64,
 ) error {
-	stmt, err := s.db.Prepare("SELECT MIN(date) AS earliest_date FROM sales")
+	stmt, err := s.DB.Prepare("SELECT MIN(date) AS earliest_date FROM sales")
 	if err != nil {
 		return fmt.Errorf("%s: %w", "creating query: ", err)
 	}

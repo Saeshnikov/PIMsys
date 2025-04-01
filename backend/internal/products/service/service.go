@@ -1,4 +1,4 @@
-package shop_service
+package product_service
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 
 type ServerAPI struct {
 	proto.UnimplementedProductServer // Хитрая штука, о ней ниже
-	product                          Product
+	Product                          Product
 }
 
 // Тот самый интерфейс, котрый мы передавали в grpcApp
@@ -42,7 +42,7 @@ type Product interface {
 }
 
 func Register(gRPCServer *grpc.Server, product Product) {
-	proto.RegisterProductServer(gRPCServer, &ServerAPI{product: product})
+	proto.RegisterProductServer(gRPCServer, &ServerAPI{Product: product})
 }
 
 func (s *ServerAPI) NewProduct(
@@ -72,7 +72,7 @@ func (s *ServerAPI) NewProduct(
 		return nil, status.Error(codes.InvalidArgument, "amount must be positive or null")
 	}
 
-	err := s.product.NewProduct(ctx, in)
+	err := s.Product.NewProduct(ctx, in)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to create new product: %w", err).Error())
 	}
@@ -96,7 +96,7 @@ func (s *ServerAPI) AlterProduct(
 		return nil, status.Error(codes.InvalidArgument, "amount must be positive or null")
 	}
 
-	err := s.product.AlterProduct(ctx, in)
+	err := s.Product.AlterProduct(ctx, in)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to alter product: %w", err).Error())
 	}
@@ -112,7 +112,7 @@ func (s *ServerAPI) DeleteProduct(
 		return nil, status.Error(codes.InvalidArgument, "product id is required")
 	}
 
-	err := s.product.DeleteProduct(ctx, in)
+	err := s.Product.DeleteProduct(ctx, in)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to delete product: %w", err).Error())
 	}
@@ -124,7 +124,7 @@ func (s *ServerAPI) ListProducts(
 	ctx context.Context,
 	in *proto.Empty,
 ) (*proto.Products, error) {
-	products, err := s.product.ListProducts(ctx)
+	products, err := s.Product.ListProducts(ctx)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to list product: %w", err).Error())
 	}
@@ -144,7 +144,7 @@ func (s *ServerAPI) SellProduct(
 		return nil, status.Error(codes.InvalidArgument, "amount is required")
 	}
 
-	err := s.product.SellProduct(ctx, in)
+	err := s.Product.SellProduct(ctx, in)
 	if err != nil {
 		return nil, status.Error(codes.Internal, fmt.Errorf("failed to sell product: %w", err).Error())
 	}

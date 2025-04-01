@@ -20,8 +20,31 @@ type App struct {
 	GRPCServer *grpcapp.App
 }
 
+type Storage interface {
+	GetLogs(
+		ctx context.Context,
+		userId int32,
+	) (
+		[]*proto.Log,
+		error,
+	)
+	GetSales(
+		ctx context.Context,
+		TimeFrom int64,
+		TimeTo int64,
+		userId int32,
+	) (
+		[]*proto.Graph,
+		error,
+	)
+	GetMinDate(
+		ctx context.Context,
+		dateFrom int64,
+	) error
+}
+
 type Logs struct {
-	logsStorage *storage.Storage
+	LogsStorage Storage
 }
 
 func (logs *Logs) GetLogs(
@@ -39,7 +62,7 @@ func (logs *Logs) GetLogs(
 		return nil, fmt.Errorf("%s: %v", "converting uid to int: ", err)
 	}
 
-	logsInfo, err := logs.logsStorage.GetLogs(ctx, int32(userId))
+	logsInfo, err := logs.LogsStorage.GetLogs(ctx, int32(userId))
 	if err != nil {
 		return nil, fmt.Errorf("%s: %v", "failed getting logs: ", err)
 	}
@@ -65,7 +88,7 @@ func (logs *Logs) GetGraph(
 		return nil, fmt.Errorf("%s: %v", "converting uid to int: ", err)
 	}
 
-	err = logs.logsStorage.GetMinDate(ctx, dateFrom)
+	err = logs.LogsStorage.GetMinDate(ctx, dateFrom)
 	if err != nil {
 		return nil, fmt.Errorf("%v", err)
 	}
@@ -81,7 +104,7 @@ func (logs *Logs) GetGraph(
 			return nil, fmt.Errorf("failed to get interval: invalid interval")
 		}
 
-		sales, err := logs.logsStorage.GetSales(ctx, dateFrom, oneIntervalLater.Unix(), int32(userId))
+		sales, err := logs.LogsStorage.GetSales(ctx, dateFrom, oneIntervalLater.Unix(), int32(userId))
 		if err != nil {
 			return nil, fmt.Errorf("%s: %v", "failed to get sales: ", err)
 		}
@@ -114,7 +137,7 @@ func New(
 		shop_service.Register(
 			gRPCServer,
 			&Logs{
-				logsStorage: logsStorage,
+				LogsStorage: logsStorage,
 			},
 		)
 	}

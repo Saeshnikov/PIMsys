@@ -38,6 +38,7 @@ func TestRegisterLogin_Login_HappyPath(t *testing.T) {
 
 	require.Equal(t, 160, int(newSales.Graphs[0].TotalSales))
 }
+
 func TestGraphInvalidDate(t *testing.T) {
 	token := assistance.GetTestToken(t)
 	ctx, st := suite.New(t, configPath)

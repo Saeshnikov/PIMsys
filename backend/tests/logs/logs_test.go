@@ -63,4 +63,5 @@ func TestGraphInvalidDate(t *testing.T) {
 	})
 
 	require.Error(t, err, "DateFrom can't be less than minimal date of sales")
+	require.Equal(t, 4, len(udpdateLog.GetLogs()))
 }

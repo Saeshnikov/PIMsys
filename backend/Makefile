@@ -39,7 +39,7 @@ gomod:
 test-%:
 	rm -rf cover
 	docker-compose down --remove-orphans --volumes
-	docker-compose --profile $* up --force-recreate --abort-on-container-exit --exit-code-from test
+	docker-compose --profile $* up --force-recreate --abort-on-container-exit --exit-code-from test-$*
 	docker-compose down --remove-orphans --volumes
 	
 .PHONY: cover

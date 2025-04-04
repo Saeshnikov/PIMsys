@@ -60,3 +60,42 @@ func TestRegisterLogin_Login_HappyPath(t *testing.T) {
 	require.NotNil(t, respDeleteShop)
 
 }
+
+func TestAlterBranchWithIncorrectBranchId(t *testing.T) {
+	token := assistance.GetTestToken(t)
+	ctx, st := suite.New(t, configPath)
+	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", token)
+
+	_, err := st.BranchClient.AlterBranch(ctx, &proto.AlterBranchRequest{
+		BranchId: 100,
+		BranchInfo: &proto.BranchInfo{
+			Name:        "new-name",
+			Description: "new-description",
+			Address:     "new-address",
+			Site:        "new-site",
+		},
+	})
+	require.Error(t, err)
+}
+
+func TestListBranchesWithIncorrectShopId(t *testing.T) {
+	token := assistance.GetTestToken(t)
+	ctx, st := suite.New(t, configPath)
+	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", token)
+
+	list, _ := st.BranchClient.ListBranches(ctx, &proto.ListBranchesRequest{
+		ShopId: 100,
+	})
+	require.Nil(t, list.Info)
+}
+
+func TestDeleteBranchWithIncorrectBranchId(t *testing.T) {
+	token := assistance.GetTestToken(t)
+	ctx, st := suite.New(t, configPath)
+	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", token)
+
+	_, err := st.BranchClient.DeleteBranch(ctx, &proto.DeleteBranchRequest{
+		BranchId: 100,
+	})
+	require.Error(t, err)
+}

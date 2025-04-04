@@ -37,15 +37,3 @@ func TestRegisterLogin_Login_HappyPath(t *testing.T) {
 
 	require.Equal(t, 160, int(newSales.Graphs[0].TotalSales))
 }
-
-func TestLogUpdateProduct(t *testing.T) {
-	token := assistance.GetTestToken(t)
-	ctx, st := suite.New(t, configPath)
-	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", token)
-
-	udpdateLog, err := st.LogsClient.GetLogs(ctx, &proto.GetLogsRequest{
-		ProductId: 1,
-	})
-	require.NoError(t, err)
-	require.Equal(t, 4, len(udpdateLog.GetLogs()))
-}

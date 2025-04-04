@@ -161,8 +161,8 @@ services:
       - logs
       - all
 
-  test:
-    container_name: test
+  test-all:
+    container_name: test-all
     image: main-image
     build:
       context:    ./docker

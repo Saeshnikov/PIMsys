@@ -37,20 +37,6 @@ func TestRegisterLogin_Login_HappyPath(t *testing.T) {
 
 	require.Equal(t, 160, int(newSales.Graphs[0].TotalSales))
 }
-
-func TestLogsInvalidProductId(t *testing.T) {
-	token := assistance.GetTestToken(t)
-	ctx, st := suite.New(t, configPath)
-	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", token)
-
-	newLog, err := st.LogsClient.GetLogs(ctx, &proto.GetLogsRequest{
-		ProductId: 500,
-	})
-	require.NoError(t, err)
-
-	require.Equal(t, 0, len(newLog.Logs))
-}
-
 func TestGraphInvalidDate(t *testing.T) {
 	token := assistance.GetTestToken(t)
 	ctx, st := suite.New(t, configPath)

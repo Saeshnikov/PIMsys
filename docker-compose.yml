@@ -1,3 +1,5 @@
+version: "3.8"
+
 networks:
   common-net: {}
 
@@ -31,6 +33,10 @@ services:
      - 10000:10000
     networks:
     - common-net
+    healthcheck:
+      test: ["CMD", "grpcurl", "-plaintext","localhost:10000", "describe"]
+      interval: 30s
+      retries: 10
 
   shop: 
     image: main-image
@@ -48,7 +54,7 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10001", "describe"]
-      interval: 5s
+      interval: 30s
       retries: 10
 
   branch: 
@@ -67,7 +73,7 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10003", "describe"]
-      interval: 5s
+      interval: 30s
       retries: 10
   
   products: 
@@ -75,9 +81,7 @@ services:
     build:
       context:    ./backend/docker
       dockerfile: main-image
-    entrypoint: bash -c "mkdir -p cover &&
-      go build -cover -o /app cmd/products/main.go &&
-      GOCOVERDIR=cover /app"
+    entrypoint: go run cmd/products/main.go
     volumes:
       - "$PWD:$PWD:rw"
     working_dir: $PWD/backend
@@ -88,7 +92,7 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10002", "describe"]
-      interval: 5s
+      interval: 30s
       retries: 10
 
   template: 
@@ -96,9 +100,7 @@ services:
     build:
       context:    ./backend/docker
       dockerfile: main-image
-    entrypoint: bash -c "mkdir -p cover &&
-      go build -cover -o /app cmd/template/main.go &&
-      GOCOVERDIR=cover /app"
+    entrypoint: go run cmd/template/main.go
     volumes:
       - "$PWD:$PWD:rw"
     working_dir: $PWD/backend
@@ -109,7 +111,7 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10004", "describe"]
-      interval: 5s
+      interval: 30s
       retries: 10
 
   logs: 
@@ -117,9 +119,7 @@ services:
     build:
       context:    ./backend/docker
       dockerfile: main-image
-    entrypoint: bash -c "mkdir -p cover &&
-      go build -cover -o /app cmd/logs/main.go &&
-      GOCOVERDIR=cover /app"
+    entrypoint: go run cmd/logs/main.go
     volumes:
       - "$PWD:$PWD:rw"
     working_dir: $PWD/backend
@@ -130,7 +130,7 @@ services:
       - common-net
     healthcheck:
       test: ["CMD", "grpcurl", "-plaintext","localhost:10005", "describe"]
-      interval: 5s
+      interval: 30s
       retries: 10
 
   migrations: 
@@ -147,8 +147,17 @@ services:
     depends_on:
       shop : 
         condition: service_healthy
+      branch : 
+        condition: service_healthy
+      auth : 
+        condition: service_healthy
+      logs : 
+        condition: service_healthy
+      products : 
+        condition: service_healthy
     networks:
     - common-net
+    
 
   sso-envoy:
     container_name: "sso-envoy"
@@ -159,6 +168,7 @@ services:
       - common-net
     ports:
       - "8000:8000"
+    
 
   shop-envoy:
     container_name: "shop-envoy"
@@ -169,6 +179,7 @@ services:
       - common-net
     ports:
       - "8001:8001"
+    
 
   branch-envoy:
     container_name: "branch-envoy"
@@ -179,6 +190,7 @@ services:
       - common-net
     ports:
       - "8003:8003"
+    
 
   products-envoy:
     container_name: "products-envoy"
@@ -189,6 +201,7 @@ services:
       - common-net
     ports:
       - "8002:8002"
+    
 
   template-envoy:
     container_name: "template-envoy"
@@ -199,6 +212,7 @@ services:
       - common-net
     ports:
       - "8004:8004"
+    
 
   logs-envoy:
     container_name: "logs-envoy"
@@ -209,6 +223,7 @@ services:
       - common-net
     ports:
       - "8005:8005"
+    
 
   ui:
     container_name: ui
@@ -219,4 +234,33 @@ services:
       - common-net
     ports:
       - "3000:80"
-  
+    healthcheck:
+      test: ["CMD", "curl", "localhost:80"]
+      interval: 30s
+      retries: 10
+
+  tests:
+    container_name: pim-sys-tests
+    image: pim-sys-tests:latest
+    networks:
+      - common-net
+    profiles:
+      - test
+    depends_on:
+      shop : 
+        condition: service_healthy
+      branch : 
+        condition: service_healthy
+      auth : 
+        condition: service_healthy
+      logs : 
+        condition: service_healthy
+      products : 
+        condition: service_healthy
+      template : 
+        condition: service_healthy
+      ui : 
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+      

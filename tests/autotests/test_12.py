@@ -48,7 +48,7 @@ def test_successful_company_creation():
         )
         login_button.click()
 
-        wait.until(EC.url_to_be("http://localhost:3000/shop"))
+        wait.until(EC.url_to_be("http://ui:80/shop"))
 
         random_company_name = generate_random_company_name()
 

@@ -40,14 +40,14 @@ def test_successful_logs_viewing():
         login_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Войти')]")))
         login_button.click()
 
-        wait.until(EC.url_to_be("http://localhost:3000/shop"))
+        wait.until(EC.url_to_be("http://ui:80/shop"))
 
         logs_button = wait.until(
             EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Логи')]"))
         )
         logs_button.click()
 
-        WebDriverWait(driver, 5).until(EC.url_to_be("http://localhost:3000/logs"))
+        WebDriverWait(driver, 5).until(EC.url_to_be("http://ui:80/logs"))
         print("Тест пройден")
 
     except Exception as e:

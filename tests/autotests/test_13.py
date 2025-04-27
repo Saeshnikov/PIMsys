@@ -39,7 +39,7 @@ def test_console_error_on_invalid_company():
         login_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[contains(., 'Войти')]")))
         login_button.click()
 
-        wait.until(EC.url_to_be("http://localhost:3000/shop"))
+        wait.until(EC.url_to_be("http://ui:80/shop"))
 
         driver.get_log('browser')
         driver.execute_script("console.clear()")

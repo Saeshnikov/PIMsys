@@ -41,7 +41,7 @@ def test_successful_branch_creation2():
         )
         login_button.click()
 
-        wait.until(EC.url_to_be("http://localhost:3000/shop"))
+        wait.until(EC.url_to_be("http://ui:80/shop"))
 
         branches_button = wait.until(
             EC.element_to_be_clickable((By.XPATH, "//div[@role='button' and .//span[text()='Филиалы']]"))

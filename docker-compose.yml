@@ -244,6 +244,10 @@ services:
     image: pim-sys-tests:latest
     networks:
       - common-net
+    entrypoint: python autotests.py
+    volumes:
+      - "$PWD:$PWD:rw"
+    working_dir: $PWD/tests
     profiles:
       - test
     depends_on:

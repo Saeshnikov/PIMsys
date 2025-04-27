@@ -18,7 +18,7 @@ def test_successful_product_addition3():
     driver = webdriver.Chrome(service=service, options=options)
 
     try:
-        ddriver.get(" http://ui:80/")
+        ddriver.get("http://ui:80/")
         wait = WebDriverWait(driver, 100)
 
         already_account_btn = wait.until(

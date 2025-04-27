@@ -24,7 +24,7 @@ def test_successful_registration():
     driver = webdriver.Chrome(service=service, options=options)
 
     try:
-        driver.get(" http://ui:80/")
+        driver.get("http://ui:80/")
         wait = WebDriverWait(driver, 100)
 
         wait.until(EC.visibility_of_element_located(
@@ -53,7 +53,7 @@ def test_successful_registration():
         )
         register_button.click()
 
-        WebDriverWait(driver, 5).until(EC.url_to_be("http://localhost:3000/shop"))
+        WebDriverWait(driver, 5).until(EC.url_to_be("http://ui:80/shop"))
 
         print(f"Тест пройден")
 

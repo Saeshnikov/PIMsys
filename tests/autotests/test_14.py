@@ -18,7 +18,7 @@ def test_successful_branch_creation1():
     driver = webdriver.Chrome(service=service, options=options)
 
     try:
-        driver.get(" http://ui:80/")
+        driver.get("http://ui:80/")
         wait = WebDriverWait(driver, 100)
 
         already_account_btn = wait.until(

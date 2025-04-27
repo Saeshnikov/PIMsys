@@ -24,7 +24,7 @@ def test_registration_with_password_containing_digits():
     driver = webdriver.Chrome(service=service, options=options)
 
     try:
-        driver.get(" http://ui:80/")
+        driver.get("http://ui:80/")
         wait = WebDriverWait(driver, 100)
 
         wait.until(EC.visibility_of_element_located(

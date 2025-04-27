@@ -19,7 +19,7 @@ def test_successful_graphs_viewing():
     driver = webdriver.Chrome(service=service, options=options)
 
     try:
-        driver.get(" http://ui:80/")
+        driver.get("http://ui:80/")
         wait = WebDriverWait(driver, 100)
 
         already_account_btn = wait.until(

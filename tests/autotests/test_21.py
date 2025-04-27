@@ -20,8 +20,8 @@ def test_successful_product_deleted():
     driver = webdriver.Chrome(service=service, options=options)
 
     try:
-        driver.get("http://localhost:3000/")
-        wait = WebDriverWait(driver, 20)
+        driver.get(" http://ui:80/")
+        wait = WebDriverWait(driver, 100)
 
         already_account_btn = wait.until(
             EC.element_to_be_clickable((By.XPATH, "//button[contains(., 'Уже есть аккаунт')]"))

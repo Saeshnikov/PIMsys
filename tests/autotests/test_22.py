@@ -19,8 +19,8 @@ def test_successful_logs_viewing():
     driver = webdriver.Chrome(service=service, options=options)
 
     try:
-        driver.get("http://localhost:3000/")
-        wait = WebDriverWait(driver, 10)
+        driver.get(" http://ui:80/")
+        wait = WebDriverWait(driver, 100)
 
         already_account_btn = wait.until(
             EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Уже есть аккаунт')]"))

@@ -5,5 +5,5 @@ if __name__ == "__main__":
         "-v",
         "--html=report.html",
         "--capture=no",
-        "tests/autotests/"
+        "autotests/"
     ])

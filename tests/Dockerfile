@@ -32,9 +32,3 @@ ENV CHROME_BIN=/usr/bin/google-chrome-stable \
 # Копируем зависимости и устанавливаем их
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Копируем тестовый скрипт
-COPY autotests.py .
-
-# Команда запуска
-CMD ["python", "autotests.py"]

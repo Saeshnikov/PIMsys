@@ -244,7 +244,7 @@ services:
     image: pim-sys-tests:latest
     networks:
       - common-net
-    entrypoint: python autotests.py
+    entrypoint: bash -c "pip install --no-cache-dir -r requirements.txt && python autotests/test_1.py"
     volumes:
       - "$PWD:$PWD:rw"
     working_dir: $PWD/tests

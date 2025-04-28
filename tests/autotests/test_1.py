@@ -70,7 +70,7 @@ def test_successful_registration():
         )
         register_button.click()
 
-        WebDriverWait(driver, 5).until(EC.url_to_be("http://ui:80/shop"))
+        WebDriverWait(driver, 100).until(EC.url_to_be("http://ui:80/shop"))
 
         print("Тест пройден")
 

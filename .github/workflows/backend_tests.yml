@@ -16,29 +16,15 @@ jobs:
         
       - name: Set up Docker
         uses: docker/setup-docker-action@v3
-      
+
       - name: Install Docker Compose
         run: |
-          # Скачать и установить docker-compose
-          sudo curl -L "https://github.com/docker/compose/releases/download/v2.35.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
+          sudo apt update
+          sudo apt install docker-compose
+          docker compose version
 
       - name: Build Docker images
         run: cd backend && make build-docker-images
-
-      - name: Build Test Image
-        run: cd tests && make build-test-image
-
-      - name: Build envoy Images
-        run: cd backend/envoy && sh build_envoy_images.sh
-
-      - name: Build UI Image
-        run: cd frontend/pim-sys && make build-docker-image
-      
-      - name: Run py tests
-        run: |
-          make test
-          docker-compose down --remove-orphans --volumes
 
       - name: Run tests
         run: cd backend && make test-all

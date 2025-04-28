@@ -75,12 +75,12 @@ def test_successful_registration():
         print("Тест пройден")
 
     except Exception as e:
-    print("Тест не пройден")
-    print(f"Текущий URL: {driver.current_url}")
-    print("Содержимое страницы:", driver.page_source[:1000])  # Вывод части HTML
-    driver.save_screenshot("error.png")  # Скриншот для визуальной проверки
-    print(f"Ошибка: {repr(e)}")
-    raise
+        print("Тест не пройден")
+        print(f"Текущий URL: {driver.current_url}")
+        print("Содержимое страницы:", driver.page_source[:1000])  # Вывод части HTML
+        driver.save_screenshot("error.png")  # Скриншот для визуальной проверки
+        print(f"Ошибка: {repr(e)}")
+        raise
 
     finally:
         driver.quit()

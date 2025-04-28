@@ -7,6 +7,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
+print("1")
+
 def generate_random_email():
     letters_digits = string.ascii_lowercase + string.digits
     random_part = ''.join(random.choices(letters_digits, k=7))
@@ -23,30 +25,45 @@ def test_successful_registration():
     service = Service(ChromeDriverManager().install())
     driver = webdriver.Chrome(service=service, options=options)
 
+    print("2")
+
     try:
+        print("3")
         driver.get("http://ui:80/")
         wait = WebDriverWait(driver, 100)
+
+        print("4")
 
         wait.until(EC.visibility_of_element_located(
             (By.XPATH, "//*[contains(text(), 'Начните управлять своими товарами')]")
         ))
 
+        print("5")
+
         fio_field = wait.until(EC.visibility_of_element_located((By.NAME, "name")))
         fio_field.click()
         fio_field.send_keys("name")
 
+        print("6")
+
         phone_field = wait.until(EC.visibility_of_element_located((By.NAME, "phone")))
         phone_field.click()
         phone_field.send_keys("79001112223")
+
+        print("7")
 
         email_field = wait.until(EC.visibility_of_element_located((By.NAME, "email")))
         email_field.click()
         unique_email = generate_random_email()
         email_field.send_keys(unique_email)
 
+        print("8")
+
         password_field = wait.until(EC.visibility_of_element_located((By.NAME, "password")))
         password_field.click()
         password_field.send_keys("password")
+
+        print("9")
 
         register_button = wait.until(
             EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Зарегистрироваться')]"))
@@ -55,10 +72,12 @@ def test_successful_registration():
 
         WebDriverWait(driver, 5).until(EC.url_to_be("http://ui:80/shop"))
 
-        print(f"Тест пройден")
+        print("Тест пройден")
 
     except Exception as e:
         print("Тест не пройден")
+        print(f"Текущий URL: {driver.current_url}")
+        print(f"Ошибка: {e}")
         raise
 
     finally:

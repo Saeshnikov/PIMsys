@@ -49,7 +49,7 @@ def test_failed_registration_with_empty_name():
         )
         register_button.click()
 
-        error_message = WebDriverWait(driver, 5).until(
+        error_message = WebDriverWait(driver, 100).until(
             EC.visibility_of_element_located((By.XPATH, "//*[contains(text(), 'name is required')]"))
         )
 

@@ -16,7 +16,7 @@ import (
 
 const configPath = "suite/config.yaml"
 
-func TestRegisterLogin_Login_HappyPath(t *testing.T) {
+func Tes_Branch_HappyPath(t *testing.T) {
 	token := assistance.GetTestToken(t)
 	ctx, st := suite.New(t, configPath)
 	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", token)

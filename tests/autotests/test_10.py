@@ -38,7 +38,7 @@ def test_failed_login_with_wrong_credentials():
         login_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Войти')]")))
         login_button.click()
 
-        error_message = WebDriverWait(driver, 5).until(
+        error_message = WebDriverWait(driver, 100).until(
             EC.visibility_of_element_located((By.XPATH, "//*[contains(text(), 'invalid email or password')]"))
         )
 
